@@ -5,9 +5,4 @@ runConfig:
   minInstances: 0
   maxInstances: 2
 
-env:
-  - variable: NEXT_PUBLIC_BASE_PATH
-    value: /ccs
-    availability:
-      - BUILD
-      - RUNTIME
+env: []
