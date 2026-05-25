@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 2 Validation Guide</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: #f9fafb;
+        }
+        h1 { color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        h2 { color: #374151; margin-top: 2rem; }
+        ol { background: white; padding: 1.5rem 1.5rem 1.5rem 2.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        li { margin-bottom: 0.5rem; }
+        .screenshot-placeholder {
+            background: #e5e7eb;
+            border: 2px dashed #9ca3af;
+            color: #6b7280;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 1rem 0 2rem 0;
+        }
+        code { background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: #ef4444; }
+    </style>
+</head>
+<body>
+
+    <h1>Phase 2 Validation: Authentication & CSV Import</h1>
+    <p>This document serves as the validation guide for Phase 2 of the MTG Collection Tracker. It outlines how to test and validate that Google Authentication and Database-persisted CSV Imports are fully functional.</p>
+
+    <h2>Step 1: Validating the Login Screen</h2>
+    <ol>
+        <li>Navigate to <code>http://localhost:3001</code> in your browser.</li>
+        <li>If you are not logged in, the Next.js Middleware will automatically intercept the request and redirect you to <code>http://localhost:3001/login</code>.</li>
+        <li>You should see the custom MTG Tracker Login Screen with the "Continue with Google" button.</li>
+    </ol>
+    <div class="screenshot-placeholder">
+        [INSERT SCREENSHOT HERE: The Login Page]
+    </div>
+
+    <h2>Step 2: Validating Google OAuth</h2>
+    <ol>
+        <li>Click the <strong>Continue with Google</strong> button.</li>
+        <li>You will be redirected to the secure Google Sign-in page.</li>
+        <li>Select the Google Account that you added to your "Test users" list in the Google Cloud Console.</li>
+        <li>Google will automatically redirect you back to <code>http://localhost:3001/auth/callback</code>, which will securely exchange the authentication code for a Supabase Session.</li>
+    </ol>
+    <div class="screenshot-placeholder">
+        [INSERT SCREENSHOT HERE: Google Account Selection]
+    </div>
+
+    <h2>Step 3: Validating the Dashboard & Protected Route</h2>
+    <ol>
+        <li>After the callback finishes, you will be redirected to the root dashboard (<code>http://localhost:3001</code>).</li>
+        <li>Because you now have a valid session, the Middleware will allow you through.</li>
+    </ol>
+    <div class="screenshot-placeholder">
+        [INSERT SCREENSHOT HERE: Empty Dashboard]
+    </div>
+
+    <h2>Step 4: Validating CSV Import & Database Persistence</h2>
+    <ol>
+        <li>Click the <strong>Import CSV</strong> button on the dashboard.</li>
+        <li>Select your test CSV file. You will see a preview of the parsed data.</li>
+        <li>Click the <strong>Import X Cards</strong> button. The button will change to a spinner saying "Importing...".</li>
+        <li>The application will map each card to your <code>user_id</code> and insert them into the <code>collection_items</code> table in Supabase.</li>
+        <li>Upon success, an alert will pop up saying "Successfully imported!".</li>
+    </ol>
+    <div class="screenshot-placeholder">
+        [INSERT SCREENSHOT HERE: The CSV Preview Modal]
+    </div>
+
+    <h2>Step 5: Validating Real-time Data Fetching</h2>
+    <ol>
+        <li>Refresh the dashboard (<code>http://localhost:3001</code>).</li>
+        <li>The page is a Server Component and will securely fetch your cards from the database using your user session.</li>
+        <li>You should now see the Total Value, Cards Owned, and Recent Additions populated automatically!</li>
+    </ol>
+    <div class="screenshot-placeholder">
+        [INSERT SCREENSHOT HERE: The Populated Dashboard]
+    </div>
+
+</body>
+</html>

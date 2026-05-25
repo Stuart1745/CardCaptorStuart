@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTG Collection Tracker Requirements</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
+        h1 { color: #1a56db; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        h2 { color: #2563eb; margin-top: 2rem; }
+        h3 { color: #3b82f6; }
+        ul { padding-left: 1.5rem; }
+        li { margin-bottom: 0.5rem; }
+        code { background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; }
+        .note { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; margin: 1rem 0; }
+    </style>
+</head>
+<body>
+    <h1>Product Requirements Document: Personal MTG Collection Tracker</h1>
+
+    <h2>1. Overview &amp; Objective</h2>
+    <p>A web-based personal MTG Collection Tracking application designed to manage individual cards, sealed products, and custom formats like Cubes. The tool will serve as a centralized hub that integrates deeply with external deck-building sites (like Moxfield and ManaBox), tracks real-time financial value, automates data entry via Gmail receipt parsing, and features a collaborative, view-only "Play Night" interface for friends to select game formats.</p>
+    
+    <div class="note">
+        <strong>Development Note:</strong> The application will be built and autonomously tested using AI-driven development. A final validation packet with visual proof of functionality must be generated upon completion.
+    </div>
+
+    <h2>2. Core Features &amp; Functionality</h2>
+
+    <h3>A. Individual Card Management</h3>
+    <ul>
+        <li><strong>Database &amp; Display:</strong> A searchable, filterable grid/list view of all individual cards owned.</li>
+        <li><strong>Card Metadata:</strong> Track fields such as Card Name, Set, Condition (NM, LP, MP, HP), Foil/Non-Foil, Language, and Quantity.</li>
+        <li><strong>Scryfall API Integration:</strong> Automatically fetch card images, Oracle text, mana cost, and up-to-date market prices using the Scryfall API.</li>
+    </ul>
+
+    <h3>B. Import, Export, &amp; External Sync</h3>
+    <ul>
+        <li><strong>Universal CSV Migration:</strong> A feature to bulk import/export collections via CSV. Must support mapping the existing CSV format (Quantity, Set Code, Foil, Purchase Price, Date Added) as well as native CSV export formats from ManaBox and Moxfield.</li>
+        <li><strong>Automated API Collection Push:</strong> Integration with the Moxfield API (and ManaBox if available) via user authentication. The app should "Push" the current database of owned cards directly to the user's Moxfield account's "Collection" tab.</li>
+        <li><strong>Scheduled Syncs:</strong> Option to manually push an update to Moxfield or set it to automatically sync whenever new cards are added to the collection.</li>
+    </ul>
+
+    <h3>C. Finance &amp; Price Tracking</h3>
+    <ul>
+        <li><strong>Purchase Price Logging:</strong> A dedicated field to log exactly what was paid for a card or sealed product.</li>
+        <li><strong>Current Market Value:</strong> Integration with MTGJSON or Scryfall's Pricing API to display the current market value (e.g., TCGPlayer Market).</li>
+        <li><strong>Profit/Loss &amp; Expected Trends:</strong> A dynamic calculation showing the percentage or dollar amount gained/lost since purchase (Current Price - Purchase Price).</li>
+        <li><strong>Portfolio Dashboard:</strong> A high-level chart or summary card showing the total cost basis of the collection versus the total current market value.</li>
+    </ul>
+
+    <h3>D. Purchase Automation via Gmail</h3>
+    <ul>
+        <li><strong>Gmail API Integration:</strong> Secure OAuth2 "Log in with Google" integration to grant the app read-only access to monitor the inbox.</li>
+        <li><strong>Targeted Search:</strong> Query for emails from known vendor addresses (e.g., TCGPlayer, Card Kingdom) with subjects containing "Order Confirmation" or "Receipt".</li>
+        <li><strong>Receipt Scraping:</strong> Extract: Card Name, Set, Condition, Quantity, and Purchase Price.</li>
+        <li><strong>Pending Approval Queue:</strong> Parsed emails generate a "Draft" entry in a dedicated Inbox queue. The user can review the scraped data, correct any errors, and click "Approve" to import them into the main database.</li>
+    </ul>
+
+    <h3>E. Deck Management &amp; Integration</h3>
+    <ul>
+        <li><strong>Deck Hub:</strong> A dedicated section listing all constructed decks across formats.</li>
+        <li><strong>External Links:</strong> A field to attach external URLs (specifically Moxfield) to each deck profile.</li>
+        <li><strong>Commander QR Code Generator:</strong> A built-in feature that automatically converts the Moxfield URL of a Commander deck into a downloadable/printable QR Code.</li>
+    </ul>
+
+    <h3>F. Sealed &amp; Cube Management</h3>
+    <ul>
+        <li><strong>Sealed Inventory:</strong> A tab dedicated to sealed products (Booster Boxes, Pre-release Kits, Bundles, etc.).</li>
+        <li><strong>Sealed Metadata:</strong> Track the primary Set Code, as well as any associated bonus sheet Set Codes (e.g., spg for Special Guests, brr for Retro Artifacts).</li>
+        <li><strong>Drafting Notes:</strong> A text field for each sealed product to denote its intended purpose (e.g., "Chaos Draft").</li>
+        <li><strong>Cube Builder/Viewer:</strong> A dedicated workspace for custom draft environments.</li>
+        <li><strong>Cube Tagging:</strong> The ability to tag individual cards from the main collection as "In Cube" so they are known to be tied up.</li>
+    </ul>
+
+    <h3>G. "Play Night" Dashboard &amp; Draft Companion</h3>
+    <ul>
+        <li><strong>The Play Night Menu:</strong> A dedicated tab designed specifically for a playgroup to browse ready-to-play MTG experiences.</li>
+        <li><strong>Aggregated Content:</strong> This view pulls data from other tabs to create a curated list containing Active Commander Decks, Standard/Custom Cubes, and Jumpstart Cubes.</li>
+        <li><strong>Draftable Playboxes (Draft Companion):</strong> Sealed booster boxes flagged as "Ready to Draft." When viewing a Playbox, the UI must automatically generate draft guides using the following methods:
+            <ul>
+                <li><strong>Automated Archetype Generation (LLM Integration):</strong> The application will utilize an LLM API (e.g., Gemini API) to dynamically fetch and store the 10 draft archetypes for the set by prompting the AI with the Set Code/Name and requesting a JSON response of the color pairs and their themes.</li>
+                <li><strong>Signpost Uncommon Display:</strong> The app will query the Scryfall API (<code>set:[code] rarity:uncommon colors=2</code>) to fetch and display the 10 signpost uncommons so players can visually read the draft build-arounds.</li>
+                <li><strong>Scryfall Card Pool Link:</strong> An auto-generated Scryfall query link (e.g., <code>set:dsk OR set:spg</code>) so players can easily view the entire potential card pool, including bonus sheets and Special Guests.</li>
+            </ul>
+        </li>
+        <li><strong>Voting / Claiming:</strong> A lightweight feature allowing friends visiting the link to "upvote" what they want to play this week or claim a specific deck for the night.</li>
+    </ul>
+
+    <h3>H. Social Sharing &amp; Permissions</h3>
+    <ul>
+        <li><strong>Role-Based Access Control:</strong>
+            <ul>
+                <li><strong>Admin (User):</strong> Full ability to add, edit, delete, view financial gains, trigger API syncs, and approve Gmail imports.</li>
+                <li><strong>View-Only (Friends):</strong> A clean, read-only interface with a toggle to hide financial/price history.</li>
+            </ul>
+        </li>
+        <li><strong>Shareable Links:</strong> Generate a secure, unique URL to send to friends so they can access the "Play Night" dashboard and the collection binder.</li>
+    </ul>
+
+    <h2>3. Technical Requirements (Tech Stack)</h2>
+    <ul>
+        <li><strong>Frontend:</strong> Next.js paired with Tailwind CSS.</li>
+        <li><strong>Backend/Database:</strong> Supabase.</li>
+        <li><strong>Pricing/Data APIs:</strong> Scryfall API and MTGJSON API.</li>
+        <li><strong>Email Parsing:</strong> Google Cloud Console / Gmail API.</li>
+        <li><strong>External Syncing:</strong> Moxfield API endpoints.</li>
+        <li><strong>QR Code Generation:</strong> qrcode.react library.</li>
+    </ul>
+
+    <h2>4. Automated Testing &amp; Validation Packet</h2>
+    <ul>
+        <li><strong>Visual Validations (Screenshots):</strong> The AI must take UI screenshots of core workflows, specifically capturing:
+            <ul>
+                <li>The UI of the CSV upload and the resulting Card Grid.</li>
+                <li>The Financial Dashboard showing Mock Profit/Loss data.</li>
+                <li>The Gmail "Pending Approval" queue with a mock parsed receipt.</li>
+                <li>A generated Commander QR Code.</li>
+                <li>A successful API sync log/toast notification showing cards pushed to Moxfield.</li>
+                <li>The "Play Night" dashboard interface acting as a menu for friends.</li>
+                <li>A detailed view of a "Draftable Playbox" showing the included Draft Archetypes (via AI generation) and the generated Scryfall Card Pool link / Signpost Uncommons.</li>
+            </ul>
+        </li>
+        <li><strong>Validation Test Packet:</strong> Upon project completion, compile a markdown document titled <code>Validation_Test_Packet</code> mapping every requirement to a screenshot proving that the feature works.</li>
+    </ul>
+</body>
+</html>
