@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import InboxClient from "./InboxClient";
 
 export default async function InboxPage() {
@@ -29,8 +30,8 @@ export default async function InboxPage() {
                 <h1 className="text-xl font-semibold tracking-tight text-white">Cardcaptor Stuart</h1>
             </div>
             <div className="flex gap-4">
-                <a href="/" className="text-sm font-medium text-neutral-400 hover:text-white transition-colors">Dashboard</a>
-                <a href="/inbox" className="text-sm font-medium text-white transition-colors">Receipt Inbox</a>
+                <Link href="/" className="text-sm font-medium text-neutral-400 hover:text-white transition-colors">Dashboard</Link>
+                <Link href="/inbox" className="text-sm font-medium text-white transition-colors">Receipt Inbox</Link>
             </div>
         </div>
       </nav>

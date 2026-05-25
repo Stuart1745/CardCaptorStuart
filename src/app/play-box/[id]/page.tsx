@@ -943,7 +943,7 @@ export default function PlayboxDetailsPage() {
                         </div>
                       </div>
                       <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed italic">
-                        "{mech.desc}"
+                        &ldquo;{mech.desc}&rdquo;
                       </p>
                       
                       {/* Tooltip */}
