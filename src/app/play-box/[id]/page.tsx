@@ -245,7 +245,7 @@ export default function PlayboxDetailsPage() {
 
     const savedMock = localStorage.getItem("mockPlayboxes");
     const saved = localStorage.getItem("playBoxes") || savedMock;
-    let foundBox = { name: "Loading...", setCode: "NEO", remaining: 0, total: 0 };
+    let foundBox: { name: string; setCode: string; remaining: number; total: number; imageUrl?: string } = { name: "Loading...", setCode: "NEO", remaining: 0, total: 0 };
     if (saved) {
       try {
         const parsed = JSON.parse(saved);

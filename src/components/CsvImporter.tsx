@@ -117,7 +117,7 @@ export default function CsvImporter() {
               // Get image
               let image = apiCard.image_uris?.small;
               // Handle dual-faced cards where images are in card_faces
-              if (!image && apiCard.card_faces?.length > 0) {
+              if (!image && apiCard.card_faces && apiCard.card_faces.length > 0) {
                 image = apiCard.card_faces[0].image_uris?.small;
               }
 
