@@ -29,15 +29,15 @@ export default function CsvImporter() {
   const { user } = useAuth();
 
   const handleSaveToFirestore = async () => {
-    if (!user || data.length === 0) return;
+    if (!user || !db || data.length === 0) return;
     setIsSaving(true);
     setError(null);
     setSaveSuccess(false);
 
     try {
       // Create a batch
-      const batch = writeBatch(db);
-      const userColRef = collection(db, 'users', user.uid, 'cards');
+      const batch = writeBatch(db!);
+      const userColRef = collection(db!, 'users', user.uid, 'cards');
 
       data.forEach((card) => {
         // Use a new document ref for each card

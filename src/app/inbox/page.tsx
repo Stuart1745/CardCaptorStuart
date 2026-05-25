@@ -3,6 +3,9 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import InboxClient from "./InboxClient";
 
+// Always server-render — Supabase auth requires runtime env vars not present at build time
+export const dynamic = 'force-dynamic';
+
 export default async function InboxPage() {
   const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();

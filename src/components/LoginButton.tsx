@@ -17,7 +17,7 @@ export function LoginButton() {
 
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      await signInWithPopup(auth!, provider);
     } catch (error) {
       console.error("Error signing in with Google:", error);
       alert("Sign-in failed. Please check the console for details.");
@@ -26,7 +26,7 @@ export function LoginButton() {
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
+      await signOut(auth!);
     } catch (error) {
       console.error("Error signing out:", error);
     }

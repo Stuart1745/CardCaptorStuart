@@ -2,6 +2,9 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import LoginForm from './LoginForm'
 
+// Always server-render — Supabase auth requires runtime env vars not present at build time
+export const dynamic = 'force-dynamic';
+
 export default async function LoginPage() {
   const supabase = await createClient()
   
