@@ -1068,7 +1068,7 @@ export default function PlayboxDetailsPage() {
                           </h5>
                           <div className="flex gap-4 justify-center">
                             {mech.examples.map(card => (
-                               <div key={card.id} className="relative aspect-[2.5/3.5] w-24 sm:w-28 rounded-xl overflow-hidden shadow-sm border border-slate-700">
+                               <div key={card.id} className="relative aspect-[2.5/3.5] w-[7.5rem] sm:w-36 rounded-xl overflow-hidden shadow-sm border border-slate-700">
                                  <img src={getImageUrl(card)} alt={card.name} className="w-full h-full object-cover" />
                                </div>
                             ))}
