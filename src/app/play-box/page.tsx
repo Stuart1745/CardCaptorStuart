@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Package, Plus, PlaySquare, X, DollarSign, Image as ImageIcon } from "lucide-react";
+import { Package, Plus, X, DollarSign, Image as ImageIcon } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, addDoc, doc, writeBatch } from "firebase/firestore";
@@ -412,8 +412,8 @@ export default function PlayBoxPage() {
             {playBoxes.map(box => {
               const theme = box.theme || getTheme(box.color || "indigo");
               const percentage = Math.round((box.remaining / box.total) * 100);
-              // Admins see draft/sealed costs from the paid price; public sees nothing (no price to derive from)
-              const packPrice = isAdmin && box.cost && box.total ? parseFloat(box.cost) / box.total : null;
+              // Use cost for price-per-pack calculations (visible to everyone; specific paid price is admin-only)
+              const packPrice = box.cost && box.total ? parseFloat(box.cost) / box.total : null;
               const draftCost = packPrice ? (packPrice * 3).toFixed(2) : null;
               const sealedCost = packPrice ? (packPrice * 6).toFixed(2) : null;
 
@@ -484,20 +484,17 @@ export default function PlayBoxPage() {
                     </div>
                   )}
 
-                  <div className="mt-auto flex gap-3 pt-2">
-                    <button
-                      onClick={(e) => { e.preventDefault(); handleAction(); }}
-                      className="flex-1 px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium transition-colors"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={(e) => { e.preventDefault(); handleAction(); }}
-                      className={`flex-[2] flex items-center justify-center gap-2 px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${theme.btn}`}
-                    >
-                      <PlaySquare className="w-4 h-4" /> Start Event
-                    </button>
-                  </div>
+                  {isAdmin && (
+                    <div className="mt-auto pt-2">
+                      <button
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); handleAction(); }}
+                        className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  )}
                 </div>
 
               </Link>
