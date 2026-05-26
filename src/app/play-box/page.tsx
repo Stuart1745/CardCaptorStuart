@@ -419,6 +419,9 @@ export default function PlayBoxPage() {
             {playBoxes.map(box => {
               const theme = box.theme || getTheme(box.color || "indigo");
               const percentage = Math.round((box.remaining / box.total) * 100);
+              const packPrice = box.cost && box.total ? parseFloat(box.cost) / box.total : null;
+              const draftCost = packPrice ? (packPrice * 3).toFixed(2) : null;
+              const sealedCost = packPrice ? (packPrice * 6).toFixed(2) : null;
 
               return (
               <Link href={`/play-box/${box.id}`} key={box.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all flex flex-col group relative">
@@ -464,6 +467,23 @@ export default function PlayBoxPage() {
                       <div className={`h-2 rounded-full ${theme.progressFill}`} style={{ width: `${percentage}%` }}></div>
                     </div>
                   </div>
+
+                  {(draftCost || sealedCost) && (
+                    <div className="mb-3 grid grid-cols-2 gap-2 text-xs">
+                      {draftCost && (
+                        <div className="bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2">
+                          <div className="text-slate-400 dark:text-slate-500 mb-0.5">Draft / person</div>
+                          <div className="font-bold text-slate-900 dark:text-slate-100">${draftCost} <span className="font-normal text-slate-400">est.</span></div>
+                        </div>
+                      )}
+                      {sealedCost && (
+                        <div className="bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2">
+                          <div className="text-slate-400 dark:text-slate-500 mb-0.5">Sealed / person</div>
+                          <div className="font-bold text-slate-900 dark:text-slate-100">${sealedCost} <span className="font-normal text-slate-400">est.</span></div>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   <div className="mt-auto flex gap-3 pt-2">
                     <button
