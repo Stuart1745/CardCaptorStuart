@@ -12,6 +12,24 @@ interface GuideMechanic {
 // Hardcoded set mechanics from official Wizards prerelease guides.
 // Colors indicate which color(s) the mechanic primarily appears in.
 const HARDCODED_MECHANICS: Record<string, GuideMechanic[]> = {
+  TDM: [
+    { name: 'Offspring', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Pay an additional cost when casting a creature to also create a 1/1 token copy of it. Appears across all five colors — every wedge can leverage Offspring for extra bodies and ETB triggers.' },
+    { name: 'Harmonize', colors: ['G', 'W'], desc: 'A returning keyword: put a +1/+1 counter on each creature you control that shares a color with a permanent you control. Rewards multicolor wedge builds for snowballing wide boards.' },
+    { name: 'Forecast', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Activated abilities on cards in your hand that you can use during your upkeep, revealing the card for the effect. Rewards keeping powerful spells in hand rather than casting them immediately.' },
+    { name: 'Wedge Signposts', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'TDM is a three-color wedge set. Each of the five wedges (Abzan, Jeskai, Sultai, Mardu, Temur) has a multicolor uncommon signpost defining its strategy. Draft for your wedge\'s strengths.' },
+  ],
+  ECI: [
+    { name: 'Clash', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Each clashing player reveals the top card of their library; the player with the higher mana cost wins the clash and gets a bonus effect. Appears in all colors — high-cost decks clash more reliably.' },
+    { name: 'Changeling', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'This creature is every creature type simultaneously. Changeling creatures count as Merfolk, Faerie, Elf, Goblin, Kithkin, and more — enabling cross-tribal synergies in any deck.' },
+    { name: 'Evoke', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Pay the evoke cost instead of the mana cost to cast the creature for a cheaper ETB effect, then sacrifice it. Appears across all colors in Elemental-themed strategies for efficient one-shot value.' },
+    { name: 'Prowl', colors: ['U', 'B'], desc: 'If you\'ve dealt combat damage with a creature of the right type this turn, you may cast a spell for its prowl cost instead. Primarily Blue/Black — rewards aggressive Faerie and Rogue strategies.' },
+    { name: 'Reinforce', colors: ['W', 'G', 'R'], desc: 'Discard this card and pay the reinforce cost to put +1/+1 counters on a target creature. Creatures discarded for reinforce still provide value — a key enabler in White/Green midrange.' },
+  ],
+  UNF: [
+    { name: 'Stickers', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Stickers are physical stickers placed on cards. Name stickers add words to card names for bonus effects; art stickers change a card\'s art; power/toughness stickers grow creatures; ability stickers grant keywords. You draft a sticker sheet at the start.' },
+    { name: 'Attractions', colors: ['U', 'G', 'R'], desc: 'Attraction cards are an Unfinity-specific mini-deck. When you "open an attraction," put the top card of your Attraction deck onto the battlefield. At the start of your first main phase, roll a die — if the result matches a lit number on one of your Attractions, it triggers its ability.' },
+    { name: 'Roll to Visit', colors: ['U', 'G', 'R'], desc: 'A subset of cards that let you roll a die and visit your Attractions based on the result. Higher-variance decks benefit most from multiple Attractions in play simultaneously.' },
+  ],
   TLA: [
     { name: 'Waterbend', colors: ['U', 'B'], desc: 'A cycle of activated abilities that trigger value when used — card draw, removal, or other effects. Waterbend cards are the backbone of the Blue-Black archetype and appear across all water-aligned strategies.' },
     { name: 'Earthbend', colors: ['R', 'G', 'B'], desc: 'Earthbending animates lands into creatures (often until end of turn) or places +1/+1 counters on your creatures. Central to Red-Green ramp and Black-Green counters archetypes.' },
@@ -20,11 +38,11 @@ const HARDCODED_MECHANICS: Record<string, GuideMechanic[]> = {
     { name: 'Investigate', colors: ['W', 'U'], desc: 'Creates a Clue artifact token. Sacrifice the Clue and pay {2} to draw a card. Fuels the Blue-Black "draw two" engine and synergizes with the White-Blue flyers archetype.' },
   ],
   FIN: [
-    { name: 'Town', colors: [], desc: 'Towns are a new land subtype for FIN dual lands. Each Town enters tapped unless you control the right basic land type, then it produces two colors of mana and often has an additional enters ability.' },
-    { name: 'Sagas', colors: [], desc: 'Enchantments with lore counters that trigger on your upkeep. Each chapter has an effect; when the final chapter resolves, the Saga is sacrificed.' },
-    { name: 'Job Select', colors: ['W', 'G'], desc: 'Job Select lets you choose one of several distinct modes — each representing a classic Final Fantasy job class — giving the card flexibility depending on the board state.' },
-    { name: 'Limit Break', colors: ['R'], desc: 'Limit Break cards are double-faced permanents (usually creatures) that can flip into a stronger form after meeting a condition, referencing the Limit Break mechanic from the Final Fantasy games.' },
-    { name: 'Equipment', colors: ['W', 'R'], desc: 'Artifact subtype that can be attached to creatures for bonuses. Equipment stays on the battlefield when the creature dies, ready to be re-equipped.' },
+    { name: 'Job Select', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Job Select appears on permanents across all five colors. Each card with Job Select lets you choose one of several modes — each representing a classic Final Fantasy job class (Black Mage, White Mage, Monk, etc.) — giving it flexibility based on your board state.' },
+    { name: 'Limit Break', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Limit Break cards are double-faced permanents that transform into a more powerful form after meeting a condition, referencing the Limit Break mechanic from the Final Fantasy video games. Appears across all colors.' },
+    { name: 'Town', colors: [], desc: 'Towns are a new dual land subtype. Each Town enters tapped unless you control a basic land of the right type, then produces two colors of mana and often has a bonus enters ability. They function as the set\'s primary mana fixing.' },
+    { name: 'Sagas', colors: [], desc: 'Enchantments with lore counters that trigger on your upkeep. Each chapter has an effect; when the final chapter resolves, the Saga is sacrificed. Sagas appear across all colors in FIN.' },
+    { name: 'Equipment', colors: ['W', 'R'], desc: 'Equipment is a returning artifact subtype — attach to a creature for combat bonuses, and it stays on the battlefield when the creature dies. Primarily found in White and Red, supporting the R/W Equipment Aggro archetype.' },
   ],
 };
 
