@@ -135,11 +135,70 @@ function extractTextAfterHeading(html: string, afterIndex: number, maxChars = 50
   return cut.slice(0, cut.lastIndexOf(' ')) + '...';
 }
 
+const NAME_TO_SYMBOL: Record<string, string> = {
+  White: 'W', Blue: 'U', Black: 'B', Red: 'R', Green: 'G',
+};
+
+const WUBRG_ORDER: Record<string, number> = { W: 0, U: 1, B: 2, R: 3, G: 4 };
+
+function colorsTo17LandsKey(colors: string[]): string {
+  const symbols = colors.map(c => NAME_TO_SYMBOL[c] || c[0].toUpperCase());
+  return symbols
+    .sort((a, b) => (WUBRG_ORDER[a] ?? 9) - (WUBRG_ORDER[b] ?? 9))
+    .join('');
+}
+
 interface Archetype {
   name: string;
   colors: string[];
   desc: string;
   source?: string;
+  tier?: string;
+}
+
+/** 17lands: fetch color pair (or triplet) win rates and map to S/A/B/C/D tiers */
+async function fetch17LandsTiers(setCode: string, allowThreeColor: boolean): Promise<Map<string, string>> {
+  const tiers = new Map<string, string>();
+  try {
+    const url = `https://www.17lands.com/color_ratings/data?expansion=${setCode}&format=PremierDraft`;
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'MTG-Collection-Tracker/1.0' },
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return tiers;
+    const data: Array<{ color_name?: string; win_rate?: number; wins?: number; games?: number }> = await res.json();
+    if (!Array.isArray(data) || data.length === 0) return tiers;
+
+    // Include 2-color pairs; optionally include 3-color triplets
+    const pairs = data.filter(d => {
+      const len = (d.color_name || '').length;
+      return allowThreeColor ? (len === 2 || len === 3) : len === 2;
+    });
+    if (pairs.length === 0) return tiers;
+
+    const rates = pairs.map(d => d.win_rate ?? (d.wins && d.games ? d.wins / d.games : 0)).filter(r => r > 0);
+    if (rates.length === 0) return tiers;
+
+    const sorted = [...rates].sort((a, b) => b - a);
+    const cutoffs = [
+      sorted[Math.floor(sorted.length * 0.2)] ?? sorted[0],
+      sorted[Math.floor(sorted.length * 0.4)] ?? sorted[0],
+      sorted[Math.floor(sorted.length * 0.6)] ?? sorted[0],
+      sorted[Math.floor(sorted.length * 0.8)] ?? sorted[0],
+    ];
+
+    for (const entry of pairs) {
+      const key = (entry.color_name || '').toUpperCase();
+      const wr = entry.win_rate ?? (entry.wins && entry.games ? entry.wins / entry.games : 0);
+      let tier = 'D';
+      if (wr >= cutoffs[0]) tier = 'S';
+      else if (wr >= cutoffs[1]) tier = 'A';
+      else if (wr >= cutoffs[2]) tier = 'B';
+      else if (wr >= cutoffs[3]) tier = 'C';
+      tiers.set(key, tier);
+    }
+  } catch { /* 17lands unavailable or set not yet tracked */ }
+  return tiers;
 }
 
 /** Scryfall: fetch multicolor uncommons — these are the official signpost cards */
@@ -182,10 +241,10 @@ async function fetchScryfallSignposts(setCode: string, allowThreeColor: boolean)
       ? signpost.oracle_text.replace(/\n/g, ' ').slice(0, 220)
       : '';
     archetypes.push({
-      name: signpost.name,
+      name: `${signpost.colors.join('/')} Signpost`,
       colors,
       desc: oracleSnippet
-        ? `Signpost — ${signpost.type_line}. "${oracleSnippet}${oracleSnippet.length >= 220 ? '...' : ''}"`
+        ? `Signpost (${signpost.name}) — ${signpost.type_line}. "${oracleSnippet}${oracleSnippet.length >= 220 ? '...' : ''}"`
         : `${colors.join('/')} signpost uncommon.`,
       source: 'scryfall',
     });
@@ -252,8 +311,8 @@ export async function GET(request: Request) {
     ? `https://magic.wizards.com/en/news/feature/${wizardsSlug}`
     : null;
 
-  // Run all three sources in parallel; skip Draftsim/Wizards if hardcoded data covers the set
-  const [wizardsResult, draftsimResult, scryfallResult] = await Promise.allSettled([
+  // Run all sources in parallel; skip Draftsim/Wizards if hardcoded data covers the set
+  const [wizardsResult, draftsimResult, scryfallResult, tiersResult] = await Promise.allSettled([
     wizardsUrl && hardcoded.length === 0
       ? scrapeHeadingsFromUrl(wizardsUrl, 'wizards')
       : Promise.resolve([]),
@@ -261,11 +320,13 @@ export async function GET(request: Request) {
       ? scrapeHeadingsFromUrl(draftsimUrl, 'draftsim')
       : Promise.resolve([]),
     fetchScryfallSignposts(setCode, allowThreeColor),
+    fetch17LandsTiers(setCode, allowThreeColor),
   ]);
 
   const wizardsArchetypes = wizardsResult.status === 'fulfilled' ? wizardsResult.value : [];
   const draftsimArchetypes = draftsimResult.status === 'fulfilled' ? draftsimResult.value : [];
   const scryfallData = scryfallResult.status === 'fulfilled' ? scryfallResult.value : [];
+  const tierMap = tiersResult.status === 'fulfilled' ? tiersResult.value : new Map<string, string>();
 
   // Merge priority: hardcoded > Wizards guide > Draftsim > Scryfall signposts
   const seenKeys = new Set<string>();
@@ -273,7 +334,12 @@ export async function GET(request: Request) {
 
   for (const a of [...hardcoded, ...wizardsArchetypes, ...draftsimArchetypes, ...scryfallData]) {
     const key = [...a.colors].sort().join('/');
-    if (!seenKeys.has(key)) { seenKeys.add(key); merged.push(a); }
+    if (!seenKeys.has(key)) {
+      seenKeys.add(key);
+      const landsKey = colorsTo17LandsKey(a.colors);
+      const tier = tierMap.get(landsKey);
+      merged.push(tier ? { ...a, tier } : a);
+    }
   }
 
   if (merged.length === 0) {
@@ -285,6 +351,7 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     archetypes: merged,
+    tierSource: tierMap.size > 0 ? '17lands' : null,
     sources: {
       draftsim: draftsimArchetypes.length > 0 ? draftsimUrl : null,
       scryfall: scryfallData.length > 0 ? `https://scryfall.com/search?q=set:${setCode}+rarity:uncommon+colors>=2` : null,

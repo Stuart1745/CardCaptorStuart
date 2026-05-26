@@ -30,7 +30,7 @@ interface PlayBox {
   packsOpen: number;
   totalPacks: number;
   inventory: ScryfallCard[];
-  customArchetypes?: { name: string; colors: string[]; desc: string }[];
+  customArchetypes?: { name: string; colors: string[]; desc: string; tier?: string }[];
 }
 
 interface ScryfallCard {
@@ -87,13 +87,19 @@ const getMockRating = (name: string) => {
   return score.toFixed(1);
 };
 
-const getMockTier = (name: string) => {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const tiers = ['S', 'A', 'B', 'C', 'D'];
-  return tiers[Math.abs(hash) % tiers.length];
+const getCardQualityTier = (topCards: { signposts: ScryfallCard[], rares: ScryfallCard[], removal: ScryfallCard[], evasion: ScryfallCard[], draw: ScryfallCard[], commons: ScryfallCard[] }) => {
+  const r = (c: ScryfallCard) => (c.rarity || '').toLowerCase();
+  let score = 0;
+  score += topCards.rares.filter(c => r(c) === 'mythic').length * 3;
+  score += topCards.rares.filter(c => r(c) === 'rare').length * 2;
+  score += topCards.signposts.length * 1;
+  score += topCards.removal.length * 0.5;
+  score += topCards.evasion.length * 0.5;
+  if (score >= 7) return 'S';
+  if (score >= 5) return 'A';
+  if (score >= 3) return 'B';
+  if (score >= 1) return 'C';
+  return 'D';
 };
 
 const SET_ARCHETYPES: Record<string, {name: string, colors: string[], desc: string}[]> = {
@@ -447,7 +453,8 @@ export default function PlayboxDetailsPage() {
 
   // Derive fixing and ramp from the full set
   const manaFixing = cards.filter(c => {
-    if (c.rarity !== 'common' && c.rarity !== 'uncommon') return false;
+    const r = (c.rarity || '').toLowerCase();
+    if (r !== 'common' && r !== 'uncommon') return false;
     
     // Always include non-basic lands
     if (c.type_line.includes("Land") && !c.type_line.includes("Basic Land")) return true;
@@ -538,16 +545,18 @@ export default function PlayboxDetailsPage() {
         .sort((a, b) => b.score - a.score || parseFloat(getMockRating(b.card.name)) - parseFloat(getMockRating(a.card.name)))
         .map(({ card }) => card);
 
+    const rar = (c: ScryfallCard) => (c.rarity || '').toLowerCase();
+
     // Signpost uncommons: prioritise exact-color multicolor uncommons (designed signposts),
     // then fill with high-synergy monocolor uncommons
-    const allUncommons = cards.filter(c => c.rarity === 'uncommon' && inArchetype(c));
+    const allUncommons = cards.filter(c => rar(c) === 'uncommon' && inArchetype(c));
     const multiUncommons = scored(allUncommons.filter(c => c.colors?.length === symbols.length && c.colors.length > 1));
     const monoUncommons  = scored(allUncommons.filter(c => c.colors?.length !== symbols.length || symbols.length === 1));
     const signpostsRaw   = [...multiUncommons, ...monoUncommons.filter(c => !multiUncommons.includes(c))];
     const signposts      = signpostsRaw.slice(0, 2);
 
     // Bomb rares: exact multicolor first, then high-synergy broad pool
-    const allRares = cards.filter(c => (c.rarity === 'rare' || c.rarity === 'mythic') && inArchetype(c));
+    const allRares = cards.filter(c => (rar(c) === 'rare' || rar(c) === 'mythic') && inArchetype(c));
     const rares    = scored(allRares).slice(0, 3);
 
     // Broad pool for commons/removal/evasion/draw (all cards whose colors fit)
@@ -572,17 +581,17 @@ export default function PlayboxDetailsPage() {
         || /investigate/i.test(text);
     };
 
-    const removalPool = broadPool.filter(c => (c.rarity === 'common' || c.rarity === 'uncommon') && isRemoval(c));
+    const removalPool = broadPool.filter(c => (rar(c) === 'common' || rar(c) === 'uncommon') && isRemoval(c));
     const removal = removalPool.slice(0, 2);
 
-    const evasionPool = broadPool.filter(c => (c.rarity === 'common' || c.rarity === 'uncommon') && isEvasion(c) && !removal.includes(c));
+    const evasionPool = broadPool.filter(c => (rar(c) === 'common' || rar(c) === 'uncommon') && isEvasion(c) && !removal.includes(c));
     const evasion = evasionPool.slice(0, 2);
 
-    const drawPool = broadPool.filter(c => (c.rarity === 'common' || c.rarity === 'uncommon') && isDraw(c) && !removal.includes(c) && !evasion.includes(c));
+    const drawPool = broadPool.filter(c => (rar(c) === 'common' || rar(c) === 'uncommon') && isDraw(c) && !removal.includes(c) && !evasion.includes(c));
     const draw = drawPool.slice(0, 2);
 
     const commons = broadPool
-      .filter(c => c.rarity === 'common' && !removal.includes(c) && !evasion.includes(c) && !draw.includes(c))
+      .filter(c => rar(c) === 'common' && !removal.includes(c) && !evasion.includes(c) && !draw.includes(c))
       .slice(0, 3);
 
     return { signposts, rares, commons, removal, evasion, draw };
@@ -602,28 +611,41 @@ export default function PlayboxDetailsPage() {
       }
     };
     
+    const rarityBadge = () => {
+      const r = (card.rarity || '').toLowerCase();
+      if (r === 'mythic') return <span className="absolute bottom-1 left-1 text-[9px] font-bold px-1 py-0.5 rounded bg-orange-500/90 text-white shadow-sm">M</span>;
+      if (r === 'rare') return <span className="absolute bottom-1 left-1 text-[9px] font-bold px-1 py-0.5 rounded bg-amber-400/90 text-slate-900 shadow-sm">R</span>;
+      if (r === 'uncommon') return <span className="absolute bottom-1 left-1 text-[9px] font-bold px-1 py-0.5 rounded bg-slate-400/90 text-white shadow-sm">U</span>;
+      return <span className="absolute bottom-1 left-1 text-[9px] font-bold px-1 py-0.5 rounded bg-slate-600/90 text-white shadow-sm">C</span>;
+    };
+
     return (
-      <div 
-        className="relative group w-28 sm:w-32 shrink-0 z-10 hover:z-[100] flex flex-col gap-1.5"
+      <div
+        className="relative group w-28 sm:w-32 shrink-0 z-10 hover:z-[100] flex flex-col gap-1"
         onMouseEnter={handleMouseEnter}
+        onClick={() => window.open(`https://scryfall.com/search?q=!"${encodeURIComponent(card.name)}"`, '_blank')}
       >
+        <p className="text-[10px] font-semibold text-slate-700 dark:text-slate-300 text-center truncate px-0.5 leading-tight cursor-pointer">
+          {card.name}
+        </p>
         <div className="relative aspect-[2.5/3.5] rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 group-hover:scale-105 group-hover:shadow-xl group-hover:z-50 transition-all duration-300 ease-out cursor-pointer">
-          <img 
-            src={getImageUrl(card)} 
-            alt={card.name} 
+          <img
+            src={getImageUrl(card)}
+            alt={card.name}
             className="w-full h-full object-cover"
           />
-          <div className="absolute top-1 right-1 bg-slate-900/90 backdrop-blur-sm border border-slate-700 text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm flex items-center gap-1">
-            <Star className={`w-2.5 h-2.5 ${getRatingColor(numRating)}`} fill="currentColor" />
-            <span className="text-white">{rating}</span>
-          </div>
+          {rarityBadge()}
         </div>
-        
-        <div className={`absolute hidden group-hover:block left-1/2 -translate-x-1/2 w-64 bg-slate-900/95 backdrop-blur-sm text-slate-50 p-4 rounded-xl shadow-2xl border border-slate-700 z-[100] pointer-events-none transform animate-in fade-in zoom-in-95 duration-200 ${
-          tooltipPos === 'top' 
-            ? 'bottom-full mb-8 origin-bottom' 
+
+        <div className={`absolute hidden group-hover:block left-1/2 -translate-x-1/2 w-72 bg-slate-900/95 backdrop-blur-sm text-slate-50 p-4 rounded-xl shadow-2xl border border-slate-700 z-[100] pointer-events-none transform animate-in fade-in zoom-in-95 duration-200 ${
+          tooltipPos === 'top'
+            ? 'bottom-full mb-8 origin-bottom'
             : 'top-full mt-4 origin-top'
         }`}>
+          {/* Large card image preview */}
+          <div className="mb-3 rounded-lg overflow-hidden aspect-[2.5/3.5]">
+            <img src={getImageUrl(card)} alt={card.name} className="w-full h-full object-cover" />
+          </div>
           <div className="flex justify-between items-start mb-1 gap-2">
             <h4 className="font-bold text-sm leading-tight">{card.name}</h4>
             <span className="font-mono text-xs whitespace-nowrap bg-slate-800 px-1 py-0.5 rounded">{getManaCost(card)}</span>
@@ -635,9 +657,10 @@ export default function PlayboxDetailsPage() {
               {rating}
             </div>
           </div>
-          <div className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed pt-1 max-h-48 overflow-y-auto custom-scrollbar">
+          <div className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed pt-1 max-h-32 overflow-y-auto custom-scrollbar">
             {getOracleText(card)}
           </div>
+          <p className="text-[10px] text-slate-500 mt-2 text-center">Click to open on Scryfall</p>
           <div className={`absolute left-1/2 -translate-x-1/2 border-4 border-transparent ${
             tooltipPos === 'top'
               ? 'top-full -mt-1 border-t-slate-900'
@@ -800,7 +823,7 @@ export default function PlayboxDetailsPage() {
                 <div className="space-y-6">
                   {(box?.customArchetypes || SET_ARCHETYPES[boxInfo.setCode] || SET_ARCHETYPES.DEFAULT).map(archetype => {
                     const topCards = getTopCardsForArchetype(archetype);
-                    const tier = getMockTier(archetype.name);
+                    const tier = (archetype as { tier?: string }).tier || getCardQualityTier(topCards);
                     
                     return (
                       <div key={archetype.name} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden relative">
@@ -981,10 +1004,47 @@ export default function PlayboxDetailsPage() {
                   </span>
                 </div>
                 
-                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm grid grid-cols-2 gap-4 justify-items-center">
-                  {manaFixing.map(card => (
-                    <CardRenderer key={card.id} card={card} />
-                  ))}
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+                  {(() => {
+                    const lands = manaFixing.filter(c => c.type_line.includes("Land"));
+                    const colorlessNoncreature = manaFixing.filter(c =>
+                      !c.type_line.includes("Land") &&
+                      (!c.colors || c.colors.length === 0) &&
+                      (c.type_line.includes("Artifact") || c.type_line.includes("Creature"))
+                    );
+                    const spells = manaFixing.filter(c =>
+                      !c.type_line.includes("Land") &&
+                      !((!c.colors || c.colors.length === 0) && (c.type_line.includes("Artifact") || c.type_line.includes("Creature")))
+                    );
+                    return (
+                      <>
+                        {lands.length > 0 && (
+                          <div>
+                            <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Lands</h5>
+                            <div className="grid grid-cols-2 gap-4 justify-items-center">
+                              {lands.map(card => <CardRenderer key={card.id} card={card} />)}
+                            </div>
+                          </div>
+                        )}
+                        {colorlessNoncreature.length > 0 && (
+                          <div>
+                            <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Artifacts & Colorless</h5>
+                            <div className="grid grid-cols-2 gap-4 justify-items-center">
+                              {colorlessNoncreature.map(card => <CardRenderer key={card.id} card={card} />)}
+                            </div>
+                          </div>
+                        )}
+                        {spells.length > 0 && (
+                          <div>
+                            <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Spells</h5>
+                            <div className="grid grid-cols-2 gap-4 justify-items-center">
+                              {spells.map(card => <CardRenderer key={card.id} card={card} />)}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             )}
