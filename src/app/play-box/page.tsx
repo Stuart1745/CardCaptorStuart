@@ -19,6 +19,7 @@ interface PlayBox {
   format: string;
   color?: string;
   cost?: string;
+  marketPrice?: string;
   setCode?: string;
   imageUrl?: string;
   theme: {
@@ -174,7 +175,7 @@ export default function PlayBoxPage() {
   const isAdmin = ADMIN_EMAILS.includes(user?.email ?? '');
   const [playBoxes, setPlayBoxes] = useState<PlayBox[]>(DEFAULT_BOXES);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newBox, setNewBox] = useState({ name: "", setCode: "", cost: "", type: "Draft Booster Box", total: 36, imageUrl: "" });
+  const [newBox, setNewBox] = useState({ name: "", setCode: "", cost: "", marketPrice: "", type: "Draft Booster Box", total: 36, imageUrl: "" });
 
   useEffect(() => {
     const loadBoxes = async () => {
@@ -229,6 +230,7 @@ export default function PlayBoxPage() {
       format: newBox.type.includes("Draft") ? "Draft" : "Sealed",
       color: randomColor,
       cost: newBox.cost,
+      marketPrice: newBox.marketPrice,
       setCode: newBox.setCode.toUpperCase(),
       imageUrl: newBox.imageUrl,
       theme
@@ -242,7 +244,7 @@ export default function PlayBoxPage() {
     }
 
     setIsModalOpen(false);
-    setNewBox({ name: "", setCode: "", cost: "", type: "Draft Booster Box", total: 36, imageUrl: "" });
+    setNewBox({ name: "", setCode: "", cost: "", marketPrice: "", type: "Draft Booster Box", total: 36, imageUrl: "" });
   };
 
   return (
@@ -329,6 +331,22 @@ export default function PlayBoxPage() {
                   </div>
                 </div>
                 <div>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Market Price <span className="font-normal text-slate-400">(shown publicly)</span></label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <DollarSign className="h-4 w-4 text-emerald-400" />
+                    </div>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="130.00"
+                      value={newBox.marketPrice}
+                      onChange={e => setNewBox({...newBox, marketPrice: e.target.value})}
+                      className="w-full pl-9 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                </div>
+                <div>
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Image URL</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -394,7 +412,8 @@ export default function PlayBoxPage() {
             {playBoxes.map(box => {
               const theme = box.theme || getTheme(box.color || "indigo");
               const percentage = Math.round((box.remaining / box.total) * 100);
-              const packPrice = box.cost && box.total ? parseFloat(box.cost) / box.total : null;
+              // Admins see draft/sealed costs from the paid price; public sees nothing (no price to derive from)
+              const packPrice = isAdmin && box.cost && box.total ? parseFloat(box.cost) / box.total : null;
               const draftCost = packPrice ? (packPrice * 3).toFixed(2) : null;
               const sealedCost = packPrice ? (packPrice * 6).toFixed(2) : null;
 
@@ -426,9 +445,14 @@ export default function PlayBoxPage() {
                         </p>
                       </div>
                     </div>
-                    {box.cost && (
+                    {isAdmin && box.cost && (
                       <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
                         ${box.cost}
+                      </span>
+                    )}
+                    {!isAdmin && box.marketPrice && (
+                      <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded">
+                        ${box.marketPrice}
                       </span>
                     )}
                   </div>

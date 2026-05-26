@@ -13,12 +13,11 @@ interface GuideMechanic {
 // Colors indicate which color(s) the mechanic primarily appears in.
 const HARDCODED_MECHANICS: Record<string, GuideMechanic[]> = {
   TLA: [
-    { name: 'Flying', colors: ['W', 'U'], desc: 'Creatures with flying can only be blocked by creatures with flying or reach. The White-Blue archetype builds an air force and pumps it for finishing blows.' },
-    { name: 'Waterbend', colors: ['U', 'B'], desc: 'A cycle of activated abilities on creatures that trigger value when used — card draw, removal, or other effects. Waterbend cards define the Blue-Black and other water-aligned archetypes.' },
-    { name: 'Earthbend', colors: ['R', 'G', 'B'], desc: 'Earthbending turns lands into creatures (often until end of turn) or puts +1/+1 counters on creatures. Central to the Red-Green ramp and Black-Green counters archetypes.' },
-    { name: 'Ally', colors: ['G', 'W', 'R'], desc: 'Ally is a creature type. When an Ally enters the battlefield, other Allies (or Ally-payoff cards) trigger bonus effects. Central to the Green-White and Red-White archetypes.' },
-    { name: 'Lessons', colors: ['U', 'R', 'G'], desc: 'Lesson spells interact with the graveyard — some have bonus effects when cast from there, others recur themselves. Key to Blue-Red (Combat Lessons) and Green-Blue (Ramp & Lessons) archetypes.' },
-    { name: 'Investigate', colors: ['W', 'U'], desc: 'Creates a Clue artifact token. Sacrifice the Clue and pay {2} to draw a card. Supports the Blue-Black card draw archetype and appears in White-Blue flyers.' },
+    { name: 'Waterbend', colors: ['U', 'B'], desc: 'A cycle of activated abilities that trigger value when used — card draw, removal, or other effects. Waterbend cards are the backbone of the Blue-Black archetype and appear across all water-aligned strategies.' },
+    { name: 'Earthbend', colors: ['R', 'G', 'B'], desc: 'Earthbending animates lands into creatures (often until end of turn) or places +1/+1 counters on your creatures. Central to Red-Green ramp and Black-Green counters archetypes.' },
+    { name: 'Ally', colors: ['G', 'W', 'R'], desc: 'Ally is a creature subtype. When an Ally enters, other Allies — and Ally-payoff permanents — trigger bonus effects. Core to the Green-White and Red-White go-wide strategies.' },
+    { name: 'Lessons', colors: ['U', 'R', 'G'], desc: 'Lesson spells interact with the graveyard — some gain bonus effects when cast from there, others recur themselves. Key engine in Blue-Red (Combat Lessons) and Green-Blue (Ramp & Lessons).' },
+    { name: 'Investigate', colors: ['W', 'U'], desc: 'Creates a Clue artifact token. Sacrifice the Clue and pay {2} to draw a card. Fuels the Blue-Black "draw two" engine and synergizes with the White-Blue flyers archetype.' },
   ],
   FIN: [
     { name: 'Town', colors: [], desc: 'Towns are a new land subtype for FIN dual lands. Each Town enters tapped unless you control the right basic land type, then it produces two colors of mana and often has an additional enters ability.' },

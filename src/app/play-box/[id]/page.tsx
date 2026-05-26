@@ -140,6 +140,30 @@ const getCardQualityTier = (topCards: { signposts: ScryfallCard[], rares: Scryfa
 };
 
 const SET_ARCHETYPES: Record<string, {name: string, colors: string[], desc: string}[]> = {
+  "TLA": [
+    { name: "Air Nomads — Flying Finishers", colors: ["White", "Blue"], desc: "Build an air force of flying creatures, pump them for finishing blows, and soar over the opposition. Investigate for card advantage while pressing the skies." },
+    { name: "Water Tribe — Draw Two", colors: ["Blue", "Black"], desc: "Generate Clue tokens, trigger Waterbend abilities, and draw two cards at a time for overwhelming card advantage." },
+    { name: "Fire Nation — Aggro Tokens", colors: ["Black", "Red"], desc: "Flood the board with creature tokens and convert them into direct damage. The most aggressive archetype in the format." },
+    { name: "Earth Rumble — Ramp", colors: ["Red", "Green"], desc: "Use Earthbending to animate lands into creatures and ramp into oversized threats ahead of schedule." },
+    { name: "Southern Raiders — Allies", colors: ["Green", "White"], desc: "Ally tribal rewards every new creature with ETB bonuses. Go wide and snowball Ally synergies across the team." },
+    { name: "Dai Li — Sacrifice", colors: ["White", "Black"], desc: "Set up death triggers, manufacture sacrifice fodder, and grind out recursive value. Every creature death fuels another threat." },
+    { name: "Combat Lessons", colors: ["Blue", "Red"], desc: "Aggressive combat combined with Lesson spells that reward both attacking and graveyard interaction for a hybrid tempo-value strategy." },
+    { name: "Earthbending Counters", colors: ["Black", "Green"], desc: "Earthbend counters onto creatures to arm them with +1/+1 and power through combat. Finishers grow enormous via counter accumulation." },
+    { name: "Nations United — Go Wide", colors: ["Red", "White"], desc: "Combine Ally token generation with red aggro spells. Deploy a wide board, trigger Ally synergies, and push through with combat tricks." },
+    { name: "Avatar Ramp — Lessons", colors: ["Green", "Blue"], desc: "Search out lands, build mana, and set up unblockable payoffs. Lessons in the graveyard provide repeated value into large late-game spells." },
+  ],
+  "FIN": [
+    { name: "W/U Artifacts", colors: ["White", "Blue"], desc: "Assemble a board of artifacts — artifact creatures, Equipment, and Treasure tokens. Key cards like Tidus and Cid reward artifact density." },
+    { name: "U/B Control", colors: ["Blue", "Black"], desc: "Accrue graveyard value while playing defensively. Discard outlets fuel reanimation and powerful value effects." },
+    { name: "B/R Aggro Spells", colors: ["Black", "Red"], desc: "Cast noncreature spells for direct damage. Wizard tokens and spell payoffs convert casts into a win condition." },
+    { name: "R/G Landfall Aggro", colors: ["Red", "Green"], desc: "Transform land drops into combat advantage. Creatures that reward landfall apply consistent pressure each turn." },
+    { name: "G/W Go Wide", colors: ["Green", "White"], desc: "Flood the board with creature tokens and attack for lethal. Saga-focused variants use Garnet as an additional engine." },
+    { name: "W/B Sacrifice", colors: ["White", "Black"], desc: "Turn permanents into resources through sacrifice synergies. Token generation on attacks fuels sacrifice payoffs." },
+    { name: "U/R Big Noncreatures", colors: ["Blue", "Red"], desc: "Cast massive spells for massive value. High-mana spells and flashback rewards synergize with tiered spell payoffs." },
+    { name: "B/G Graveyard Value", colors: ["Black", "Green"], desc: "Stock the graveyard with permanents to supercharge spells and flip threats. Removal that goes on offense closes games." },
+    { name: "R/W Equipment Aggro", colors: ["Red", "White"], desc: "Suit up creatures with powerful Equipment to dominate combat. Job Select mechanic adds flexible modes." },
+    { name: "G/U Town Ramp", colors: ["Green", "Blue"], desc: "Play Towns for extra land value and squeeze into enormous late-game threats after building mana." },
+  ],
   "NEO": [
     { name: "Vehicles / Pilots", colors: ["White", "Blue"], desc: "Crew powerful vehicles using cheap pilot creatures to push massive damage." },
     { name: "Ninjutsu / Rogue", colors: ["Blue", "Black"], desc: "Sneak unblockable creatures through and swap them with Ninjas for powerful combat damage triggers." },
@@ -314,6 +338,22 @@ export default function PlayboxDetailsPage() {
         }
       }
       setBoxInfo(foundBox);
+
+      // Auto-fetch archetypes in background — API is cached at edge so this is fast on repeat visits
+      const primarySet = foundBox.setCode.split(',')[0].trim().toUpperCase();
+      fetch(`/api/archetypes?set=${primarySet}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (!data) return;
+          setBox(prev => prev ? { ...prev, customArchetypes: data.archetypes } : prev);
+          if (data.mechanics?.length > 0) setGuideMechanics(data.mechanics);
+          if (data.cardRatings?.length > 0) {
+            const rmap = new Map<string, number>();
+            for (const r of data.cardRatings) if (r.name) rmap.set(r.name, r.winRate ?? 0);
+            setCardRatingMap(rmap);
+          }
+        })
+        .catch(() => { /* API unavailable — SET_ARCHETYPES fallback already shown */ });
 
       const fetchFullSet = async () => {
       setLoading(true);
@@ -649,17 +689,13 @@ export default function PlayboxDetailsPage() {
   };
 
   const CardRenderer = ({ card, showRarityLabel }: { card: ScryfallCard; showRarityLabel?: boolean }) => {
-    const [tooltipPos, setTooltipPos] = useState<'top' | 'bottom'>('top');
+    const [tooltipSide, setTooltipSide] = useState<'left' | 'right'>('right');
 
     const handleMouseEnter = (e: React.MouseEvent) => {
       const rect = e.currentTarget.getBoundingClientRect();
-      if (rect.top < window.innerHeight / 2) {
-        setTooltipPos('bottom');
-      } else {
-        setTooltipPos('top');
-      }
+      setTooltipSide(rect.left + rect.width / 2 > window.innerWidth * 0.6 ? 'left' : 'right');
     };
-    
+
     const rarityBadge = () => {
       const r = (card.rarity || '').toLowerCase();
       if (r === 'mythic') return <span className="absolute bottom-1 left-1 text-[9px] font-bold px-1 py-0.5 rounded bg-orange-500/90 text-white shadow-sm">M</span>;
@@ -670,7 +706,7 @@ export default function PlayboxDetailsPage() {
 
     return (
       <div
-        className="relative group w-28 sm:w-32 shrink-0 z-10 hover:z-[100] flex flex-col gap-1"
+        className="relative group w-36 sm:w-40 shrink-0 z-10 hover:z-[100] flex flex-col gap-1"
         onMouseEnter={handleMouseEnter}
         onClick={() => window.open(`https://scryfall.com/search?q=!"${encodeURIComponent(card.name)}"`, '_blank')}
       >
@@ -693,32 +729,27 @@ export default function PlayboxDetailsPage() {
           return <span className={`text-[9px] font-bold text-center block ${cls}`}>{label}</span>;
         })()}
 
-        <div className={`absolute hidden group-hover:block left-1/2 -translate-x-1/2 w-72 bg-slate-900/95 backdrop-blur-sm text-slate-50 p-4 rounded-xl shadow-2xl border border-slate-700 z-[100] pointer-events-none transform animate-in fade-in zoom-in-95 duration-200 ${
-          tooltipPos === 'top'
-            ? 'bottom-full mb-8 origin-bottom'
-            : 'top-full mt-4 origin-top'
+        {/* Side tooltip: image on left, text on right — avoids top/bottom clipping */}
+        <div className={`absolute hidden group-hover:flex top-0 w-80 bg-slate-900/95 backdrop-blur-sm text-slate-50 p-3 rounded-xl shadow-2xl border border-slate-700 z-[100] pointer-events-none animate-in fade-in zoom-in-95 duration-150 gap-3 ${
+          tooltipSide === 'right' ? 'left-full ml-3 origin-left' : 'right-full mr-3 origin-right'
         }`}>
-          {/* Large card image preview */}
-          <div className="mb-3 rounded-lg overflow-hidden aspect-[2.5/3.5]">
+          <div className="w-20 shrink-0 rounded-lg overflow-hidden self-start aspect-[2.5/3.5]">
             <img src={getImageUrl(card)} alt={card.name} className="w-full h-full object-cover" />
           </div>
-          <div className="flex justify-between items-start mb-1 gap-2">
-            <h4 className="font-bold text-sm leading-tight">{card.name}</h4>
-            <span className="font-mono text-xs whitespace-nowrap bg-slate-800 px-1 py-0.5 rounded">{getManaCost(card)}</span>
+          <div className="flex flex-col min-w-0 flex-1">
+            <div className="flex justify-between items-start mb-1 gap-1">
+              <h4 className="font-bold text-sm leading-tight">{card.name}</h4>
+              <span className="font-mono text-xs whitespace-nowrap bg-slate-800 px-1 py-0.5 rounded flex-shrink-0">{getManaCost(card)}</span>
+            </div>
+            <div className="flex items-center justify-between mb-2 pb-1 border-b border-slate-700/50">
+              <p className="text-xs font-semibold text-slate-400 truncate pr-1">{card.type_line}</p>
+              <span className="text-[10px] text-slate-500 font-medium capitalize flex-shrink-0">{card.rarity}</span>
+            </div>
+            <div className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed">
+              {getOracleText(card)}
+            </div>
+            <p className="text-[10px] text-slate-500 mt-2">Click to open on Scryfall</p>
           </div>
-          <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-700/50">
-            <p className="text-xs font-semibold text-slate-400 truncate pr-2">{card.type_line}</p>
-            <span className="text-[10px] text-slate-500 font-medium capitalize flex-shrink-0">{card.rarity}</span>
-          </div>
-          <div className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed pt-1">
-            {getOracleText(card)}
-          </div>
-          <p className="text-[10px] text-slate-500 mt-2 text-center">Click to open on Scryfall</p>
-          <div className={`absolute left-1/2 -translate-x-1/2 border-4 border-transparent ${
-            tooltipPos === 'top'
-              ? 'top-full -mt-1 border-t-slate-900'
-              : 'bottom-full -mb-1 border-b-slate-900'
-          }`}></div>
         </div>
       </div>
     );
@@ -850,7 +881,7 @@ export default function PlayboxDetailsPage() {
                       disabled={isFetchingArchetypes}
                       className="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg font-bold shadow-lg transition-colors disabled:opacity-50 flex items-center gap-2 text-sm"
                     >
-                      {isFetchingArchetypes ? 'Scraping...' : 'Auto-Fetch Archetypes'}
+                      {isFetchingArchetypes ? 'Refreshing...' : 'Refresh Archetypes'}
                     </button>
                   )}
                 </div>
@@ -906,7 +937,7 @@ export default function PlayboxDetailsPage() {
                              {topCards.signposts.length > 0 && (
                                <div>
                                  <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Signpost Uncommons</h5>
-                                 <div className="flex flex-wrap gap-4">
+                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(10rem,1fr))] gap-4">
                                    {topCards.signposts.map(card => (
                                      <CardRenderer key={card.id} card={card} />
                                    ))}
@@ -917,7 +948,7 @@ export default function PlayboxDetailsPage() {
                              {topCards.rares.length > 0 && (
                                <div>
                                  <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Bomb Rares</h5>
-                                 <div className="flex flex-wrap gap-4">
+                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(10rem,1fr))] gap-4">
                                    {topCards.rares.map(card => (
                                      <CardRenderer key={card.id} card={card} />
                                    ))}
@@ -928,7 +959,7 @@ export default function PlayboxDetailsPage() {
                              {topCards.removal.length > 0 && (
                                <div>
                                  <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Key Removal</h5>
-                                 <div className="flex flex-wrap gap-4">
+                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(10rem,1fr))] gap-4">
                                    {topCards.removal.map(card => (
                                      <CardRenderer key={card.id} card={card} />
                                    ))}
@@ -939,7 +970,7 @@ export default function PlayboxDetailsPage() {
                              {topCards.evasion.length > 0 && (
                                <div>
                                  <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Evasion & Threats</h5>
-                                 <div className="flex flex-wrap gap-4">
+                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(10rem,1fr))] gap-4">
                                    {topCards.evasion.map(card => (
                                      <CardRenderer key={card.id} card={card} />
                                    ))}
@@ -950,7 +981,7 @@ export default function PlayboxDetailsPage() {
                              {topCards.draw.length > 0 && (
                                <div>
                                  <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Card Advantage</h5>
-                                 <div className="flex flex-wrap gap-4">
+                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(10rem,1fr))] gap-4">
                                    {topCards.draw.map(card => (
                                      <CardRenderer key={card.id} card={card} />
                                    ))}
@@ -961,7 +992,7 @@ export default function PlayboxDetailsPage() {
                              {topCards.commons.length > 0 && (
                                <div>
                                  <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Top Synergistic Commons</h5>
-                                 <div className="flex flex-wrap gap-4">
+                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(10rem,1fr))] gap-4">
                                    {topCards.commons.map(card => (
                                      <CardRenderer key={card.id} card={card} />
                                    ))}
