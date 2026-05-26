@@ -5,7 +5,17 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { ArrowLeft, Package, Loader2, AlertCircle, BookOpen, Map as MapIcon, Star, Zap, Share2, Check, Sun, Droplet, Skull, Flame, TreePine, Settings, X, Image as ImageIcon } from "lucide-react";
+import NextImage from "next/image";
+import { ArrowLeft, Package, Loader2, AlertCircle, BookOpen, Map as MapIcon, Star, Zap, Share2, Check, Settings, X, Image as ImageIcon } from "lucide-react";
+
+const MANA_SYMBOL_FILE: Record<string, string> = { W: 'w', U: 'u', B: 'b', R: 'r', G: 'g' };
+const COLOR_NAME_TO_SYMBOL: Record<string, string> = { White: 'W', Blue: 'U', Black: 'B', Red: 'R', Green: 'G' };
+
+const ManaIcon = ({ symbol, size = 20 }: { symbol: string; size?: number }) => {
+  const file = MANA_SYMBOL_FILE[symbol];
+  if (!file) return null;
+  return <NextImage src={`/mana/${file}.png`} alt={symbol} width={size} height={size} className="rounded-full" />;
+};
 
 const getArchetypeGradient = (colors: string[]) => {
   const getSafeColor = (c: string) => {
@@ -870,10 +880,13 @@ export default function PlayboxDetailsPage() {
                           <div className="absolute top-0 left-0 w-full h-2 rounded-t-2xl" style={getArchetypeGradient(archetype.colors)}></div>
                           
                           <div className="flex items-center justify-between mb-3 mt-1">
-                            <p className="text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                            <p className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
                               {archetype.colors.map((c, i) => (
                                 <React.Fragment key={c}>
-                                  <span className={getColorStyle(c)}>{c}</span>
+                                  <span className="flex items-center gap-1">
+                                    <ManaIcon symbol={COLOR_NAME_TO_SYMBOL[c] || c} size={16} />
+                                    <span className={getColorStyle(c)}>{c}</span>
+                                  </span>
                                   {i < archetype.colors.length - 1 && <span className="text-slate-300 dark:text-slate-600">/</span>}
                                 </React.Fragment>
                               ))}
@@ -982,22 +995,10 @@ export default function PlayboxDetailsPage() {
                     <div key={`guide-${mech.name}`} className="relative group p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/40 rounded-xl">
                       <div className="flex items-center justify-between mb-1.5">
                         <h4 className="font-bold text-slate-900 dark:text-slate-100">{mech.name}</h4>
-                        <div className="flex gap-1.5 items-center">
-                          {mech.colors.map(c => {
-                            let bg = "";
-                            let icon = null;
-                            if (c === 'W') { bg = 'bg-[#f8e7b9] text-slate-800 border-[#d4c395]'; icon = <Sun className="w-3.5 h-3.5" />; }
-                            else if (c === 'U') { bg = 'bg-[#b3ceea] text-slate-900 border-[#93aec9]'; icon = <Droplet className="w-3.5 h-3.5 fill-current" />; }
-                            else if (c === 'B') { bg = 'bg-[#a69f9d] text-slate-900 border-[#857e7c]'; icon = <Skull className="w-3.5 h-3.5 fill-current" />; }
-                            else if (c === 'R') { bg = 'bg-[#eb9f82] text-slate-900 border-[#ca7e61]'; icon = <Flame className="w-3.5 h-3.5 fill-current" />; }
-                            else if (c === 'G') { bg = 'bg-[#c4d3ca] text-slate-900 border-[#a3b2a9]'; icon = <TreePine className="w-3 h-3 fill-current" />; }
-                            else return null;
-                            return (
-                              <div key={c} className={`w-5 h-5 flex items-center justify-center rounded-full border shadow-sm ${bg} shadow-black/20`}>
-                                {icon}
-                              </div>
-                            );
-                          })}
+                        <div className="flex gap-1 items-center">
+                          {mech.colors.map(c => (
+                            <ManaIcon key={c} symbol={c} size={20} />
+                          ))}
                         </div>
                       </div>
                       <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{mech.desc}</p>
@@ -1012,23 +1013,10 @@ export default function PlayboxDetailsPage() {
                     <div key={mech.name} className="relative group p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 rounded-xl cursor-help">
                       <div className="flex items-center justify-between mb-1.5">
                         <h4 className="font-bold text-slate-900 dark:text-slate-100">{mech.name}</h4>
-                        <div className="flex gap-1.5">
-                          {mech.colors.length > 0 ? mech.colors.map(c => {
-                            let bg = "";
-                            let icon = null;
-                            if (c === 'W') { bg = 'bg-[#f8e7b9] text-slate-800 border-[#d4c395]'; icon = <Sun className="w-3.5 h-3.5" />; }
-                            else if (c === 'U') { bg = 'bg-[#b3ceea] text-slate-900 border-[#93aec9]'; icon = <Droplet className="w-3.5 h-3.5 fill-current" />; }
-                            else if (c === 'B') { bg = 'bg-[#a69f9d] text-slate-900 border-[#857e7c]'; icon = <Skull className="w-3.5 h-3.5 fill-current" />; }
-                            else if (c === 'R') { bg = 'bg-[#eb9f82] text-slate-900 border-[#ca7e61]'; icon = <Flame className="w-3.5 h-3.5 fill-current" />; }
-                            else if (c === 'G') { bg = 'bg-[#c4d3ca] text-slate-900 border-[#a3b2a9]'; icon = <TreePine className="w-3 h-3 fill-current" />; }
-                            else { bg = 'bg-slate-200 text-slate-700 border-slate-300'; icon = <span className="text-[10px] font-bold">{c}</span>; }
-
-                            return (
-                              <div key={c} className={`w-5 h-5 flex items-center justify-center rounded-full border shadow-sm ${bg} shadow-black/20`}>
-                                {icon}
-                              </div>
-                            );
-                          }) : (
+                        <div className="flex gap-1">
+                          {mech.colors.length > 0 ? mech.colors.map(c => (
+                            <ManaIcon key={c} symbol={c} size={20} />
+                          )) : (
                             <span className="text-[10px] text-slate-400 font-medium">Colorless</span>
                           )}
                         </div>

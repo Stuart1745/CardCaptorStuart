@@ -1,5 +1,5 @@
 # Cardcaptor Stuart — Handoff Document
-**Date:** 2026-05-25  
+**Date:** 2026-05-26  
 **Prepared by:** Claude Sonnet 4.6
 
 ---
@@ -15,7 +15,7 @@ A personal MTG collection tracker and play-box manager for Stuart Rampy. It lets
 | Environment | URL |
 |---|---|
 | Staging (active) | https://cardcaptorstuart--cardcaptorstuart.us-east4.hosted.app |
-| Custom domain (DNS propagating) | https://ccs.stuartrampy.me |
+| Custom domain | https://ccs.stuartrampy.me |
 | GitHub repo | https://github.com/Stuart1745/CardCaptorStuart.git |
 
 ---
@@ -59,7 +59,7 @@ Everyone (signed-in or not) can view play boxes and draft archetypes.
 
 ```
 playBoxes/{boxId}           — box metadata (name, setCode, cost, remaining, etc.)
-                              Default boxes seeded with IDs "1"–"6" on first load.
+                              Default boxes seeded with IDs "2"–"6" on first load.
 
 users/{uid}/receiptQueue/{id} — Gmail receipt items (status: Draft/Approved/Rejected)
 users/{uid}/cards/{id}        — approved collection items
@@ -86,6 +86,7 @@ users/{uid}/cards/{id}        — approved collection items
 | `src/app/inbox/InboxClient.tsx` | Inbox mutations — Firestore `writeBatch` for approve/reject |
 | `src/app/collection/page.tsx` | CSV importer — admin-only |
 | `src/app/login/LoginForm.tsx` | Google sign-in form on `/login` |
+| `public/mana/` | Mana symbol PNGs: `w.png`, `u.png`, `b.png`, `r.png`, `g.png` |
 
 ---
 
@@ -100,7 +101,9 @@ The `/api/archetypes?set=FIN` endpoint returns archetypes, mechanics, and card r
 
 Tier data (S/A/B/C/D) comes from **17lands** `/color_ratings/data?expansion=SET&format=PremierDraft`. Card selection within archetypes uses **17lands** `/card_ratings/data` win rates as primary signal.
 
-To add a new set's archetypes: read the Wizards prerelease guide at `https://magic.wizards.com/en/news/feature?search=Prerelease+Guide` and add to `HARDCODED_ARCHETYPES` in `route.ts`.
+Sets with hardcoded archetypes + mechanics: `TLA`, `FIN`, `NEO`, `ECI`, `UNF`, `KTK`, `MH2`.
+
+To add a new set's archetypes: read the Wizards prerelease guide and add to `HARDCODED_ARCHETYPES` and `HARDCODED_MECHANICS` in `route.ts`.
 
 ---
 
@@ -116,19 +119,52 @@ npm run build       # next build
 
 ---
 
+## Blocking Issues (Needs Manual Action)
+
+### 1. Firebase Authentication Not Working on Staging
+
+Sign-in fails on `ccs.stuartrampy.me` / the hosted app URL because Firebase env vars are not configured in Firebase App Hosting.
+
+**Fix:**
+
+1. Go to Firebase Console → Your project → App Hosting → Backend → Environment Variables
+2. Add all 6 vars with **BUILD** availability:
+
+   - `NEXT_PUBLIC_FIREBASE_API_KEY`
+   - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+   - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+   - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+   - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+   - `NEXT_PUBLIC_FIREBASE_APP_ID`
+
+3. Trigger a redeploy (push a commit or manually roll back/redeploy in Firebase Console)
+
+**Also check:** Firebase Console → Authentication → Settings → Authorized Domains — add `ccs.stuartrampy.me` and the hosted app domain.
+
+### 2. Custom Domain Registration — `ccs.stuartrampy.me`
+
+Verify the DNS records are correctly configured for `ccs.stuartrampy.me` → Firebase App Hosting. Check:
+
+- Firebase Console → App Hosting → Domains — confirm the domain shows "Active" status
+- DNS registrar — confirm the CNAME/A records match what Firebase requires
+- If still propagating, wait 24–48 hours and check again
+
+---
+
 ## Known Issues / Pending Work
 
 | Item | Status | Notes |
 |---|---|---|
-| Bomb Rares showing uncommon (Lorwyn) | Investigating | Rarity badge added for debugging; all comparisons case-insensitive now |
-| Set Mechanics for non-FIN sets | Partial | FIN has hardcoded guide mechanics; others fall back to card-scanning only |
+| Firebase Auth on staging | **Blocked** | Needs env vars set in Firebase Console (see above) |
+| Custom domain `ccs.stuartrampy.me` | **Verify** | Check DNS + Firebase domain registration status |
+| Bomb Rares showing uncommon (Lorwyn/ECI) | Investigating | Rarity badge added for debugging |
+| Set Mechanics for non-guide sets | Partial | TLA + FIN have guide mechanics; others use card-scan fallback |
 | Phase 11: CSV Ratings / 17Lands Importer | Not started | — |
 | **Live market price for pack cost** | **Next up** | See below — needs `marketPrice` field separate from `cost` |
-| Custom domain DNS | Propagating | `ccs.stuartrampy.me` → Firebase App Hosting |
 
 ### Next Feature: Live Market Price for Draft/Sealed Cost
 
-Currently the "Draft / person" and "Sealed / person" costs shown on the play-box listing use the stored **purchase price** (`box.cost`) divided by `box.total`. The user wants **current market price** of the box (not what they paid).
+Currently "Draft / person" and "Sealed / person" costs use the stored **purchase price** (`box.cost`) divided by `box.total`. Stuart wants **current market price** (not what he paid).
 
 **Plan:**
 1. Add `marketPrice?: string` field to `PlayBox` interface in both `play-box/page.tsx` and `play-box/[id]/page.tsx`
@@ -142,20 +178,24 @@ Currently the "Draft / person" and "Sealed / person" costs shown on the play-box
    ```
 5. Remove the `est.` label once using market price; replace with a small "update" link for admins
 
-**TCGPlayer API note:** There is no free public API for sealed booster box prices. The developer API at `https://developer.tcgplayer.com/` requires an account. As an alternative, Stuart can manually update the `marketPrice` field whenever he checks current prices.
+**TCGPlayer API note:** No free public API exists for sealed box prices. Stuart can manually update `marketPrice` as needed.
 
 ---
 
-## Recent Work (This Sprint — May 2026)
+## Recent Work (May 2026 Sprint)
 
-- Migrated all localStorage and Supabase to Firestore
-- Firebase Auth Google popup — fixed "offline mode" false-positive by replacing `process.env` string check with `auth` object guard
-- Added authorized domains for hosted URL to Firebase Console
-- Home page now redirects to `/play-box`; `/collection` is admin-only
-- Play Box listing now loads from Firestore with seeded defaults
-- Inbox (`/inbox`) fully migrated from Supabase server component to Firebase client component
-- 17lands tier data and per-card win rates wired into archetype system
-- Set mechanics show Wizards guide entries (indigo) above card-scanned entries
+- Migrated all localStorage / Supabase to Firestore
+- Firebase Auth Google popup — fixed "offline mode" false-positive
+- Play-box listing: instant display with `DEFAULT_BOXES` seed (no loading spinner)
+- Play-box detail: `DEFAULT_BOX_INFO` fallback so header/archetypes/button show immediately
+- Auto-Fetch Archetypes persists fetched data to Firestore `customArchetypes` field
+- TLA (Avatar) archetypes updated with official Wizards prerelease guide data (10 archetypes + 6 mechanics)
+- TLA + FIN added to `WIZARDS_GUIDE_SLUGS` and `HARDCODED_MECHANICS`
+- Mana symbol PNGs (`w/u/b/r/g.png`) added to `public/mana/`; replaced Lucide icon circles with actual mana symbols in archetype and mechanics sections
+- Rarity text labels added to Mana Fixing section cards
+- `.vscode/settings.json` disables i18n-ally extension to suppress false-positive warnings
+- Set code for Lorwyn Eclipsed corrected to `ECI` throughout
+- Default boxes: IDs "2"–"6" only (Kamigawa and Foundations removed until auth works)
 
 ---
 
@@ -166,3 +206,4 @@ Currently the "Draft / person" and "Sealed / person" costs shown on the play-box
 3. **`apphosting.yaml`** — contains NO env vars. All Firebase config is set in Firebase Console → App Hosting → Backend → Environment Variables with BUILD availability.
 4. **Three-color sets** — `allowThreeColor` flag in `fetch17LandsTiers()` handles sets like Tarkir Dragonstorm.
 5. **WUBRG order** — 17lands uses two-letter color pair keys in WUBRG order (W=0, U=1, B=2, R=3, G=4). See `colorsTo17LandsKey()` in `route.ts`.
+6. **Mana symbol images** — live in `public/mana/{w,u,b,r,g}.png`. The `ManaIcon` component in `play-box/[id]/page.tsx` renders them. Pass single-letter symbols (W/U/B/R/G).

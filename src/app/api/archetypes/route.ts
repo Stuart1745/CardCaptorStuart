@@ -12,6 +12,14 @@ interface GuideMechanic {
 // Hardcoded set mechanics from official Wizards prerelease guides.
 // Colors indicate which color(s) the mechanic primarily appears in.
 const HARDCODED_MECHANICS: Record<string, GuideMechanic[]> = {
+  TLA: [
+    { name: 'Flying', colors: ['W', 'U'], desc: 'Creatures with flying can only be blocked by creatures with flying or reach. The White-Blue archetype builds an air force and pumps it for finishing blows.' },
+    { name: 'Waterbend', colors: ['U', 'B'], desc: 'A cycle of activated abilities on creatures that trigger value when used — card draw, removal, or other effects. Waterbend cards define the Blue-Black and other water-aligned archetypes.' },
+    { name: 'Earthbend', colors: ['R', 'G', 'B'], desc: 'Earthbending turns lands into creatures (often until end of turn) or puts +1/+1 counters on creatures. Central to the Red-Green ramp and Black-Green counters archetypes.' },
+    { name: 'Ally', colors: ['G', 'W', 'R'], desc: 'Ally is a creature type. When an Ally enters the battlefield, other Allies (or Ally-payoff cards) trigger bonus effects. Central to the Green-White and Red-White archetypes.' },
+    { name: 'Lessons', colors: ['U', 'R', 'G'], desc: 'Lesson spells interact with the graveyard — some have bonus effects when cast from there, others recur themselves. Key to Blue-Red (Combat Lessons) and Green-Blue (Ramp & Lessons) archetypes.' },
+    { name: 'Investigate', colors: ['W', 'U'], desc: 'Creates a Clue artifact token. Sacrifice the Clue and pay {2} to draw a card. Supports the Blue-Black card draw archetype and appears in White-Blue flyers.' },
+  ],
   FIN: [
     { name: 'Town', colors: [], desc: 'Towns are a new land subtype for FIN dual lands. Each Town enters tapped unless you control the right basic land type, then it produces two colors of mana and often has an additional enters ability.' },
     { name: 'Sagas', colors: [], desc: 'Enchantments with lore counters that trigger on your upkeep. Each chapter has an effect; when the final chapter resolves, the Saga is sacrificed.' },
@@ -24,6 +32,18 @@ const HARDCODED_MECHANICS: Record<string, GuideMechanic[]> = {
 // Hardcoded archetypes for sets where Draftsim coverage is missing or wrong.
 // Source: official Wizards prerelease guides + community analysis.
 const HARDCODED_ARCHETYPES: Record<string, Omit<Archetype, 'source'>[]> = {
+  TLA: [
+    { name: "Air Nomads — Flying Finishers", colors: ["White", "Blue"], desc: "Build an air force of flying creatures, pump them for finishing blows, and soar over the opposition. Investigate for card advantage to stay ahead on resources while pressing the skies." },
+    { name: "Water Tribe — Draw Two", colors: ["Blue", "Black"], desc: "Generate Clue tokens, trigger Waterbend abilities, and draw two cards at a time for overwhelming card advantage. Control the pace and bury opponents in value." },
+    { name: "Fire Nation — Aggro Tokens", colors: ["Black", "Red"], desc: "The most aggressive archetype: flood the board with creature tokens and convert them into direct damage. The relentless pressure of Fire Nation offense closes games before opponents stabilize." },
+    { name: "Earth Rumble — Ramp", colors: ["Red", "Green"], desc: "Use Earthbending to turn lands into creatures for surprise blocks and attacks, while ramping into oversized green threats ahead of schedule. Land acceleration powers an unstoppable late game." },
+    { name: "Southern Raiders — Allies", colors: ["Green", "White"], desc: "Ally tribal rewards every new creature with ETB bonuses that snowball across the whole team. Go wide with an army of Allies and overwhelm opponents who can't keep pace." },
+    { name: "Dai Li — Sacrifice", colors: ["White", "Black"], desc: "Set up death triggers, manufacture sacrifice fodder, and grind out recursive value effects. Every creature death fuels another threat, making this archetype resilient to removal." },
+    { name: "Combat Lessons", colors: ["Blue", "Red"], desc: "Aggressive combat combined with Lesson spells that reward both attacking and graveyard interaction. Tempo attacks enable Lesson payoffs for a hybrid aggressive-value strategy." },
+    { name: "Earthbending Counters", colors: ["Black", "Green"], desc: "Earthbend counters onto your creatures to 'arm' them with +1/+1 and power through combat. Finishers grow enormous via counter accumulation while black removal clears the path." },
+    { name: "Nations United — Go Wide", colors: ["Red", "White"], desc: "Combine Ally token generation with red aggro spells and combat tricks. Deploy a wide board, trigger Ally synergies, and use red removal to push through the final points of damage." },
+    { name: "Avatar Ramp — Lessons", colors: ["Green", "Blue"], desc: "Search out lands, build mana acceleration, and set up unblockable payoffs. Lessons in the graveyard provide repeated value while large late-game spells close out the game." },
+  ],
   NEO: [
     { name: "Vehicles / Pilots", colors: ["White", "Blue"], desc: "Crew powerful vehicles using cheap pilot creatures to push massive damage. Artifacts and pilots synergize to apply early pressure." },
     { name: "Ninjutsu / Rogue", colors: ["Blue", "Black"], desc: "Sneak unblockable creatures through and swap them with Ninjas for powerful combat damage triggers. Rogue tribal provides additional payoffs." },
@@ -97,6 +117,7 @@ const HARDCODED_ARCHETYPES: Record<string, Omit<Archetype, 'source'>[]> = {
 // Pattern: https://magic.wizards.com/en/news/feature/{slug}
 // Add new sets here as guides are published.
 const WIZARDS_GUIDE_SLUGS: Record<string, string> = {
+  TLA: 'avatar-the-last-airbender-prerelease-guide',
   FIN: 'final-fantasy-prerelease-guide',
   TDM: 'tarkir-dragonstorm-prerelease-guide',
   DSK: 'duskmourn-house-of-horror-prerelease-guide',
