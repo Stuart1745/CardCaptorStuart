@@ -689,11 +689,11 @@ export default function PlayboxDetailsPage() {
   };
 
   const CardRenderer = ({ card, showRarityLabel }: { card: ScryfallCard; showRarityLabel?: boolean }) => {
-    const [tooltipSide, setTooltipSide] = useState<'left' | 'right'>('right');
+    const [tooltipPos, setTooltipPos] = useState<'top' | 'bottom'>('top');
 
     const handleMouseEnter = (e: React.MouseEvent) => {
       const rect = e.currentTarget.getBoundingClientRect();
-      setTooltipSide(rect.left + rect.width / 2 > window.innerWidth * 0.6 ? 'left' : 'right');
+      setTooltipPos(rect.top < window.innerHeight / 2 ? 'bottom' : 'top');
     };
 
     const rarityBadge = () => {
@@ -729,27 +729,31 @@ export default function PlayboxDetailsPage() {
           return <span className={`text-[9px] font-bold text-center block ${cls}`}>{label}</span>;
         })()}
 
-        {/* Side tooltip: image on left, text on right — avoids top/bottom clipping */}
-        <div className={`absolute hidden group-hover:flex top-0 w-80 bg-slate-900/95 backdrop-blur-sm text-slate-50 p-3 rounded-xl shadow-2xl border border-slate-700 z-[100] pointer-events-none animate-in fade-in zoom-in-95 duration-150 gap-3 ${
-          tooltipSide === 'right' ? 'left-full ml-3 origin-left' : 'right-full mr-3 origin-right'
+        <div className={`absolute hidden group-hover:block left-1/2 -translate-x-1/2 w-72 bg-slate-900/95 backdrop-blur-sm text-slate-50 p-4 rounded-xl shadow-2xl border border-slate-700 z-[100] pointer-events-none transform animate-in fade-in zoom-in-95 duration-200 ${
+          tooltipPos === 'top'
+            ? 'bottom-full mb-8 origin-bottom'
+            : 'top-full mt-4 origin-top'
         }`}>
-          <div className="w-20 shrink-0 rounded-lg overflow-hidden self-start aspect-[2.5/3.5]">
+          <div className="mb-3 rounded-lg overflow-hidden aspect-[2.5/3.5]">
             <img src={getImageUrl(card)} alt={card.name} className="w-full h-full object-cover" />
           </div>
-          <div className="flex flex-col min-w-0 flex-1">
-            <div className="flex justify-between items-start mb-1 gap-1">
-              <h4 className="font-bold text-sm leading-tight">{card.name}</h4>
-              <span className="font-mono text-xs whitespace-nowrap bg-slate-800 px-1 py-0.5 rounded flex-shrink-0">{getManaCost(card)}</span>
-            </div>
-            <div className="flex items-center justify-between mb-2 pb-1 border-b border-slate-700/50">
-              <p className="text-xs font-semibold text-slate-400 truncate pr-1">{card.type_line}</p>
-              <span className="text-[10px] text-slate-500 font-medium capitalize flex-shrink-0">{card.rarity}</span>
-            </div>
-            <div className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed">
-              {getOracleText(card)}
-            </div>
-            <p className="text-[10px] text-slate-500 mt-2">Click to open on Scryfall</p>
+          <div className="flex justify-between items-start mb-1 gap-2">
+            <h4 className="font-bold text-sm leading-tight">{card.name}</h4>
+            <span className="font-mono text-xs whitespace-nowrap bg-slate-800 px-1 py-0.5 rounded">{getManaCost(card)}</span>
           </div>
+          <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-700/50">
+            <p className="text-xs font-semibold text-slate-400 truncate pr-2">{card.type_line}</p>
+            <span className="text-[10px] text-slate-500 font-medium capitalize flex-shrink-0">{card.rarity}</span>
+          </div>
+          <div className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed pt-1">
+            {getOracleText(card)}
+          </div>
+          <p className="text-[10px] text-slate-500 mt-2 text-center">Click to open on Scryfall</p>
+          <div className={`absolute left-1/2 -translate-x-1/2 border-4 border-transparent ${
+            tooltipPos === 'top'
+              ? 'top-full -mt-1 border-t-slate-900'
+              : 'bottom-full -mb-1 border-b-slate-900'
+          }`}></div>
         </div>
       </div>
     );
