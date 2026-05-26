@@ -10,17 +10,17 @@ export function LoginButton() {
   const { user, loading } = useAuth();
 
   const handleSignIn = async () => {
-    if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "your-api-key-here") {
-      alert("Firebase is currently in Offline Mode.\n\nTo enable Cloud Saving and Google Sign-in, you must add your Firebase configuration keys to the .env.local file.");
+    if (!auth) {
+      alert("Firebase is not configured. Check your .env.local file.");
       return;
     }
 
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth!, provider);
-    } catch (error) {
+      await signInWithPopup(auth, provider);
+    } catch (error: any) {
       console.error("Error signing in with Google:", error);
-      alert("Sign-in failed. Please check the console for details.");
+      alert(`Sign-in failed: ${error?.message || 'Unknown error'}`);
     }
   };
 

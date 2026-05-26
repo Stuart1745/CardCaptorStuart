@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { db } from "@/lib/firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ArrowLeft, Package, Loader2, AlertCircle, BookOpen, Map as MapIcon, Star, Zap, Share2, Check, Sun, Droplet, Skull, Flame, TreePine, Settings, X, Image as ImageIcon } from "lucide-react";
 
 const getArchetypeGradient = (colors: string[]) => {
@@ -245,16 +247,10 @@ export default function PlayboxDetailsPage() {
           setCardRatingMap(rmap);
         }
         try {
-          const stored = localStorage.getItem('playBoxes');
-          if (stored) {
-            const boxes: PlayBox[] = JSON.parse(stored);
-            const index = boxes.findIndex(b => b.id === box.id);
-            if (index !== -1) {
-              boxes[index] = updatedBox;
-              localStorage.setItem('playBoxes', JSON.stringify(boxes));
-            }
+          if (db) {
+            await updateDoc(doc(db, 'playBoxes', box.id), { customArchetypes: data.archetypes });
           }
-        } catch { /* localStorage unavailable */ }
+        } catch { /* Firestore update failed silently */ }
         const sources = [
           data.sources?.draftsim ? 'Draftsim' : null,
           data.sources?.scryfall ? 'Scryfall' : null,
@@ -275,25 +271,25 @@ export default function PlayboxDetailsPage() {
       setIsSharedMode(window.location.search.includes("mode=shared"));
     }
 
-    const savedMock = localStorage.getItem("mockPlayboxes");
-    const saved = localStorage.getItem("playBoxes") || savedMock;
-    let foundBox: { name: string; setCode: string; remaining: number; total: number; imageUrl?: string } = { name: "Loading...", setCode: "NEO", remaining: 0, total: 0 };
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        const matched = parsed.find((b: any) => b.id === id);
-        if (matched) {
-          foundBox = matched;
-          setBox(matched);
-          setEditFormData({ name: matched.name, setCode: matched.setCode || matched.set || '', cost: matched.cost?.toString() || '0', imageUrl: matched.imageUrl || '' });
-        }
-      } catch {
-        console.error("Failed to parse stored play boxes — localStorage may be corrupt.");
-      }
-    }
-    setBoxInfo(foundBox);
+    (async () => {
+      let foundBox: { name: string; setCode: string; remaining: number; total: number; imageUrl?: string } = { name: "Loading...", setCode: "NEO", remaining: 0, total: 0 };
 
-    const fetchFullSet = async () => {
+      if (db) {
+        try {
+          const snap = await getDoc(doc(db, 'playBoxes', id));
+          if (snap.exists()) {
+            const matched = { id: snap.id, ...snap.data() } as any;
+            foundBox = matched;
+            setBox(matched);
+            setEditFormData({ name: matched.name, setCode: matched.setCode || matched.set || '', cost: matched.cost?.toString() || '0', imageUrl: matched.imageUrl || '' });
+          }
+        } catch {
+          console.error("Failed to load play box from Firestore.");
+        }
+      }
+      setBoxInfo(foundBox);
+
+      const fetchFullSet = async () => {
       setLoading(true);
       setError(null);
       try {
@@ -416,7 +412,8 @@ export default function PlayboxDetailsPage() {
       }
     };
 
-    fetchFullSet();
+      await fetchFullSet();
+    })();
   }, [id]);
 
   const getColorStyle = (c: string) => {
@@ -713,27 +710,21 @@ export default function PlayboxDetailsPage() {
     }
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!box) return;
     const updatedBox = { ...box, name: editFormData.name, setCode: editFormData.setCode, cost: parseFloat(editFormData.cost) || 0, imageUrl: editFormData.imageUrl };
     setBox(updatedBox);
     setBoxInfo({ ...boxInfo, name: editFormData.name, setCode: editFormData.setCode, imageUrl: editFormData.imageUrl });
-    
-    // Attempt to update in both mock and real storage if they exist
-    ['mockPlayboxes', 'playBoxes'].forEach(key => {
-       const stored = localStorage.getItem(key);
-       if (stored) {
-         const boxes = JSON.parse(stored);
-         const index = boxes.findIndex((b: any) => b.id === box.id);
-         if (index !== -1) {
-           boxes[index] = updatedBox;
-           localStorage.setItem(key, JSON.stringify(boxes));
-         }
-       }
-    });
-    
+
+    try {
+      if (db) {
+        // Exclude inventory (fetched from Scryfall dynamically — too large for Firestore)
+        const { inventory: _inv, ...boxToStore } = updatedBox as any;
+        await updateDoc(doc(db, 'playBoxes', box.id), boxToStore);
+      }
+    } catch { /* Firestore update failed silently */ }
+
     setIsEditModalOpen(false);
-    // Reload the page to refetch everything
     window.location.reload();
   };
 

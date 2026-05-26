@@ -2,12 +2,11 @@
 
 import { useState, useMemo } from "react";
 import { Mail, CheckCircle, XCircle, RefreshCw, AlertCircle, CheckSquare, Trash2, ChevronDown, ChevronRight, PackageOpen } from "lucide-react";
-import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
+import { db } from "@/lib/firebase";
+import { doc, collection, writeBatch } from "firebase/firestore";
 
 interface QueueItem {
   id: string;
-  user_id: string;
   vendor: string;
   date_received: string;
   card_name: string;
@@ -25,9 +24,15 @@ interface QueueGroup {
   items: QueueItem[];
 }
 
-export default function InboxClient({ initialQueue }: { initialQueue: QueueItem[] }) {
-  const router = useRouter();
-  const supabase = createClient();
+export default function InboxClient({
+  initialQueue,
+  uid,
+  onReload,
+}: {
+  initialQueue: QueueItem[];
+  uid: string;
+  onReload: () => Promise<void>;
+}) {
   const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -62,7 +67,7 @@ export default function InboxClient({ initialQueue }: { initialQueue: QueueItem[
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to sync');
       alert(`Found and parsed ${data.processed} new MTG items from your Gmail receipts!`);
-      router.refresh();
+      await onReload();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
@@ -71,24 +76,24 @@ export default function InboxClient({ initialQueue }: { initialQueue: QueueItem[
   };
 
   const handleApprove = async (itemsToApprove: QueueItem[]) => {
+    if (!db || !uid) return;
     try {
-      const newCollectionItems = itemsToApprove.map(item => ({
-        user_id: item.user_id,
-        card_name: item.card_name,
-        set_code: item.set_code,
-        condition: item.condition,
-        quantity: item.quantity,
-        purchase_price: item.purchase_price,
-        date_added: new Date().toISOString()
-      }));
-
-      await supabase.from('collection_items').insert(newCollectionItems);
-      await supabase.from('receipt_queue')
-        .update({ status: 'Approved' })
-        .in('id', itemsToApprove.map(i => i.id));
-
+      const batch = writeBatch(db);
+      for (const item of itemsToApprove) {
+        const cardRef = doc(collection(db, 'users', uid, 'cards'));
+        batch.set(cardRef, {
+          card_name: item.card_name,
+          set_code: item.set_code,
+          condition: item.condition,
+          quantity: item.quantity,
+          purchase_price: item.purchase_price,
+          date_added: new Date().toISOString(),
+        });
+        batch.update(doc(db, 'users', uid, 'receiptQueue', item.id), { status: 'Approved' });
+      }
+      await batch.commit();
       setSelectedIds(new Set());
-      router.refresh();
+      await onReload();
     } catch (err) {
       console.error(err);
       alert("Failed to approve items.");
@@ -96,12 +101,15 @@ export default function InboxClient({ initialQueue }: { initialQueue: QueueItem[
   };
 
   const handleReject = async (idsToReject: string[]) => {
+    if (!db || !uid) return;
     try {
-      await supabase.from('receipt_queue')
-        .update({ status: 'Rejected' })
-        .in('id', idsToReject);
+      const batch = writeBatch(db);
+      for (const id of idsToReject) {
+        batch.update(doc(db, 'users', uid, 'receiptQueue', id), { status: 'Rejected' });
+      }
+      await batch.commit();
       setSelectedIds(new Set());
-      router.refresh();
+      await onReload();
     } catch (err) {
       console.error(err);
       alert("Failed to reject items.");
@@ -130,37 +138,37 @@ export default function InboxClient({ initialQueue }: { initialQueue: QueueItem[
   return (
     <div>
       <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-              <h2 className="text-4xl font-bold tracking-tight mb-2 bg-gradient-to-br from-white to-neutral-500 bg-clip-text text-transparent">Receipt Inbox</h2>
-              <p className="text-neutral-400">Review and approve cards extracted by AI from your Gmail order confirmations.</p>
-          </div>
-          <button
-              type="button"
-              onClick={handleSync}
-              disabled={isSyncing}
-              className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white transition-all text-sm font-medium shadow-lg shadow-blue-500/20"
-          >
-              <RefreshCw size={16} className={isSyncing ? "animate-spin" : ""} />
-              {isSyncing ? "Scanning Gmail..." : "Sync Gmail Receipts"}
-          </button>
+        <div>
+          <h2 className="text-4xl font-bold tracking-tight mb-2 bg-gradient-to-br from-white to-neutral-500 bg-clip-text text-transparent">Receipt Inbox</h2>
+          <p className="text-neutral-400">Review and approve cards extracted by AI from your Gmail order confirmations.</p>
+        </div>
+        <button
+          type="button"
+          onClick={handleSync}
+          disabled={isSyncing}
+          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white transition-all text-sm font-medium shadow-lg shadow-blue-500/20"
+        >
+          <RefreshCw size={16} className={isSyncing ? "animate-spin" : ""} />
+          {isSyncing ? "Scanning Gmail..." : "Sync Gmail Receipts"}
+        </button>
       </header>
 
       {error && (
         <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start gap-3 text-red-400">
-            <AlertCircle size={20} className="mt-0.5 shrink-0" />
-            <p className="text-sm">{error}</p>
+          <AlertCircle size={20} className="mt-0.5 shrink-0" />
+          <p className="text-sm">{error}</p>
         </div>
       )}
 
       {initialQueue.length === 0 ? (
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900/50 backdrop-blur-sm overflow-hidden min-h-[400px] flex items-center justify-center">
-            <div className="text-center">
-                <div className="w-16 h-16 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-neutral-700 text-neutral-500">
-                    <Mail size={24} />
-                </div>
-                <p className="text-neutral-400 font-medium">Your queue is empty.</p>
-                <p className="text-sm text-neutral-500 mt-1">Click Sync Gmail to scan for new orders.</p>
+          <div className="text-center">
+            <div className="w-16 h-16 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-neutral-700 text-neutral-500">
+              <Mail size={24} />
             </div>
+            <p className="text-neutral-400 font-medium">Your queue is empty.</p>
+            <p className="text-sm text-neutral-500 mt-1">Click Sync Gmail to scan for new orders.</p>
+          </div>
         </div>
       ) : (
         <>
