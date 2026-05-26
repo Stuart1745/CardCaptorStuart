@@ -37,8 +37,8 @@ const DEFAULT_BOXES: PlayBox[] = [
     name: "Avatar",
     type: "Draft Environment",
     capacity: "Drafts up to 8 players",
-    remaining: 36,
-    total: 36,
+    remaining: 30,
+    total: 30,
     format: "Draft",
     color: "cyan",
     cost: "140.00",
@@ -56,8 +56,8 @@ const DEFAULT_BOXES: PlayBox[] = [
     name: "Tarkir Dragonstorm",
     type: "Draft Booster Box",
     capacity: "Pack cracking only",
-    remaining: 36,
-    total: 36,
+    remaining: 30,
+    total: 30,
     format: "Draft",
     color: "rose",
     cost: "125.00",
@@ -113,8 +113,8 @@ const DEFAULT_BOXES: PlayBox[] = [
     name: "Final Fantasy",
     type: "Draft Environment",
     capacity: "Drafts up to 8 players",
-    remaining: 36,
-    total: 36,
+    remaining: 30,
+    total: 30,
     format: "Draft",
     color: "indigo",
     cost: "150.00",
@@ -175,7 +175,7 @@ export default function PlayBoxPage() {
   const isAdmin = ADMIN_EMAILS.includes(user?.email ?? '');
   const [playBoxes, setPlayBoxes] = useState<PlayBox[]>(DEFAULT_BOXES);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newBox, setNewBox] = useState({ name: "", setCode: "", cost: "", marketPrice: "", type: "Draft Booster Box", total: 36, imageUrl: "" });
+  const [newBox, setNewBox] = useState({ name: "", setCode: "", cost: "", marketPrice: "", type: "Draft Booster Box", total: 30, imageUrl: "" });
 
   useEffect(() => {
     const loadBoxes = async () => {
@@ -244,7 +244,7 @@ export default function PlayBoxPage() {
     }
 
     setIsModalOpen(false);
-    setNewBox({ name: "", setCode: "", cost: "", marketPrice: "", type: "Draft Booster Box", total: 36, imageUrl: "" });
+    setNewBox({ name: "", setCode: "", cost: "", marketPrice: "", type: "Draft Booster Box", total: 30, imageUrl: "" });
   };
 
   return (

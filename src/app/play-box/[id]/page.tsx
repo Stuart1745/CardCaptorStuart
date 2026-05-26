@@ -93,11 +93,11 @@ const EVERGREEN_KEYWORDS = new Set([
 ]);
 
 const DEFAULT_BOX_INFO: Record<string, { name: string; setCode: string; remaining: number; total: number }> = {
-  "2": { name: "Avatar", setCode: "TLA", remaining: 36, total: 36 },
-  "3": { name: "Tarkir Dragonstorm", setCode: "TDM", remaining: 36, total: 36 },
+  "2": { name: "Avatar", setCode: "TLA", remaining: 30, total: 30 },
+  "3": { name: "Tarkir Dragonstorm", setCode: "TDM", remaining: 30, total: 30 },
   "4": { name: "Lorwyn Eclipsed", setCode: "ECL", remaining: 36, total: 36 },
   "5": { name: "Unfinity", setCode: "UNF", remaining: 36, total: 36 },
-  "6": { name: "Final Fantasy", setCode: "FIN", remaining: 36, total: 36 },
+  "6": { name: "Final Fantasy", setCode: "FIN", remaining: 30, total: 30 },
 };
 
 const BONUS_SHEETS: Record<string, string[]> = {
@@ -729,26 +729,30 @@ export default function PlayboxDetailsPage() {
           return <span className={`text-[9px] font-bold text-center block ${cls}`}>{label}</span>;
         })()}
 
-        <div className={`absolute hidden group-hover:block left-1/2 -translate-x-1/2 w-72 bg-slate-900/95 backdrop-blur-sm text-slate-50 p-4 rounded-xl shadow-2xl border border-slate-700 z-[100] pointer-events-none transform animate-in fade-in zoom-in-95 duration-200 ${
+        <div className={`absolute hidden group-hover:block left-1/2 -translate-x-1/2 w-[26rem] bg-slate-900/95 backdrop-blur-sm text-slate-50 p-4 rounded-xl shadow-2xl border border-slate-700 z-[100] pointer-events-none transform animate-in fade-in zoom-in-95 duration-200 ${
           tooltipPos === 'top'
             ? 'bottom-full mb-8 origin-bottom'
             : 'top-full mt-4 origin-top'
         }`}>
-          <div className="mb-3 rounded-lg overflow-hidden aspect-[2.5/3.5]">
-            <img src={getImageUrl(card)} alt={card.name} className="w-full h-full object-cover" />
+          <div className="flex gap-3">
+            <div className="flex-shrink-0 w-28 rounded-lg overflow-hidden">
+              <img src={getImageUrl(card)} alt={card.name} className="w-full h-full object-cover" />
+            </div>
+            <div className="flex-1 min-w-0 flex flex-col">
+              <div className="flex justify-between items-start mb-1 gap-2">
+                <h4 className="font-bold text-sm leading-tight">{card.name}</h4>
+                <span className="font-mono text-xs whitespace-nowrap bg-slate-800 px-1 py-0.5 rounded">{getManaCost(card)}</span>
+              </div>
+              <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-700/50">
+                <p className="text-xs font-semibold text-slate-400 truncate pr-2">{card.type_line}</p>
+                <span className="text-[10px] text-slate-500 font-medium capitalize flex-shrink-0">{card.rarity}</span>
+              </div>
+              <div className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed overflow-y-auto max-h-36">
+                {getOracleText(card)}
+              </div>
+              <p className="text-[10px] text-slate-500 mt-2">Click to open on Scryfall</p>
+            </div>
           </div>
-          <div className="flex justify-between items-start mb-1 gap-2">
-            <h4 className="font-bold text-sm leading-tight">{card.name}</h4>
-            <span className="font-mono text-xs whitespace-nowrap bg-slate-800 px-1 py-0.5 rounded">{getManaCost(card)}</span>
-          </div>
-          <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-700/50">
-            <p className="text-xs font-semibold text-slate-400 truncate pr-2">{card.type_line}</p>
-            <span className="text-[10px] text-slate-500 font-medium capitalize flex-shrink-0">{card.rarity}</span>
-          </div>
-          <div className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed pt-1">
-            {getOracleText(card)}
-          </div>
-          <p className="text-[10px] text-slate-500 mt-2 text-center">Click to open on Scryfall</p>
           <div className={`absolute left-1/2 -translate-x-1/2 border-4 border-transparent ${
             tooltipPos === 'top'
               ? 'top-full -mt-1 border-t-slate-900'
