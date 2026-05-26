@@ -3,6 +3,24 @@ import { NextResponse } from 'next/server';
 // Sets that intentionally have 3-color archetypes
 const THREE_COLOR_SETS = new Set(['KTK', 'FRF', 'DTK', 'TDM', 'MOM', 'NEO']);
 
+interface GuideMechanic {
+  name: string;
+  desc: string;
+  colors: string[];
+}
+
+// Hardcoded set mechanics from official Wizards prerelease guides.
+// Colors indicate which color(s) the mechanic primarily appears in.
+const HARDCODED_MECHANICS: Record<string, GuideMechanic[]> = {
+  FIN: [
+    { name: 'Town', colors: [], desc: 'Towns are a new land subtype for FIN dual lands. Each Town enters tapped unless you control the right basic land type, then it produces two colors of mana and often has an additional enters ability.' },
+    { name: 'Sagas', colors: [], desc: 'Enchantments with lore counters that trigger on your upkeep. Each chapter has an effect; when the final chapter resolves, the Saga is sacrificed.' },
+    { name: 'Job Select', colors: ['W', 'G'], desc: 'Job Select lets you choose one of several distinct modes — each representing a classic Final Fantasy job class — giving the card flexibility depending on the board state.' },
+    { name: 'Limit Break', colors: ['R'], desc: 'Limit Break cards are double-faced permanents (usually creatures) that can flip into a stronger form after meeting a condition, referencing the Limit Break mechanic from the Final Fantasy games.' },
+    { name: 'Equipment', colors: ['W', 'R'], desc: 'Artifact subtype that can be attached to creatures for bonuses. Equipment stays on the battlefield when the creature dies, ready to be re-equipped.' },
+  ],
+};
+
 // Hardcoded archetypes for sets where Draftsim coverage is missing or wrong.
 // Source: official Wizards prerelease guides.
 const HARDCODED_ARCHETYPES: Record<string, Omit<Archetype, 'source'>[]> = {
@@ -349,8 +367,11 @@ export async function GET(request: Request) {
     );
   }
 
+  const guideMechanics: GuideMechanic[] = HARDCODED_MECHANICS[setCode] ?? [];
+
   return NextResponse.json({
     archetypes: merged,
+    mechanics: guideMechanics,
     tierSource: tierMap.size > 0 ? '17lands' : null,
     sources: {
       draftsim: draftsimArchetypes.length > 0 ? draftsimUrl : null,

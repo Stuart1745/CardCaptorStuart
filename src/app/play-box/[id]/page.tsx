@@ -57,10 +57,27 @@ interface ScryfallCard {
 }
 
 const EVERGREEN_KEYWORDS = new Set([
-  'Flying', 'Trample', 'Deathtouch', 'Defender', 'Double strike', 'Enchant', 'Equip',
+  'Flying', 'Trample', 'Deathtouch', 'Defender', 'Double strike', 'Double', 'Enchant', 'Equip',
   'First strike', 'Flash', 'Haste', 'Hexproof', 'Indestructible', 'Lifelink',
   'Menace', 'Reach', 'Vigilance', 'Ward', 'Scry', 'Mill', 'Fight', 'Prowess', 'Cycling', 'Treasure', 'Surveil',
   'Islandwalk', 'Forestwalk', 'Mountainwalk', 'Swampwalk', 'Plainswalk', 'Landwalk', 'Nonbasic landwalk', 'Food',
+  'Kicker', 'Convoke', 'Delve', 'Escape', 'Foretell', 'Learn', 'Cleave', 'Compleated',
+  'Protection', 'Phasing', 'Banding', 'Rampage', 'Cumulative upkeep', 'Echo', 'Buyback',
+  'Flashback', 'Madness', 'Morph', 'Megamorph', 'Forecast', 'Ripple', 'Suspend',
+  'Vanishing', 'Absorb', 'Fading', 'Modular', 'Bloodthirst', 'Haunt', 'Replicate', 'Forecast',
+  'Poisonous', 'Transfigure', 'Champion', 'Ninjutsu', 'Epic', 'Gravestorm', 'Hideaway',
+  'Evoke', 'Reinforce', 'Conspire', 'Persist', 'Wither', 'Retrace', 'Devour', 'Exalted',
+  'Unearth', 'Cascade', 'Rebound', 'Totem armor', 'Infect', 'Battle cry', 'Living weapon',
+  'Undying', 'Miracle', 'Soulbond', 'Overload', 'Scavenge', 'Unleash', 'Cipher',
+  'Evolve', 'Extort', 'Fuse', 'Bestow', 'Tribute', 'Dethrone', 'Hidden agenda',
+  'Outlast', 'Prowess', 'Dash', 'Exploit', 'Menace', 'Renown', 'Awaken', 'Devoid',
+  'Ingest', 'Myriad', 'Surge', 'Skulk', 'Emerge', 'Escalate', 'Meld', 'Improvise',
+  'Aftermath', 'Embalm', 'Eternalize', 'Afflict', 'Ascend', 'Assist', 'Jump-start',
+  'Mentor', 'Afterlife', 'Spectacle', 'Escape', 'Companion', 'Mutate', 'Encore',
+  'Boast', 'Foretell', 'Disturb', 'Decayed', 'Cleave', 'Training', 'Compleated',
+  'Reconfigure', 'Blitz', 'Casualty', 'Enlist', 'Read ahead', 'Ravenous', 'Squad',
+  'Prototype', 'Unearth', 'Toxic', 'Backup', 'Bargain', 'Celebrate', 'Disguise',
+  'Endure', 'Gift', 'Plot', 'Saddle', 'Spree', 'Expend', 'Offspring', 'Impending',
 ]);
 
 const BONUS_SHEETS: Record<string, string[]> = {
@@ -190,6 +207,7 @@ export default function PlayboxDetailsPage() {
   const [isFetchingArchetypes, setIsFetchingArchetypes] = useState(false);
   const [fetchMessage, setFetchMessage] = useState('');
   const [mechanics, setMechanics] = useState<{ name: string, desc: string, colors: string[], examples: ScryfallCard[] }[]>([]);
+  const [guideMechanics, setGuideMechanics] = useState<{ name: string; desc: string; colors: string[] }[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isSharedMode, setIsSharedMode] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -219,6 +237,7 @@ export default function PlayboxDetailsPage() {
       } else {
         const updatedBox = { ...box, customArchetypes: data.archetypes };
         setBox(updatedBox);
+        if (data.mechanics?.length > 0) setGuideMechanics(data.mechanics);
         try {
           const stored = localStorage.getItem('playBoxes');
           if (stored) {
@@ -233,6 +252,7 @@ export default function PlayboxDetailsPage() {
         const sources = [
           data.sources?.draftsim ? 'Draftsim' : null,
           data.sources?.scryfall ? 'Scryfall' : null,
+          data.tierSource ? `17lands tiers` : null,
         ].filter(Boolean).join(' + ');
         setFetchMessage(`Loaded ${data.archetypes.length} archetypes from ${sources || 'API'}.`);
       }
@@ -415,13 +435,6 @@ export default function PlayboxDetailsPage() {
     }
   }
 
-  const getRatingColor = (ratingNum: number) => {
-    if (ratingNum >= 4.0) return 'text-emerald-400';
-    if (ratingNum >= 3.0) return 'text-amber-400';
-    if (ratingNum >= 2.0) return 'text-slate-300';
-    return 'text-red-400';
-  }
-
   const getSymbolFromName = (name: string) => {
     switch(name) {
       case 'White': return 'W';
@@ -598,8 +611,6 @@ export default function PlayboxDetailsPage() {
   };
 
   const CardRenderer = ({ card }: { card: ScryfallCard }) => {
-    const rating = getMockRating(card.name);
-    const numRating = parseFloat(rating);
     const [tooltipPos, setTooltipPos] = useState<'top' | 'bottom'>('top');
 
     const handleMouseEnter = (e: React.MouseEvent) => {
@@ -652,10 +663,7 @@ export default function PlayboxDetailsPage() {
           </div>
           <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-700/50">
             <p className="text-xs font-semibold text-slate-400 truncate pr-2">{card.type_line}</p>
-            <div className={`flex items-center gap-1 text-xs font-bold bg-slate-800 px-1.5 py-0.5 rounded ${getRatingColor(numRating)} flex-shrink-0`}>
-              <Star className="w-3 h-3" fill="currentColor" />
-              {rating}
-            </div>
+            <span className="text-[10px] text-slate-500 font-medium capitalize flex-shrink-0">{card.rarity}</span>
           </div>
           <div className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed pt-1 max-h-32 overflow-y-auto custom-scrollbar">
             {getOracleText(card)}
@@ -826,7 +834,7 @@ export default function PlayboxDetailsPage() {
                     const tier = (archetype as { tier?: string }).tier || getCardQualityTier(topCards);
                     
                     return (
-                      <div key={archetype.name} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden relative">
+                      <div key={archetype.name} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col relative">
                         {/* Top: Archetype Info */}
                         <div className="relative p-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-col justify-center">
                           {/* Sleek Top Colored Border */}
@@ -932,7 +940,7 @@ export default function PlayboxDetailsPage() {
           {/* Sidebar Pane: Mechanics and Mana Fixing */}
           <div className="space-y-8">
             {/* Set Mechanics Section */}
-            {mechanics.length > 0 && !loading && !error && (
+            {(guideMechanics.length > 0 || mechanics.length > 0) && !loading && !error && (
               <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-bold text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2">
@@ -940,7 +948,38 @@ export default function PlayboxDetailsPage() {
                   </h3>
                 </div>
                 <div className="grid grid-cols-1 gap-4">
-                  {mechanics.map(mech => (
+                  {/* Guide-sourced mechanics first (authoritative, from Wizards prerelease guide) */}
+                  {guideMechanics.map(mech => (
+                    <div key={`guide-${mech.name}`} className="relative group p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/40 rounded-xl">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <h4 className="font-bold text-slate-900 dark:text-slate-100">{mech.name}</h4>
+                        <div className="flex gap-1.5 items-center">
+                          {mech.colors.map(c => {
+                            let bg = "";
+                            let icon = null;
+                            if (c === 'W') { bg = 'bg-[#f8e7b9] text-slate-800 border-[#d4c395]'; icon = <Sun className="w-3.5 h-3.5" />; }
+                            else if (c === 'U') { bg = 'bg-[#b3ceea] text-slate-900 border-[#93aec9]'; icon = <Droplet className="w-3.5 h-3.5 fill-current" />; }
+                            else if (c === 'B') { bg = 'bg-[#a69f9d] text-slate-900 border-[#857e7c]'; icon = <Skull className="w-3.5 h-3.5 fill-current" />; }
+                            else if (c === 'R') { bg = 'bg-[#eb9f82] text-slate-900 border-[#ca7e61]'; icon = <Flame className="w-3.5 h-3.5 fill-current" />; }
+                            else if (c === 'G') { bg = 'bg-[#c4d3ca] text-slate-900 border-[#a3b2a9]'; icon = <TreePine className="w-3 h-3 fill-current" />; }
+                            else return null;
+                            return (
+                              <div key={c} className={`w-5 h-5 flex items-center justify-center rounded-full border shadow-sm ${bg} shadow-black/20`}>
+                                {icon}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{mech.desc}</p>
+                    </div>
+                  ))}
+                  {/* Separator if both sources have data */}
+                  {guideMechanics.length > 0 && mechanics.filter(m => !guideMechanics.some(g => g.name.toLowerCase() === m.name.toLowerCase())).length > 0 && (
+                    <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest pt-1">Also in this set</p>
+                  )}
+                  {/* Card-scanned mechanics (exclude any already shown from guide) */}
+                  {mechanics.filter(m => !guideMechanics.some(g => g.name.toLowerCase() === m.name.toLowerCase())).map(mech => (
                     <div key={mech.name} className="relative group p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 rounded-xl cursor-help">
                       <div className="flex items-center justify-between mb-1.5">
                         <h4 className="font-bold text-slate-900 dark:text-slate-100">{mech.name}</h4>
