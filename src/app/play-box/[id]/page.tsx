@@ -208,6 +208,7 @@ export default function PlayboxDetailsPage() {
   const [fetchMessage, setFetchMessage] = useState('');
   const [mechanics, setMechanics] = useState<{ name: string, desc: string, colors: string[], examples: ScryfallCard[] }[]>([]);
   const [guideMechanics, setGuideMechanics] = useState<{ name: string; desc: string; colors: string[] }[]>([]);
+  const [cardRatingMap, setCardRatingMap] = useState<Map<string, number>>(new Map());
   const [error, setError] = useState<string | null>(null);
   const [isSharedMode, setIsSharedMode] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -238,6 +239,11 @@ export default function PlayboxDetailsPage() {
         const updatedBox = { ...box, customArchetypes: data.archetypes };
         setBox(updatedBox);
         if (data.mechanics?.length > 0) setGuideMechanics(data.mechanics);
+        if (data.cardRatings?.length > 0) {
+          const rmap = new Map<string, number>();
+          for (const r of data.cardRatings) if (r.name) rmap.set(r.name, r.winRate ?? 0);
+          setCardRatingMap(rmap);
+        }
         try {
           const stored = localStorage.getItem('playBoxes');
           if (stored) {
@@ -553,9 +559,18 @@ export default function PlayboxDetailsPage() {
 
     const scored = (subset: ScryfallCard[]) =>
       subset
-        .map(card => ({ card, score: scoreCardForArchetype(card, symbols, synergyTerms) }))
-        .filter(({ score }) => score > 0)
-        .sort((a, b) => b.score - a.score || parseFloat(getMockRating(b.card.name)) - parseFloat(getMockRating(a.card.name)))
+        .map(card => ({
+          card,
+          score: scoreCardForArchetype(card, symbols, synergyTerms),
+          landsWr: cardRatingMap.get(card.name) ?? 0,
+        }))
+        .filter(({ score, landsWr }) => score > 0 || landsWr > 0.48)
+        .sort((a, b) => {
+          // 17lands win rate is primary signal when available; blend with color-fit score
+          const aVal = a.landsWr > 0 ? a.landsWr * 100 + a.score * 0.1 : a.score;
+          const bVal = b.landsWr > 0 ? b.landsWr * 100 + b.score * 0.1 : b.score;
+          return bVal - aVal;
+        })
         .map(({ card }) => card);
 
     const rar = (c: ScryfallCard) => (c.rarity || '').toLowerCase();

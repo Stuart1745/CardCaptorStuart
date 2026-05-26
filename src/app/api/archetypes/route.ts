@@ -174,6 +174,35 @@ interface Archetype {
   tier?: string;
 }
 
+interface CardRating {
+  name: string;
+  winRate: number;
+  avgLastSeen?: number;
+}
+
+/** 17lands: fetch individual card win rates for the set */
+async function fetch17LandsCardRatings(setCode: string): Promise<CardRating[]> {
+  try {
+    const url = `https://www.17lands.com/card_ratings/data?expansion=${setCode}&format=PremierDraft`;
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'MTG-Collection-Tracker/1.0' },
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    const data: Array<{ name?: string; ever_drawn_win_rate?: number; win_rate?: number; avg_last_seen_at?: number }> = await res.json();
+    if (!Array.isArray(data)) return [];
+    return data
+      .filter(d => d.name)
+      .map(d => ({
+        name: d.name!,
+        winRate: d.ever_drawn_win_rate ?? d.win_rate ?? 0,
+        avgLastSeen: d.avg_last_seen_at,
+      }));
+  } catch {
+    return [];
+  }
+}
+
 /** 17lands: fetch color pair (or triplet) win rates and map to S/A/B/C/D tiers */
 async function fetch17LandsTiers(setCode: string, allowThreeColor: boolean): Promise<Map<string, string>> {
   const tiers = new Map<string, string>();
@@ -330,7 +359,7 @@ export async function GET(request: Request) {
     : null;
 
   // Run all sources in parallel; skip Draftsim/Wizards if hardcoded data covers the set
-  const [wizardsResult, draftsimResult, scryfallResult, tiersResult] = await Promise.allSettled([
+  const [wizardsResult, draftsimResult, scryfallResult, tiersResult, cardRatingsResult] = await Promise.allSettled([
     wizardsUrl && hardcoded.length === 0
       ? scrapeHeadingsFromUrl(wizardsUrl, 'wizards')
       : Promise.resolve([]),
@@ -339,12 +368,14 @@ export async function GET(request: Request) {
       : Promise.resolve([]),
     fetchScryfallSignposts(setCode, allowThreeColor),
     fetch17LandsTiers(setCode, allowThreeColor),
+    fetch17LandsCardRatings(setCode),
   ]);
 
   const wizardsArchetypes = wizardsResult.status === 'fulfilled' ? wizardsResult.value : [];
   const draftsimArchetypes = draftsimResult.status === 'fulfilled' ? draftsimResult.value : [];
   const scryfallData = scryfallResult.status === 'fulfilled' ? scryfallResult.value : [];
   const tierMap = tiersResult.status === 'fulfilled' ? tiersResult.value : new Map<string, string>();
+  const cardRatings = cardRatingsResult.status === 'fulfilled' ? cardRatingsResult.value : [];
 
   // Merge priority: hardcoded > Wizards guide > Draftsim > Scryfall signposts
   const seenKeys = new Set<string>();
@@ -372,7 +403,9 @@ export async function GET(request: Request) {
   return NextResponse.json({
     archetypes: merged,
     mechanics: guideMechanics,
+    cardRatings,
     tierSource: tierMap.size > 0 ? '17lands' : null,
+    cardRatingsSource: cardRatings.length > 0 ? '17lands' : null,
     sources: {
       draftsim: draftsimArchetypes.length > 0 ? draftsimUrl : null,
       scryfall: scryfallData.length > 0 ? `https://scryfall.com/search?q=set:${setCode}+rarity:uncommon+colors>=2` : null,
