@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Package, Inbox, Plus, Layers, PlaySquare, X, DollarSign, Image as ImageIcon } from "lucide-react";
+import { useAuth } from "@/components/AuthProvider";
+
+const ADMIN_EMAILS = ['rampy1745@gmail.com'];
 
 interface PlayBox {
   id: string;
@@ -184,6 +187,8 @@ const getTheme = (color: string) => {
 };
 
 export default function PlayBoxPage() {
+  const { user } = useAuth();
+  const isAdmin = ADMIN_EMAILS.includes(user?.email ?? '');
   const [playBoxes, setPlayBoxes] = useState<PlayBox[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newBox, setNewBox] = useState({ name: "", setCode: "", cost: "", type: "Draft Booster Box", total: 36, imageUrl: "" });
@@ -250,13 +255,16 @@ export default function PlayBoxPage() {
             </div>
             <p className="text-slate-500 dark:text-slate-400 mt-1">Manage your sealed product inventory, draft boxes, and custom cubes.</p>
           </div>
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow-sm hover:bg-indigo-700 transition-colors w-full sm:w-auto"
-          >
-            <Plus className="w-4 h-4" />
-            Add Box
-          </button>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow-sm hover:bg-indigo-700 transition-colors w-full sm:w-auto"
+            >
+              <Plus className="w-4 h-4" />
+              Add Box
+            </button>
+          )}
         </div>
 
         {/* Modal */}

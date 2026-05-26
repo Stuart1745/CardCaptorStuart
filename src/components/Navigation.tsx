@@ -4,16 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 import { LoginButton } from "./LoginButton";
+import { useAuth } from "./AuthProvider";
 import { Layers, Box, Package } from "lucide-react";
 
 export function Navigation() {
   const pathname = usePathname();
+  const { user } = useAuth();
 
   const links = [
-    { href: "/", label: "Collection", icon: Box },
-    { href: "/decks", label: "Decks", icon: Layers },
-    { href: "/play-box", label: "Play Box", icon: Package },
-  ];
+    { href: "/", label: "Collection", icon: Box, requiresAuth: true },
+    { href: "/decks", label: "Decks", icon: Layers, requiresAuth: false },
+    { href: "/play-box", label: "Play Box", icon: Package, requiresAuth: false },
+  ].filter(link => !link.requiresAuth || user);
 
   return (
     <nav className="border-b border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-950/50 backdrop-blur-md sticky top-0 z-50">

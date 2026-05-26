@@ -1,26 +1,31 @@
 "use client"
 
-import { createClient } from '@/utils/supabase/client'
 import { useState } from 'react'
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
+import { auth } from '@/lib/firebase'
+import { useRouter } from 'next/navigation'
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
-  const supabase = createClient()
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   const handleGoogleLogin = async () => {
+    if (!auth) {
+      setError('Firebase is not configured. Check your environment variables.')
+      return
+    }
     setIsLoading(true)
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || ''}/auth/callback`,
-        // Request Gmail read-only scopes so we can parse receipts later
-        scopes: 'https://www.googleapis.com/auth/gmail.readonly',
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        }
-      },
-    })
+    setError(null)
+    try {
+      const provider = new GoogleAuthProvider()
+      await signInWithPopup(auth, provider)
+      router.push('/')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Sign-in failed. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -28,6 +33,7 @@ export default function LoginForm() {
       <button
         onClick={handleGoogleLogin}
         disabled={isLoading}
+        type="button"
         className="w-full flex justify-center items-center gap-3 py-3 px-4 border border-neutral-700 rounded-lg shadow-sm bg-neutral-800 text-sm font-medium text-white hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -39,13 +45,17 @@ export default function LoginForm() {
         {isLoading ? 'Connecting...' : 'Continue with Google'}
       </button>
 
+      {error && (
+        <p className="text-sm text-red-400 text-center">{error}</p>
+      )}
+
       <div className="relative mt-4">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-neutral-800"></div>
         </div>
         <div className="relative flex justify-center text-sm">
           <span className="px-2 bg-neutral-900 text-neutral-500">
-            Secure login powered by Supabase
+            Secure login powered by Firebase
           </span>
         </div>
       </div>

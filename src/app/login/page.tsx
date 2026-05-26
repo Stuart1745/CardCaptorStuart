@@ -1,18 +1,19 @@
-import { createClient } from '@/utils/supabase/server'
-import { redirect } from 'next/navigation'
+"use client"
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/components/AuthProvider'
 import LoginForm from './LoginForm'
 
-// Always server-render — Supabase auth requires runtime env vars not present at build time
-export const dynamic = 'force-dynamic';
+export default function LoginPage() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
 
-export default async function LoginPage() {
-  const supabase = await createClient()
-  
-  // If already logged in, redirect to dashboard
-  const { data: { session } } = await supabase.auth.getSession()
-  if (session) {
-    redirect('/')
-  }
+  useEffect(() => {
+    if (!loading && user) router.replace('/')
+  }, [user, loading, router])
+
+  if (loading) return null
 
   return (
     <div className="min-h-screen bg-neutral-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 selection:bg-blue-500/30">
