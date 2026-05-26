@@ -83,13 +83,11 @@ const EVERGREEN_KEYWORDS = new Set([
 ]);
 
 const DEFAULT_BOX_INFO: Record<string, { name: string; setCode: string; remaining: number; total: number }> = {
-  "1": { name: "Kamigawa Draft Box", setCode: "NEO", remaining: 24, total: 36 },
   "2": { name: "Avatar", setCode: "TLA", remaining: 36, total: 36 },
   "3": { name: "Tarkir Dragonstorm", setCode: "TDM", remaining: 36, total: 36 },
   "4": { name: "Lorwyn Eclipsed", setCode: "LRW", remaining: 36, total: 36 },
   "5": { name: "Unfinity", setCode: "UNF", remaining: 36, total: 36 },
   "6": { name: "Final Fantasy", setCode: "FIN", remaining: 36, total: 36 },
-  "7": { name: "Foundations", setCode: "FDN", remaining: 36, total: 36 },
 };
 
 const BONUS_SHEETS: Record<string, string[]> = {
@@ -1141,8 +1139,9 @@ export default function PlayboxDetailsPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Box Name</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
+                  aria-label="Box Name"
                   value={editFormData.name}
                   onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
                   className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"

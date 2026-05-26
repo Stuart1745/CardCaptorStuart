@@ -284,15 +284,32 @@ async function fetchScryfallSignposts(setCode: string, allowThreeColor: boolean)
   for (const [, group] of byPair) {
     const signpost = group[0];
     const colors = signpost.colors.map(sym => SYMBOL_TO_NAME[sym] || sym);
-    const oracleSnippet = signpost.oracle_text
-      ? signpost.oracle_text.replace(/\n/g, ' ').slice(0, 220)
-      : '';
+    const colorDesc = colors.join('/');
+
+    // Derive strategy hints from oracle text rather than pasting it verbatim
+    const oracle = (signpost.oracle_text || '').toLowerCase();
+    const hints: string[] = [];
+    if (/flying/.test(oracle)) hints.push('flying creatures');
+    if (/\+1\/\+1 counter/.test(oracle)) hints.push('+1/+1 counters');
+    if (/draw a card|draw cards|draw two/.test(oracle)) hints.push('card draw');
+    if (/create.*token/.test(oracle)) hints.push('token generation');
+    if (/sacrifice/.test(oracle)) hints.push('sacrifice synergies');
+    if (/graveyard/.test(oracle)) hints.push('graveyard value');
+    if (/deathtouch/.test(oracle)) hints.push('deathtouch');
+    if (/lifelink/.test(oracle)) hints.push('lifegain');
+    if (/trample/.test(oracle)) hints.push('trample threats');
+    if (/haste/.test(oracle)) hints.push('haste aggro');
+    if (/whenever.*attacks|when.*attacks/.test(oracle)) hints.push('attack triggers');
+    if (/whenever.*enters|when.*enters/.test(oracle)) hints.push('ETB effects');
+    if (/instant|sorcery/.test(oracle) && !/type.*instant|type.*sorcery/.test(oracle)) hints.push('spells matter');
+
+    const hintStr = hints.length > 0 ? `Themes: ${hints.slice(0, 3).join(', ')}. ` : '';
+    const typeShort = (signpost.type_line || '').split(' — ')[0];
+
     archetypes.push({
-      name: `${signpost.colors.join('/')} Signpost`,
+      name: `${colorDesc} Strategy`,
       colors,
-      desc: oracleSnippet
-        ? `Signpost (${signpost.name}) — ${signpost.type_line}. "${oracleSnippet}${oracleSnippet.length >= 220 ? '...' : ''}"`
-        : `${colors.join('/')} signpost uncommon.`,
+      desc: `${colorDesc} archetype. Key signpost: ${signpost.name} (${typeShort}). ${hintStr}Click Auto-Fetch Archetypes after adding this set's prerelease guide to HARDCODED_ARCHETYPES for full strategy descriptions.`,
       source: 'scryfall',
     });
   }

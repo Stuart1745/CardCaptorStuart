@@ -11,7 +11,7 @@ export function LoginButton() {
 
   const handleSignIn = async () => {
     if (!auth) {
-      alert("Firebase is not configured. Check your .env.local file.");
+      alert("Firebase is not configured. On staging/production: set NEXT_PUBLIC_FIREBASE_* env vars in Firebase Console → App Hosting → Backend → Environment Variables (BUILD availability required).");
       return;
     }
 

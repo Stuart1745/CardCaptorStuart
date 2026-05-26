@@ -32,25 +32,6 @@ interface PlayBox {
 
 const DEFAULT_BOXES: PlayBox[] = [
   {
-    id: "1",
-    name: "Kamigawa Draft Box",
-    type: "Draft Environment",
-    capacity: "Drafts up to 8 players",
-    remaining: 24,
-    total: 36,
-    format: "Draft",
-    color: "indigo",
-    cost: "110.00",
-    setCode: "NEO",
-    theme: {
-      borderTop: "bg-indigo-500 dark:bg-indigo-600",
-      badge: "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400",
-      icon: "text-indigo-600 dark:text-indigo-400",
-      progressFill: "bg-indigo-500 dark:bg-indigo-400",
-      btn: "bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/50"
-    }
-  },
-  {
     id: "2",
     name: "Avatar",
     type: "Draft Environment",
@@ -143,25 +124,6 @@ const DEFAULT_BOXES: PlayBox[] = [
       icon: "text-indigo-600 dark:text-indigo-400",
       progressFill: "bg-indigo-500 dark:bg-indigo-400",
       btn: "bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/50"
-    }
-  },
-  {
-    id: "7",
-    name: "Foundations",
-    type: "Draft Booster Box",
-    capacity: "Drafts up to 8 players",
-    remaining: 36,
-    total: 36,
-    format: "Draft",
-    color: "amber",
-    cost: "130.00",
-    setCode: "FDN",
-    theme: {
-      borderTop: "bg-amber-500 dark:bg-amber-600",
-      badge: "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400",
-      icon: "text-amber-600 dark:text-amber-400",
-      progressFill: "bg-amber-500 dark:bg-amber-400",
-      btn: "bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50"
     }
   }
 ];
