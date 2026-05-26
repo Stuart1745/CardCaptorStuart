@@ -706,7 +706,7 @@ export default function PlayboxDetailsPage() {
 
     return (
       <div
-        className="relative group w-[11.25rem] sm:w-[12.5rem] shrink-0 z-10 hover:z-[100] flex flex-col gap-1"
+        className="relative group w-[14rem] sm:w-[15.5rem] shrink-0 z-10 hover:z-[100] flex flex-col gap-1"
         onMouseEnter={handleMouseEnter}
         onClick={() => window.open(`https://scryfall.com/search?q=!"${encodeURIComponent(card.name)}"`, '_blank')}
       >
@@ -941,7 +941,7 @@ export default function PlayboxDetailsPage() {
                              {topCards.signposts.length > 0 && (
                                <div>
                                  <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Signpost Uncommons</h5>
-                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(11.25rem,1fr))] gap-4">
+                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-4">
                                    {topCards.signposts.map(card => (
                                      <CardRenderer key={card.id} card={card} />
                                    ))}
@@ -952,7 +952,7 @@ export default function PlayboxDetailsPage() {
                              {topCards.rares.length > 0 && (
                                <div>
                                  <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Bomb Rares</h5>
-                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(11.25rem,1fr))] gap-4">
+                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-4">
                                    {topCards.rares.map(card => (
                                      <CardRenderer key={card.id} card={card} />
                                    ))}
@@ -963,7 +963,7 @@ export default function PlayboxDetailsPage() {
                              {topCards.removal.length > 0 && (
                                <div>
                                  <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Key Removal</h5>
-                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(11.25rem,1fr))] gap-4">
+                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-4">
                                    {topCards.removal.map(card => (
                                      <CardRenderer key={card.id} card={card} />
                                    ))}
@@ -974,7 +974,7 @@ export default function PlayboxDetailsPage() {
                              {topCards.evasion.length > 0 && (
                                <div>
                                  <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Evasion & Threats</h5>
-                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(11.25rem,1fr))] gap-4">
+                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-4">
                                    {topCards.evasion.map(card => (
                                      <CardRenderer key={card.id} card={card} />
                                    ))}
@@ -985,7 +985,7 @@ export default function PlayboxDetailsPage() {
                              {topCards.draw.length > 0 && (
                                <div>
                                  <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Card Advantage</h5>
-                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(11.25rem,1fr))] gap-4">
+                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-4">
                                    {topCards.draw.map(card => (
                                      <CardRenderer key={card.id} card={card} />
                                    ))}
@@ -996,7 +996,7 @@ export default function PlayboxDetailsPage() {
                              {topCards.commons.length > 0 && (
                                <div>
                                  <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Top Synergistic Commons</h5>
-                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(11.25rem,1fr))] gap-4">
+                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-4">
                                    {topCards.commons.map(card => (
                                      <CardRenderer key={card.id} card={card} />
                                    ))}
