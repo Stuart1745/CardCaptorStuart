@@ -144,6 +144,25 @@ const DEFAULT_BOXES: PlayBox[] = [
       progressFill: "bg-indigo-500 dark:bg-indigo-400",
       btn: "bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/50"
     }
+  },
+  {
+    id: "7",
+    name: "Foundations",
+    type: "Draft Booster Box",
+    capacity: "Drafts up to 8 players",
+    remaining: 36,
+    total: 36,
+    format: "Draft",
+    color: "amber",
+    cost: "130.00",
+    setCode: "FDN",
+    theme: {
+      borderTop: "bg-amber-500 dark:bg-amber-600",
+      badge: "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400",
+      icon: "text-amber-600 dark:text-amber-400",
+      progressFill: "bg-amber-500 dark:bg-amber-400",
+      btn: "bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50"
+    }
   }
 ];
 
@@ -191,35 +210,37 @@ const getTheme = (color: string) => {
 export default function PlayBoxPage() {
   const { user } = useAuth();
   const isAdmin = ADMIN_EMAILS.includes(user?.email ?? '');
-  const [playBoxes, setPlayBoxes] = useState<PlayBox[]>([]);
-  const [boxesLoading, setBoxesLoading] = useState(true);
+  const [playBoxes, setPlayBoxes] = useState<PlayBox[]>(DEFAULT_BOXES);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newBox, setNewBox] = useState({ name: "", setCode: "", cost: "", type: "Draft Booster Box", total: 36, imageUrl: "" });
 
   useEffect(() => {
     const loadBoxes = async () => {
-      if (!db) {
-        setPlayBoxes(DEFAULT_BOXES);
-        setBoxesLoading(false);
-        return;
-      }
+      if (!db) return;
       try {
         const snap = await getDocs(collection(db, 'playBoxes'));
         if (snap.empty) {
-          // Seed default boxes to Firestore using their original IDs so detail links work
           const batch = writeBatch(db);
           for (const box of DEFAULT_BOXES) {
             batch.set(doc(db, 'playBoxes', box.id), box);
           }
           await batch.commit();
-          setPlayBoxes(DEFAULT_BOXES);
+          // DEFAULT_BOXES already set as initial state — no update needed
         } else {
-          setPlayBoxes(snap.docs.map(d => ({ id: d.id, ...d.data() } as PlayBox)));
+          const firestoreBoxes = snap.docs.map(d => ({ id: d.id, ...d.data() } as PlayBox));
+          setPlayBoxes(firestoreBoxes);
+          // Seed any default boxes missing from Firestore (e.g. newly added defaults)
+          const existingIds = new Set(snap.docs.map(d => d.id));
+          const missing = DEFAULT_BOXES.filter(b => !existingIds.has(b.id));
+          if (missing.length > 0) {
+            const batch = writeBatch(db);
+            for (const box of missing) batch.set(doc(db, 'playBoxes', box.id), box);
+            await batch.commit();
+            setPlayBoxes([...firestoreBoxes, ...missing]);
+          }
         }
       } catch {
-        setPlayBoxes(DEFAULT_BOXES);
-      } finally {
-        setBoxesLoading(false);
+        // Keep DEFAULT_BOXES already shown as initial state
       }
     };
     loadBoxes();
@@ -407,15 +428,7 @@ export default function PlayBoxPage() {
           </div>
         )}
 
-        {boxesLoading ? (
-          <div className="flex items-center justify-center py-24 text-slate-400">
-            <div className="flex items-center gap-3">
-              <div className="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
-              Loading boxes...
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {playBoxes.map(box => {
               const theme = box.theme || getTheme(box.color || "indigo");
               const percentage = Math.round((box.remaining / box.total) * 100);
@@ -504,7 +517,6 @@ export default function PlayBoxPage() {
               </Link>
             )})}
           </div>
-        )}
       </div>
     </main>
   );

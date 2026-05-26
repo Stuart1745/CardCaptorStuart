@@ -82,6 +82,16 @@ const EVERGREEN_KEYWORDS = new Set([
   'Endure', 'Gift', 'Plot', 'Saddle', 'Spree', 'Expend', 'Offspring', 'Impending',
 ]);
 
+const DEFAULT_BOX_INFO: Record<string, { name: string; setCode: string; remaining: number; total: number }> = {
+  "1": { name: "Kamigawa Draft Box", setCode: "NEO", remaining: 24, total: 36 },
+  "2": { name: "Avatar", setCode: "TLA", remaining: 36, total: 36 },
+  "3": { name: "Tarkir Dragonstorm", setCode: "TDM", remaining: 36, total: 36 },
+  "4": { name: "Lorwyn Eclipsed", setCode: "LRW", remaining: 36, total: 36 },
+  "5": { name: "Unfinity", setCode: "UNF", remaining: 36, total: 36 },
+  "6": { name: "Final Fantasy", setCode: "FIN", remaining: 36, total: 36 },
+  "7": { name: "Foundations", setCode: "FDN", remaining: 36, total: 36 },
+};
+
 const BONUS_SHEETS: Record<string, string[]> = {
   "STX": ["STA"],
   "BRO": ["BRR"],
@@ -272,7 +282,15 @@ export default function PlayboxDetailsPage() {
     }
 
     (async () => {
-      let foundBox: { name: string; setCode: string; remaining: number; total: number; imageUrl?: string } = { name: "Loading...", setCode: "NEO", remaining: 0, total: 0 };
+      // Seed from local fallback immediately so header + archetypes show correct data before Firestore responds
+      const localFallback = DEFAULT_BOX_INFO[id];
+      let foundBox: { name: string; setCode: string; remaining: number; total: number; imageUrl?: string } =
+        localFallback ?? { name: "Unknown Box", setCode: "FDN", remaining: 0, total: 0 };
+
+      if (localFallback) {
+        setBox({ id, ...localFallback, cost: 0, packsOpen: 0, totalPacks: localFallback.total, inventory: [] });
+        setEditFormData({ name: localFallback.name, setCode: localFallback.setCode, cost: '0', imageUrl: '' });
+      }
 
       if (db) {
         try {
@@ -284,7 +302,7 @@ export default function PlayboxDetailsPage() {
             setEditFormData({ name: matched.name, setCode: matched.setCode || matched.set || '', cost: matched.cost?.toString() || '0', imageUrl: matched.imageUrl || '' });
           }
         } catch {
-          console.error("Failed to load play box from Firestore.");
+          // Firestore unavailable — keep local fallback already set above
         }
       }
       setBoxInfo(foundBox);
@@ -622,7 +640,7 @@ export default function PlayboxDetailsPage() {
     return { signposts, rares, commons, removal, evasion, draw };
   };
 
-  const CardRenderer = ({ card }: { card: ScryfallCard }) => {
+  const CardRenderer = ({ card, showRarityLabel }: { card: ScryfallCard; showRarityLabel?: boolean }) => {
     const [tooltipPos, setTooltipPos] = useState<'top' | 'bottom'>('top');
 
     const handleMouseEnter = (e: React.MouseEvent) => {
@@ -659,6 +677,13 @@ export default function PlayboxDetailsPage() {
           />
           {rarityBadge()}
         </div>
+
+        {showRarityLabel && (() => {
+          const r = (card.rarity || '').toLowerCase();
+          const cls = r === 'mythic' ? 'text-orange-500' : r === 'rare' ? 'text-amber-500' : r === 'uncommon' ? 'text-slate-400' : 'text-slate-500 dark:text-slate-500';
+          const label = r.charAt(0).toUpperCase() + r.slice(1) || 'Common';
+          return <span className={`text-[9px] font-bold text-center block ${cls}`}>{label}</span>;
+        })()}
 
         <div className={`absolute hidden group-hover:block left-1/2 -translate-x-1/2 w-72 bg-slate-900/95 backdrop-blur-sm text-slate-50 p-4 rounded-xl shadow-2xl border border-slate-700 z-[100] pointer-events-none transform animate-in fade-in zoom-in-95 duration-200 ${
           tooltipPos === 'top'
@@ -1067,7 +1092,7 @@ export default function PlayboxDetailsPage() {
                           <div>
                             <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Lands</h5>
                             <div className="grid grid-cols-2 gap-4 justify-items-center">
-                              {lands.map(card => <CardRenderer key={card.id} card={card} />)}
+                              {lands.map(card => <CardRenderer key={card.id} card={card} showRarityLabel />)}
                             </div>
                           </div>
                         )}
@@ -1075,7 +1100,7 @@ export default function PlayboxDetailsPage() {
                           <div>
                             <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Artifacts & Colorless</h5>
                             <div className="grid grid-cols-2 gap-4 justify-items-center">
-                              {colorlessNoncreature.map(card => <CardRenderer key={card.id} card={card} />)}
+                              {colorlessNoncreature.map(card => <CardRenderer key={card.id} card={card} showRarityLabel />)}
                             </div>
                           </div>
                         )}
@@ -1083,7 +1108,7 @@ export default function PlayboxDetailsPage() {
                           <div>
                             <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Spells</h5>
                             <div className="grid grid-cols-2 gap-4 justify-items-center">
-                              {spells.map(card => <CardRenderer key={card.id} card={card} />)}
+                              {spells.map(card => <CardRenderer key={card.id} card={card} showRarityLabel />)}
                             </div>
                           </div>
                         )}
@@ -1100,7 +1125,9 @@ export default function PlayboxDetailsPage() {
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full border border-slate-200 dark:border-slate-800 shadow-2xl p-6 relative">
-            <button 
+            <button
+              type="button"
+              aria-label="Close modal"
               onClick={() => setIsEditModalOpen(false)}
               className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800 rounded-full"
             >
@@ -1140,8 +1167,9 @@ export default function PlayboxDetailsPage() {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <ImageIcon className="h-4 w-4 text-slate-400" />
                   </div>
-                  <input 
-                    type="url" 
+                  <input
+                    type="url"
+                    aria-label="Custom Hero Image URL"
                     placeholder="https://... (Leave blank for random Mythic)"
                     value={editFormData.imageUrl}
                     onChange={(e) => setEditFormData({...editFormData, imageUrl: e.target.value})}
@@ -1154,7 +1182,8 @@ export default function PlayboxDetailsPage() {
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">$</span>
                   <input 
-                    type="number" 
+                    type="number"
+                    aria-label="Paid Price"
                     step="0.01"
                     value={editFormData.cost}
                     onChange={(e) => setEditFormData({...editFormData, cost: e.target.value})}
