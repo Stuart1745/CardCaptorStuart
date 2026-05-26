@@ -18,7 +18,7 @@ const HARDCODED_MECHANICS: Record<string, GuideMechanic[]> = {
     { name: 'Forecast', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Activated abilities on cards in your hand that you can use during your upkeep, revealing the card for the effect. Rewards keeping powerful spells in hand rather than casting them immediately.' },
     { name: 'Wedge Signposts', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'TDM is a three-color wedge set. Each of the five wedges (Abzan, Jeskai, Sultai, Mardu, Temur) has a multicolor uncommon signpost defining its strategy. Draft for your wedge\'s strengths.' },
   ],
-  ECI: [
+  ECL: [
     { name: 'Clash', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Each clashing player reveals the top card of their library; the player with the higher mana cost wins the clash and gets a bonus effect. Appears in all colors — high-cost decks clash more reliably.' },
     { name: 'Changeling', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'This creature is every creature type simultaneously. Changeling creatures count as Merfolk, Faerie, Elf, Goblin, Kithkin, and more — enabling cross-tribal synergies in any deck.' },
     { name: 'Evoke', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Pay the evoke cost instead of the mana cost to cast the creature for a cheaper ETB effect, then sacrifice it. Appears across all colors in Elemental-themed strategies for efficient one-shot value.' },
@@ -73,7 +73,7 @@ const HARDCODED_ARCHETYPES: Record<string, Omit<Archetype, 'source'>[]> = {
     { name: "Samurai / Warriors", colors: ["Red", "White"], desc: "Attack with a single, heavily buffed Samurai to trigger powerful 'attacks alone' abilities. Reconfigure artifacts provide versatility." },
     { name: "Channel / Ramp", colors: ["Green", "Blue"], desc: "Discard large creatures for their channel abilities early, then cast them late game. Green ramp enables the enormous payoffs." },
   ],
-  ECI: [
+  ECL: [
     { name: "Merfolk Tempo", colors: ["White", "Blue"], desc: "Tempo-oriented deck using Merfolk and Convoke to overwhelm opponents before they stabilize. Tribal synergies pump the whole team." },
     { name: "Kithkin Aggro", colors: ["Green", "White"], desc: "Go-wide aggressive deck focusing on battlefield presence. Kithkin tribal generates tokens and buffs the whole team." },
     { name: "Goblins / Sacrifice", colors: ["Black", "Red"], desc: "Aggressive deck centered on Blight and sacrifice synergies. Cheap Goblins flood the board and sacrifice for value." },
