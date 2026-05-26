@@ -665,7 +665,7 @@ export default function PlayboxDetailsPage() {
             <p className="text-xs font-semibold text-slate-400 truncate pr-2">{card.type_line}</p>
             <span className="text-[10px] text-slate-500 font-medium capitalize flex-shrink-0">{card.rarity}</span>
           </div>
-          <div className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed pt-1 max-h-32 overflow-y-auto custom-scrollbar">
+          <div className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed pt-1">
             {getOracleText(card)}
           </div>
           <p className="text-[10px] text-slate-500 mt-2 text-center">Click to open on Scryfall</p>
