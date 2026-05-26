@@ -85,7 +85,7 @@ const EVERGREEN_KEYWORDS = new Set([
 const DEFAULT_BOX_INFO: Record<string, { name: string; setCode: string; remaining: number; total: number }> = {
   "2": { name: "Avatar", setCode: "TLA", remaining: 36, total: 36 },
   "3": { name: "Tarkir Dragonstorm", setCode: "TDM", remaining: 36, total: 36 },
-  "4": { name: "Lorwyn Eclipsed", setCode: "LRW", remaining: 36, total: 36 },
+  "4": { name: "Lorwyn Eclipsed", setCode: "ECI", remaining: 36, total: 36 },
   "5": { name: "Unfinity", setCode: "UNF", remaining: 36, total: 36 },
   "6": { name: "Final Fantasy", setCode: "FIN", remaining: 36, total: 36 },
 };
@@ -180,7 +180,7 @@ const SET_ARCHETYPES: Record<string, {name: string, colors: string[], desc: stri
     { name: "Mass Die-Rolling", colors: ["Red", "Green"], desc: "Roll many dice to overwhelm the opponent." },
     { name: "Ability Stickers", colors: ["Green", "White"], desc: "Put ability stickers on creatures to go tall." }
   ],
-  "LRW": [
+  "ECI": [
     { name: "Merfolk Tempo", colors: ["White", "Blue"], desc: "Tempo-oriented deck that utilizes the Convoke mechanic." },
     { name: "Kithkin Aggro", colors: ["Green", "White"], desc: "Go-wide aggressive deck focusing on battlefield presence." },
     { name: "Goblins / Sacrifice", colors: ["Black", "Red"], desc: "Aggressive deck centered on Blight and sacrifice synergies." },

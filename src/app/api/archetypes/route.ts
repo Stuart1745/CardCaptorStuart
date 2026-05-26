@@ -22,8 +22,63 @@ const HARDCODED_MECHANICS: Record<string, GuideMechanic[]> = {
 };
 
 // Hardcoded archetypes for sets where Draftsim coverage is missing or wrong.
-// Source: official Wizards prerelease guides.
+// Source: official Wizards prerelease guides + community analysis.
 const HARDCODED_ARCHETYPES: Record<string, Omit<Archetype, 'source'>[]> = {
+  NEO: [
+    { name: "Vehicles / Pilots", colors: ["White", "Blue"], desc: "Crew powerful vehicles using cheap pilot creatures to push massive damage. Artifacts and pilots synergize to apply early pressure." },
+    { name: "Ninjutsu / Rogue", colors: ["Blue", "Black"], desc: "Sneak unblockable creatures through and swap them with Ninjas for powerful combat damage triggers. Rogue tribal provides additional payoffs." },
+    { name: "Artifact Sacrifice", colors: ["Black", "Red"], desc: "Generate cheap artifact tokens and sacrifice them to fuel powerful engines. Menace creatures and sacrifice outlets create consistent pressure." },
+    { name: "Modified / Aggro", colors: ["Red", "Green"], desc: "Equip, enchant, or put counters on your creatures to make them huge and trigger 'modified' synergies. Equipment and auras push through combat." },
+    { name: "Enchantments / Go Wide", colors: ["Green", "White"], desc: "Build an army of enchantment creatures and stack auras to overwhelm the board. Token generation supports the wide strategy." },
+    { name: "Artifacts & Enchantments", colors: ["White", "Black"], desc: "Balance artifacts and enchantments to trigger synergistic value engines. Removal and recursion keep the engine running." },
+    { name: "Artifacts / Spells", colors: ["Blue", "Red"], desc: "Synergize cheap artifacts with powerful spells to build massive mechanical threats. Improvise and spell-based payoffs close games." },
+    { name: "Ninjas / Recursion", colors: ["Black", "Green"], desc: "Grind out the long game with recursion and value-generating Ninjas. Channel abilities provide flexible early game plays." },
+    { name: "Samurai / Warriors", colors: ["Red", "White"], desc: "Attack with a single, heavily buffed Samurai to trigger powerful 'attacks alone' abilities. Reconfigure artifacts provide versatility." },
+    { name: "Channel / Ramp", colors: ["Green", "Blue"], desc: "Discard large creatures for their channel abilities early, then cast them late game. Green ramp enables the enormous payoffs." },
+  ],
+  ECI: [
+    { name: "Merfolk Tempo", colors: ["White", "Blue"], desc: "Tempo-oriented deck using Merfolk and Convoke to overwhelm opponents before they stabilize. Tribal synergies pump the whole team." },
+    { name: "Kithkin Aggro", colors: ["Green", "White"], desc: "Go-wide aggressive deck focusing on battlefield presence. Kithkin tribal generates tokens and buffs the whole team." },
+    { name: "Goblins / Sacrifice", colors: ["Black", "Red"], desc: "Aggressive deck centered on Blight and sacrifice synergies. Cheap Goblins flood the board and sacrifice for value." },
+    { name: "Elves / Graveyard", colors: ["Black", "Green"], desc: "Graveyard-synergy midrange deck. Elves ramp early, and the deck grinds the late game with recursion and persist." },
+    { name: "Elementals / Spells", colors: ["Blue", "Red"], desc: "Setup-and-payoff deck for casting spells with MV 4 or greater. Elemental tribal payoffs reward expensive spells." },
+    { name: "Faerie Flash", colors: ["Blue", "Black"], desc: "Tempo/control deck that rewards playing at instant speed. Faerie tribal punishes opponents who tap out on their turn." },
+    { name: "Orzhov Attrition", colors: ["White", "Black"], desc: "Midrange deck using Blight to weaken opposing creatures. Grind out value through removal and recursion." },
+    { name: "Boros Aggro", colors: ["Red", "White"], desc: "Aggressive archetype utilizing combat tricks and efficient threats. Get under the opponent fast and close with burn." },
+    { name: "Vivid Ramp", colors: ["Green", "Blue"], desc: "Focuses on the Vivid mechanic for mana fixing and scaling into huge late-game threats." },
+    { name: "Vivid Midrange", colors: ["Red", "Green"], desc: "Leverages the Vivid mechanic for fixing and plays midrange threats with strong enters-the-battlefield effects." },
+  ],
+  UNF: [
+    { name: "Name Stickers", colors: ["White", "Blue"], desc: "Add words to card names to trigger bonuses. Sticker Wizard gives permanents extra bonuses based on their names." },
+    { name: "Precision Die-Rolling", colors: ["Blue", "Black"], desc: "Use dice rolling for controlling effects and value generation. High rolls generate card advantage and removal." },
+    { name: "High-Roll Build-Up", colors: ["Black", "Red"], desc: "Succeed on high dice rolls to generate powerful effects. Aggressive creatures threaten lethal when you hit good numbers." },
+    { name: "Art Stickers", colors: ["Blue", "Red"], desc: "Use art stickers and spell-casting synergies. Combo-oriented deck that generates value through sticker synergies." },
+    { name: "Hats Matter", colors: ["White", "Black"], desc: "Aggressive archetype rewarding creatures with hats. Sticker synergies buff the whole team when equipped with the right accessories." },
+    { name: "Attractions", colors: ["Black", "Green"], desc: "Generate value by opening and visiting Attractions. Consistent Attraction triggers grind out opponents over time." },
+    { name: "Clown Robot Aggro", colors: ["Red", "White"], desc: "Aggressive tribal strategy focused on Clown creatures and artifact synergies. Overwhelm before opponents can stabilize." },
+    { name: "P/T Stickers", colors: ["Green", "Blue"], desc: "Stompy deck using power/toughness stickers to grow creatures into massive threats that demand immediate answers." },
+    { name: "Mass Die-Rolling", colors: ["Red", "Green"], desc: "Roll many dice at once to overwhelm the opponent with sheer volume of triggers and random beneficial effects." },
+    { name: "Ability Stickers", colors: ["Green", "White"], desc: "Put ability stickers on creatures to give them keywords and go tall. A single huge threat with multiple abilities closes the game." },
+  ],
+  KTK: [
+    { name: "Abzan / Outlast", colors: ["White", "Black", "Green"], desc: "Grind out the long game with +1/+1 counters and resilient creatures. Outlast builds a snowballing board that never stops growing." },
+    { name: "Jeskai / Prowess", colors: ["Blue", "Red", "White"], desc: "Chain non-creature spells to buff your team with Prowess triggers and push through damage each combat step." },
+    { name: "Sultai / Delve", colors: ["Black", "Green", "Blue"], desc: "Fill your graveyard to cast massive Delve threats ahead of schedule. Graveyard density unlocks enormous mana efficiency." },
+    { name: "Mardu / Raid", colors: ["Red", "White", "Black"], desc: "Aggressively attack to trigger powerful Raid bonuses. Fast threats and removal clear the way for constant pressure." },
+    { name: "Temur / Ferocious", colors: ["Green", "Blue", "Red"], desc: "Deploy huge 4-power creatures to unlock powerful Ferocious abilities. Ramp accelerates into game-ending threats early." },
+  ],
+  MH2: [
+    { name: "Artifacts / Affinity", colors: ["White", "Blue"], desc: "Utilize artifact synergies, token generation, and affinity payoffs. Modular counters spread across the artifact team on death." },
+    { name: "Reanimator", colors: ["White", "Black"], desc: "Discard large creatures and return them to the battlefield for massive tempo advantage. Recursion provides resilience to removal." },
+    { name: "Surveil / Self-Discard", colors: ["Blue", "Black"], desc: "Manage the graveyard and utilize self-discard effects. Fill the bin to enable powerful graveyard payoffs." },
+    { name: "Delirium", colors: ["Blue", "Red"], desc: "Achieve delirium by filling your graveyard with multiple card types to unlock powerful spell payoffs." },
+    { name: "Madness / Aggro", colors: ["Black", "Red"], desc: "Aggressively utilize madness cards and discard outlets. Get double value from cards by casting them on the way to the bin." },
+    { name: "Squirrels / Sacrifice", colors: ["Black", "Green"], desc: "Generate Squirrel tokens and leverage sacrifice value. A massive Squirrel army supported by sacrifice payoffs overwhelms opponents." },
+    { name: "Storm / Spells", colors: ["Red", "Green"], desc: "Use cheap spells and madness to enable storm turns. A critical mass of spells creates explosive game-ending finishes." },
+    { name: "+1/+1 Counters", colors: ["Green", "White"], desc: "Focus on modular and +1/+1 counter synergies. Persist and undying creatures provide inevitable recursive threats." },
+    { name: "Tokens / Value", colors: ["Green", "Blue"], desc: "Generate various token types and play for midrange value. Token variety enables powerful cross-synergies." },
+    { name: "Modular / Artifact Aggro", colors: ["Red", "White"], desc: "An aggressive deck utilizing modular creatures and artifact synergies. Counters spread on death to maintain relentless pressure." },
+  ],
   FIN: [
     { name: 'W/U Artifacts', colors: ['White', 'Blue'], desc: 'Assemble a massive board of artifacts — artifact creatures, Equipment, Treasures, and more. Key cards: Tidus, Blitzball Star grows with artifact tokens; Cid, Timeless Artificer supports artifact creatures.' },
     { name: 'U/B Control', colors: ['Blue', 'Black'], desc: 'Accrue value from the graveyard while playing defensively. Locke Cole enables card draw via discard; Ultimecia, Time Sorceress takes extra turns fueled by discarded resources.' },
@@ -43,6 +98,7 @@ const HARDCODED_ARCHETYPES: Record<string, Omit<Archetype, 'source'>[]> = {
 // Add new sets here as guides are published.
 const WIZARDS_GUIDE_SLUGS: Record<string, string> = {
   FIN: 'final-fantasy-prerelease-guide',
+  TDM: 'tarkir-dragonstorm-prerelease-guide',
   DSK: 'duskmourn-house-of-horror-prerelease-guide',
   BLB: 'bloomburrow-prerelease-guide',
   OTJ: 'outlaws-of-thunder-junction-prerelease-guide',

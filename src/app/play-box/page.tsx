@@ -79,7 +79,7 @@ const DEFAULT_BOXES: PlayBox[] = [
     format: "Draft",
     color: "emerald",
     cost: "135.00",
-    setCode: "LRW",
+    setCode: "ECI",
     theme: {
       borderTop: "bg-emerald-500 dark:bg-emerald-600",
       badge: "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400",
