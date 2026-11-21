@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 
 // Sets that intentionally have 3-color archetypes
 const THREE_COLOR_SETS = new Set(['KTK', 'FRF', 'DTK', 'TDM', 'MOM', 'NEO']);
@@ -373,87 +375,62 @@ interface Archetype {
 
 interface CardRating {
   name: string;
+  /** Games-in-hand win rate (GIH WR), 0..1 */
   winRate: number;
-  avgLastSeen?: number;
+  gihGames: number;
+  gpWr?: number | null;
+  iwd?: number | null;
+  /** Average pick taken at (1 = first pick) */
+  ata?: number;
 }
 
-/** 17lands: fetch individual card win rates for the set */
-async function fetch17LandsCardRatings(setCode: string): Promise<CardRating[]> {
+interface LimitedStats {
+  set: string;
+  games: number;
+  generatedAt: string;
+  source: { name: string; url: string; license: string; gameDataModified?: string };
+  colorPairs: Record<string, { winRate: number | null; games: number }>;
+  cards: Record<string, { gihWr: number | null; gihGames: number; gpWr: number | null; iwd: number | null; ata?: number }>;
+}
+
+/**
+ * Precomputed stats from 17Lands' PUBLIC datasets (CC BY 4.0) — built weekly by
+ * scripts/build_limited_stats.py into data/limited-stats/{SET}.json. 17Lands permits
+ * outside use only of the public datasets, so the app no longer calls its site APIs.
+ */
+async function loadLimitedStats(setCode: string): Promise<LimitedStats | null> {
+  if (!/^[A-Z0-9]{2,6}$/.test(setCode)) return null; // set code is used in a file path
   try {
-    const url = `https://www.17lands.com/card_ratings/data?expansion=${setCode}&event_type=PremierDraft`;
-    const res = await fetch(url, {
-      headers: { 'User-Agent': 'MTG-Collection-Tracker/1.0' },
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return [];
-    const data: Array<{ name?: string; ever_drawn_win_rate?: number | null; ever_drawn_game_count?: number; win_rate?: number | null; avg_last_seen_at?: number }> = await res.json();
-    if (!Array.isArray(data)) return [];
-    // The public endpoint now returns win rates for very few cards (often null with a tiny
-    // sample); keep only real rates with a usable sample so callers fall back to fit-scoring.
-    return data
-      .filter(d => d.name && (d.ever_drawn_win_rate ?? d.win_rate) != null && (d.ever_drawn_game_count ?? 0) >= 200)
-      .map(d => ({
-        name: d.name!,
-        winRate: d.ever_drawn_win_rate ?? d.win_rate ?? 0,
-        avgLastSeen: d.avg_last_seen_at,
-      }));
+    const raw = await readFile(path.join(process.cwd(), 'data', 'limited-stats', `${setCode}.json`), 'utf8');
+    return JSON.parse(raw) as LimitedStats;
   } catch {
-    return [];
+    return null; // no public data for this set yet (17Lands publishes ~2 weeks after release)
   }
 }
 
-/** 17lands: fetch color pair (or triplet) win rates and map to S/A/B/C/D tiers */
-async function fetch17LandsTiers(setCode: string, allowThreeColor: boolean): Promise<Map<string, string>> {
+function cardRatingsFrom(stats: LimitedStats): CardRating[] {
+  return Object.entries(stats.cards)
+    .filter(([, c]) => c.gihWr != null && c.gihGames >= 200)
+    .map(([name, c]) => ({ name, winRate: c.gihWr!, gihGames: c.gihGames, gpWr: c.gpWr, iwd: c.iwd, ata: c.ata }));
+}
+
+/** Map color pair (or triplet) win rates to S/A/B/C/D tiers by quintile. */
+function tiersFrom(stats: LimitedStats, allowThreeColor: boolean): Map<string, string> {
   const tiers = new Map<string, string>();
-  try {
-    // 17lands requires event_type, and without an explicit date range it returns only a
-    // recent sliver of games (e.g. 813 vs 43,166 for TDM Boros), so ask for all-time data.
-    const today = new Date().toISOString().slice(0, 10);
-    const url = `https://www.17lands.com/color_ratings/data?expansion=${setCode}&event_type=PremierDraft&start_date=2020-01-01&end_date=${today}&combine_splash=false`;
-    const res = await fetch(url, {
-      headers: { 'User-Agent': 'MTG-Collection-Tracker/1.0' },
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return tiers;
-    const data: Array<{ color_name?: string; short_name?: string | number; is_summary?: boolean; win_rate?: number; wins?: number; games?: number }> = await res.json();
-    if (!Array.isArray(data) || data.length === 0) return tiers;
+  const entries = Object.entries(stats.colorPairs).filter(([k, v]) => /^[WUBRG]+$/.test(k) && v.winRate != null);
+  // Skip combos too rarely drafted to rate (e.g. TDM Grixis had 2 games)
+  const maxGames = Math.max(0, ...entries.map(([, v]) => v.games));
+  const minGames = Math.max(100, maxGames * 0.01);
+  const pairs = entries.filter(([k, v]) =>
+    v.games >= minGames && (allowThreeColor ? (k.length === 2 || k.length === 3) : k.length === 2));
+  if (pairs.length === 0) return tiers;
 
-    // short_name is the WUBRG-ordered color code ("WU", "WBR"); color_name is the display
-    // label ("Azorius (WU)"). Skip summary rows, "+ Splash" rows ("WU+"), and combos too
-    // rarely drafted to rate (TDM Grixis had 2 games).
-    const maxGames = Math.max(0, ...data.filter(d => !d.is_summary).map(d => d.games ?? 0));
-    const minGames = Math.max(100, maxGames * 0.01);
-    const pairs = data
-      .filter(d => !d.is_summary && typeof d.short_name === 'string' && /^[WUBRG]+$/.test(d.short_name))
-      .filter(d => (d.games ?? 0) >= minGames)
-      .filter(d => {
-        const len = (d.short_name as string).length;
-        return allowThreeColor ? (len === 2 || len === 3) : len === 2;
-      });
-    if (pairs.length === 0) return tiers;
-
-    const rates = pairs.map(d => d.win_rate ?? (d.wins && d.games ? d.wins / d.games : 0)).filter(r => r > 0);
-    if (rates.length === 0) return tiers;
-
-    const sorted = [...rates].sort((a, b) => b - a);
-    const cutoffs = [
-      sorted[Math.floor(sorted.length * 0.2)] ?? sorted[0],
-      sorted[Math.floor(sorted.length * 0.4)] ?? sorted[0],
-      sorted[Math.floor(sorted.length * 0.6)] ?? sorted[0],
-      sorted[Math.floor(sorted.length * 0.8)] ?? sorted[0],
-    ];
-
-    for (const entry of pairs) {
-      const key = String(entry.short_name).toUpperCase();
-      const wr = entry.win_rate ?? (entry.wins && entry.games ? entry.wins / entry.games : 0);
-      let tier = 'D';
-      if (wr >= cutoffs[0]) tier = 'S';
-      else if (wr >= cutoffs[1]) tier = 'A';
-      else if (wr >= cutoffs[2]) tier = 'B';
-      else if (wr >= cutoffs[3]) tier = 'C';
-      tiers.set(key, tier);
-    }
-  } catch { /* 17lands unavailable or set not yet tracked */ }
+  const sorted = pairs.map(([, v]) => v.winRate!).sort((a, b) => b - a);
+  const cutoffs = [0.2, 0.4, 0.6, 0.8].map(q => sorted[Math.floor(sorted.length * q)] ?? sorted[0]);
+  for (const [key, v] of pairs) {
+    const wr = v.winRate!;
+    tiers.set(key, wr >= cutoffs[0] ? 'S' : wr >= cutoffs[1] ? 'A' : wr >= cutoffs[2] ? 'B' : wr >= cutoffs[3] ? 'C' : 'D');
+  }
   return tiers;
 }
 
@@ -588,6 +565,8 @@ export async function GET(request: Request) {
     ? `https://magic.wizards.com/en/news/feature/${wizardsSlug}`
     : null;
 
+  const stats = await loadLimitedStats(setCode);
+
   // Run all sources in parallel; skip Draftsim/Wizards if hardcoded data covers the set
   const [wizardsResult, draftsimResult, scryfallResult, tiersResult, cardRatingsResult] = await Promise.allSettled([
     wizardsUrl && hardcoded.length === 0
@@ -597,8 +576,8 @@ export async function GET(request: Request) {
       ? scrapeHeadingsFromUrl(draftsimUrl, 'draftsim')
       : Promise.resolve([]),
     fetchScryfallSignposts(setCode, allowThreeColor),
-    fetch17LandsTiers(setCode, allowThreeColor),
-    fetch17LandsCardRatings(setCode),
+    Promise.resolve(stats ? tiersFrom(stats, allowThreeColor) : new Map<string, string>()),
+    Promise.resolve(stats ? cardRatingsFrom(stats) : []),
   ]);
 
   const wizardsArchetypes = wizardsResult.status === 'fulfilled' ? wizardsResult.value : [];
@@ -641,6 +620,10 @@ export async function GET(request: Request) {
     cardRatings,
     tierSource: tierMap.size > 0 ? '17lands' : null,
     cardRatingsSource: cardRatings.length > 0 ? '17lands' : null,
+    // Attribution required by CC BY 4.0 — the page shows this as a visible credit link
+    statsSource: stats
+      ? { name: stats.source.name, url: stats.source.url, license: stats.source.license, games: stats.games, updated: stats.source.gameDataModified ?? stats.generatedAt }
+      : null,
     sources: {
       draftsim: draftsimArchetypes.length > 0 ? draftsimUrl : null,
       scryfall: scryfallData.length > 0 ? `https://scryfall.com/search?q=set:${setCode}+rarity:uncommon+colors>=2` : null,

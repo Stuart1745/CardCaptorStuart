@@ -45,3 +45,6 @@ test_*.js
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Claude Code local state (agent worktrees)
+/.claude/

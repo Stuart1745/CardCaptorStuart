@@ -92,6 +92,23 @@ const EVERGREEN_KEYWORDS = new Set([
   'Endure', 'Gift', 'Plot', 'Saddle', 'Spree', 'Expend', 'Offspring', 'Impending',
 ]);
 
+interface CardStat {
+  name: string;
+  /** Games-in-hand win rate, 0..1 */
+  winRate: number;
+  gihGames: number;
+  iwd?: number | null;
+  ata?: number;
+}
+
+interface StatsSource {
+  name: string;
+  url: string;
+  license: string;
+  games: number;
+  updated: string;
+}
+
 const DEFAULT_BOX_INFO: Record<string, { name: string; setCode: string; remaining: number; total: number }> = {
   "2": { name: "Avatar", setCode: "TLA", remaining: 30, total: 30 },
   "3": { name: "Tarkir Dragonstorm", setCode: "TDM", remaining: 30, total: 30 },
@@ -258,6 +275,23 @@ export default function PlayboxDetailsPage() {
   const [mechanics, setMechanics] = useState<{ name: string, desc: string, colors: string[], examples: ScryfallCard[] }[]>([]);
   const [guideMechanics, setGuideMechanics] = useState<{ name: string; desc: string; colors: string[] }[]>([]);
   const [cardRatingMap, setCardRatingMap] = useState<Map<string, number>>(new Map());
+  // Per-card 17Lands public-dataset stats for tooltips, plus the source to credit (CC BY 4.0)
+  const [cardStatsMap, setCardStatsMap] = useState<Map<string, CardStat>>(new Map());
+  const [statsSource, setStatsSource] = useState<StatsSource | null>(null);
+
+  const applyRatings = (data: { cardRatings?: CardStat[]; statsSource?: StatsSource | null }) => {
+    setStatsSource(data.statsSource ?? null);
+    if (!data.cardRatings?.length) return;
+    const rmap = new Map<string, number>();
+    const smap = new Map<string, CardStat>();
+    for (const r of data.cardRatings) {
+      if (!r.name) continue;
+      rmap.set(r.name, r.winRate ?? 0);
+      smap.set(r.name, r);
+    }
+    setCardRatingMap(rmap);
+    setCardStatsMap(smap);
+  };
   const [error, setError] = useState<string | null>(null);
   const [isSharedMode, setIsSharedMode] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -288,11 +322,7 @@ export default function PlayboxDetailsPage() {
         const updatedBox = { ...box, customArchetypes: data.archetypes };
         setBox(updatedBox);
         if (data.mechanics?.length > 0) setGuideMechanics(data.mechanics);
-        if (data.cardRatings?.length > 0) {
-          const rmap = new Map<string, number>();
-          for (const r of data.cardRatings) if (r.name) rmap.set(r.name, r.winRate ?? 0);
-          setCardRatingMap(rmap);
-        }
+        applyRatings(data);
         try {
           if (db) {
             await updateDoc(doc(db, 'playBoxes', box.id), { customArchetypes: data.archetypes });
@@ -352,11 +382,7 @@ export default function PlayboxDetailsPage() {
           if (!data) return;
           setBox(prev => prev ? { ...prev, customArchetypes: data.archetypes } : prev);
           if (data.mechanics?.length > 0) setGuideMechanics(data.mechanics);
-          if (data.cardRatings?.length > 0) {
-            const rmap = new Map<string, number>();
-            for (const r of data.cardRatings) if (r.name) rmap.set(r.name, r.winRate ?? 0);
-            setCardRatingMap(rmap);
-          }
+          applyRatings(data);
         })
         .catch(() => { /* API unavailable — SET_ARCHETYPES fallback already shown */ });
 
@@ -772,6 +798,18 @@ export default function PlayboxDetailsPage() {
               <div className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed overflow-y-auto max-h-36">
                 {getOracleText(card)}
               </div>
+              {(() => {
+                const st = cardStatsMap.get(card.name);
+                if (!st) return null;
+                return (
+                  <p className="text-[11px] text-cyan-300 mt-2 font-medium">
+                    GIH WR {(st.winRate * 100).toFixed(1)}%
+                    {st.iwd != null && <> · IWD {st.iwd >= 0 ? '+' : ''}{(st.iwd * 100).toFixed(1)}pp</>}
+                    {st.ata != null && <> · ATA {st.ata.toFixed(1)}</>}
+                    <span className="text-slate-500"> · {st.gihGames.toLocaleString()} games</span>
+                  </p>
+                );
+              })()}
               <p className="text-[10px] text-slate-500 mt-2">Click to open on Scryfall</p>
             </div>
           </div>
@@ -902,6 +940,15 @@ export default function PlayboxDetailsPage() {
                     <BookOpen className="w-5 h-5 text-indigo-500" /> Draft Archetypes & Signposts
                   </h3>
                   <p className="text-slate-500 dark:text-slate-400 text-sm">Discover the primary draft strategies for this set.</p>
+                  {statsSource && (
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Tiers and card win rates from{' '}
+                      <a href={statsSource.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-cyan-500">
+                        {statsSource.name}
+                      </a>{' '}
+                      ({statsSource.license}) · {statsSource.games.toLocaleString()} Premier Draft games
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-col items-end">
                   {fetchMessage && <span className="text-sm text-cyan-400 mb-2 font-medium">{fetchMessage}</span>}

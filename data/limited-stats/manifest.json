@@ -1,0 +1,75 @@
+{
+  "sets": {
+    "ECL": {
+      "gameDataModified": "Mon, 18 May 2026 20:28:10 GMT",
+      "games": 536566,
+      "cards": 293,
+      "hasAta": true,
+      "generatedAt": "2026-11-21T20:47:44+00:00"
+    },
+    "FIN": {
+      "gameDataModified": "Sat, 19 Jul 2025 01:24:08 GMT",
+      "games": 769659,
+      "cards": 362,
+      "hasAta": true,
+      "generatedAt": "2026-11-21T20:53:20+00:00"
+    },
+    "FRA": {
+      "gameDataModified": "Sat, 14 Nov 2026 13:27:38 GMT",
+      "games": 431627,
+      "cards": 295,
+      "hasAta": true,
+      "generatedAt": "2026-11-21T21:04:27+00:00"
+    },
+    "HOB": {
+      "gameDataModified": "Thu, 01 Oct 2026 13:17:00 GMT",
+      "games": 323114,
+      "cards": 193,
+      "hasAta": true,
+      "generatedAt": "2026-11-21T20:36:14+00:00"
+    },
+    "KTK": {
+      "gameDataModified": "Thu, 18 Jan 2024 05:16:38 GMT",
+      "games": 212170,
+      "cards": 254,
+      "hasAta": true,
+      "generatedAt": "2026-11-21T20:58:40+00:00"
+    },
+    "MSH": {
+      "gameDataModified": "Mon, 27 Jul 2026 18:11:30 GMT",
+      "games": 377514,
+      "cards": 339,
+      "hasAta": true,
+      "generatedAt": "2026-11-21T21:03:37+00:00"
+    },
+    "NEO": {
+      "gameDataModified": "Sun, 13 Mar 2022 05:55:59 GMT",
+      "games": 630450,
+      "cards": 287,
+      "hasAta": true,
+      "generatedAt": "2026-11-21T20:57:22+00:00"
+    },
+    "SOS": {
+      "gameDataModified": "Fri, 05 Jun 2026 22:15:21 GMT",
+      "games": 582914,
+      "cards": 346,
+      "hasAta": true,
+      "generatedAt": "2026-11-21T21:05:29+00:00"
+    },
+    "TDM": {
+      "gameDataModified": "Tue, 20 May 2025 02:14:28 GMT",
+      "games": 552428,
+      "cards": 286,
+      "hasAta": true,
+      "generatedAt": "2026-11-21T20:44:24+00:00"
+    },
+    "TLA": {
+      "gameDataModified": "Sat, 10 Jan 2026 14:07:36 GMT",
+      "games": 562924,
+      "cards": 346,
+      "hasAta": true,
+      "generatedAt": "2026-11-21T20:40:32+00:00"
+    }
+  },
+  "updatedAt": "2026-11-21T21:05:29+00:00"
+}

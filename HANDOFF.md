@@ -1,6 +1,6 @@
 # Cardcaptor Stuart — Handoff Document
-**Date:** 2026-05-26  
-**Prepared by:** Claude Sonnet 4.6
+**Date:** 2026-11-21 (originally 2026-05-26)  
+**Prepared by:** Claude Opus 5.5 (originally Claude Sonnet 4.6)
 
 ---
 
@@ -26,7 +26,8 @@ A personal MTG collection tracker and play-box manager for Stuart Rampy. It lets
 - **Auth:** Firebase Auth — Google popup only (`signInWithPopup`). No OAuth callback route needed.
 - **Database:** Firestore
 - **Hosting:** Firebase App Hosting — auto-deploys on push to `main`
-- **Key APIs:** Scryfall (card data), 17lands (draft win rates), Wizards prerelease guides (scraped)
+- **Key APIs:** Scryfall (card data + set list), Wizards prerelease guides (scraped)
+- **Draft stats:** 17Lands **public datasets** (CC BY 4.0), precomputed weekly into `data/limited-stats/` — see below
 
 ---
 
@@ -92,18 +93,37 @@ users/{uid}/cards/{id}        — approved collection items
 
 ## Archetype / Draft Analysis System
 
-The `/api/archetypes?set=FIN` endpoint returns archetypes, mechanics, and card ratings by pulling from 4 sources in priority order:
+The `/api/archetypes?set=FIN` endpoint returns archetypes, mechanics, tiers and card ratings.
 
-1. **`HARDCODED_ARCHETYPES`** in `route.ts` — manually entered from Wizards prerelease guides (most accurate)
-2. **Wizards guide scrape** — heading-based scrape of `magic.wizards.com`
+Archetypes come from the first source that has them:
+
+1. **`HARDCODED_ARCHETYPES`** in `route.ts` — entered from Wizards prerelease guides. When present it is the **complete** list (The Hobbit supports only five pairs, so it is not padded).
+2. **Wizards guide scrape** — slug from `WIZARDS_GUIDE_SLUGS`, or **derived automatically** from the set's Scryfall name (`"Star Trek"` → `star-trek-prerelease-guide`). FRA and TRK get all ten archetypes this way with no hardcoding.
 3. **Draftsim scrape** — fallback draft guide
 4. **Scryfall multicolor uncommons** — last resort
 
-Tier data (S/A/B/C/D) comes from **17lands** `/color_ratings/data?expansion=SET&format=PremierDraft`. Card selection within archetypes uses **17lands** `/card_ratings/data` win rates as primary signal.
+Hardcoded archetypes: `TLA`, `FIN`, `NEO`, `ECL`, `UNF`, `KTK`, `MH2`, `SOS`, `MSH`, `HOB`. Hardcoded mechanics: `TDM`, `ECL`, `UNF`, `TLA`, `FIN`, `SOS`, `MSH`, `HOB`, `FRA`, `TRK`.
 
-Sets with hardcoded archetypes + mechanics: `TLA`, `FIN`, `NEO`, `ECI`, `UNF`, `KTK`, `MH2`.
+### New sets are automatic
 
-To add a new set's archetypes: read the Wizards prerelease guide and add to `HARDCODED_ARCHETYPES` and `HARDCODED_MECHANICS` in `route.ts`.
+- **Set picker:** `/api/sets` serves Scryfall's draftable set list (cached a day); the Add Box set field suggests from it and fills the box name.
+- **Archetypes:** derived Wizards guide slug (above).
+- **Bonus sheets:** `BONUS_SHEETS` in `play-box/[id]/page.tsx`, else Scryfall "masterpiece" child sets via `/api/sets` (matches every hand-entered entry).
+- **Stats:** the weekly job adds a set once 17Lands publishes its public file.
+- Scryfall's `is:booster` flag is missing on 2026 play-booster sets; both Scryfall searches retry without it.
+
+### Draft stats (17Lands public datasets)
+
+17Lands' site APIs say their data is "only for use on 17Lands.com"; only the **public datasets** (17lands.com/public_datasets, CC BY 4.0) are allowed elsewhere. So the app never calls 17Lands at runtime:
+
+- `scripts/build_limited_stats.py` (Python stdlib) streams `game_data_public.{SET}.PremierDraft.csv.gz` (+ `draft_data` with `--with-draft`) and writes `data/limited-stats/{SET}.json`: color-pair win rates, per-card GIH WR / GP WR / OH WR / GNS WR / IWD, and ATA. Incremental via `manifest.json` (17Lands Last-Modified).
+- `.github/workflows/limited-stats.yml` runs it Mondays 09:17 UTC (and on demand, with optional set list / force), committing only real changes — which redeploys.
+- `route.ts` reads the file (`loadLimitedStats`); `next.config.ts` `outputFileTracingIncludes` ships the folder with the API route.
+- Tiers = quintiles of color-pair win rate, ignoring combos with < 1% of the top pair's games. Card picks use GIH WR (≥ 200 games).
+- **Attribution is required:** the box page shows a credit link under "Draft Archetypes"; tooltips show GIH WR, IWD and ATA.
+- 17Lands publishes a set's file about 2 weeks after release, so a brand-new set (e.g. TRK in Nov 2026) has archetypes but no tiers until then.
+
+To add guide text for a set by hand: read the Wizards prerelease guide and add to `HARDCODED_ARCHETYPES` / `HARDCODED_MECHANICS` in `route.ts`.
 
 ---
 
@@ -120,6 +140,10 @@ npm run build       # next build
 ---
 
 ## Blocking Issues (Needs Manual Action)
+
+### 0. Billing (resolved 2026-11-21)
+
+The site went down because the project's billing account ("Firebase Payment") was closed; App Hosting needs Blaze. It is now linked to "My Billing Account". If the site ever returns Google's generic 404 again, check `gcloud billing projects describe cardcaptorstuart` first.
 
 ### 1. Firebase Authentication Not Working on Staging
 
@@ -157,12 +181,13 @@ Verify the DNS records are correctly configured for `ccs.stuartrampy.me` → Fir
 |---|---|---|
 | Firebase Auth on staging | **Blocked** | Needs env vars set in Firebase Console (see above) |
 | Custom domain `ccs.stuartrampy.me` | **Verify** | Check DNS + Firebase domain registration status |
-| Bomb Rares showing uncommon (Lorwyn/ECI) | Investigating | Rarity badge added for debugging |
+| Bomb Rares showing uncommon (Lorwyn/ECL) | Investigating | Rarity badge added for debugging |
 | Set Mechanics for non-guide sets | Partial | TLA + FIN have guide mechanics; others use card-scan fallback |
-| Phase 11: CSV Ratings / 17Lands Importer | Not started | — |
-| **Live market price for pack cost** | **Next up** | See below — needs `marketPrice` field separate from `cost` |
+| Phase 11: CSV Ratings / 17Lands Importer | **Done** (Nov 2026) | Public-dataset pipeline, see Draft stats |
+| Live market price for pack cost | **Done** | `marketPrice` field on Add Box + card |
+| Pack contents / odds from MTGJSON | Idea | `mtgjson.com/api/v5/{SET}.json` → `booster.play` sheets and weights |
 
-### Next Feature: Live Market Price for Draft/Sealed Cost
+### Done: Live Market Price for Draft/Sealed Cost (kept for reference)
 
 Currently "Draft / person" and "Sealed / person" costs use the stored **purchase price** (`box.cost`) divided by `box.total`. Stuart wants **current market price** (not what he paid).
 
