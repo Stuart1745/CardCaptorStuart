@@ -25,6 +25,8 @@ export interface DraftSet {
   cardCount: number;
   iconUrl?: string;
   upcoming: boolean;
+  /** Bonus-sheet sets found in play boosters (Scryfall "masterpiece" children, e.g. SOS → SOA). */
+  bonusSets: string[];
 }
 
 export async function GET() {
@@ -42,6 +44,15 @@ export async function GET() {
     const horizon = new Date(today.getTime() + UPCOMING_WINDOW_DAYS * 86400_000).toISOString().slice(0, 10);
     const todayStr = today.toISOString().slice(0, 10);
 
+    // Scryfall marks bonus sheets (Mystical Archive, Stardates, Breaking News...) as
+    // "masterpiece" sets whose parent is the main set — matches every hand-entered sheet.
+    const bonusByParent = new Map<string, string[]>();
+    for (const s of data) {
+      if (s.set_type !== 'masterpiece' || !s.parent_set_code) continue;
+      const parent = s.parent_set_code.toUpperCase();
+      bonusByParent.set(parent, [...(bonusByParent.get(parent) ?? []), s.code.toUpperCase()]);
+    }
+
     const sets: DraftSet[] = data
       .filter(s =>
         DRAFTABLE_TYPES.has(s.set_type) &&
@@ -58,6 +69,7 @@ export async function GET() {
         cardCount: s.card_count,
         iconUrl: s.icon_svg_uri,
         upcoming: s.released_at! > todayStr,
+        bonusSets: bonusByParent.get(s.code.toUpperCase()) ?? [],
       }))
       .sort((a, b) => b.releasedAt.localeCompare(a.releasedAt));
 

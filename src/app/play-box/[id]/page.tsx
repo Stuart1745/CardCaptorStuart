@@ -372,7 +372,16 @@ export default function PlayboxDetailsPage() {
         
         let allCards: ScryfallCard[] = [];
         const setCodes = foundBox.setCode.split(',').map((s: string) => s.trim().toUpperCase()).filter(Boolean);
-        const bonus = setCodes.flatMap((c: string) => BONUS_SHEETS[c] || []);
+        // Sets without a hand-entered bonus map get theirs from Scryfall via /api/sets
+        let autoBonus: Record<string, string[]> = {};
+        if (setCodes.some((c: string) => !BONUS_SHEETS[c])) {
+          try {
+            const res = await fetch('/api/sets');
+            const data = res.ok ? await res.json() : null;
+            for (const s of data?.sets ?? []) autoBonus[s.code] = s.bonusSets ?? [];
+          } catch { autoBonus = {}; }
+        }
+        const bonus = setCodes.flatMap((c: string) => BONUS_SHEETS[c] ?? autoBonus[c] ?? []);
         const uniqueSets = Array.from(new Set([...setCodes, ...bonus]));
         const setQuery = uniqueSets.map((s: string) => `set:${s}`).join(" OR ");
         const query = encodeURIComponent(`(${setQuery}) is:booster -type:basic`);
