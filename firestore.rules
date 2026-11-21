@@ -1,0 +1,32 @@
+rules_version = '2';
+
+// Cardcaptor Stuart access rules. Deploy with:
+//   npx firebase-tools deploy --only firestore:rules --project cardcaptorstuart
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Keep in sync with ADMIN_EMAILS in src/ (play-box, collection, Navigation).
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['rampy1745@gmail.com'];
+    }
+
+    // Play boxes: anyone can view (HANDOFF: "Everyone, signed-in or not, can view play
+    // boxes"); only the admin can add, edit, open packs or save fetched archetypes.
+    match /playBoxes/{boxId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Per-user data (receipt inbox queue, approved collection cards): owner only.
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Everything else is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
