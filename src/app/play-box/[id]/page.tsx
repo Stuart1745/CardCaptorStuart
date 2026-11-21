@@ -111,7 +111,12 @@ const BONUS_SHEETS: Record<string, string[]> = {
   "BLB": ["SPG"],
   "DSK": ["SPG"],
   "FDN": ["SPG"],
-  "FIN": ["FCA"]
+  "FIN": ["FCA"],
+  // From each set's Wizards "Collecting" article (2026). HOB lists no bonus sheet.
+  "SOS": ["SOA", "SPG"],
+  "MSH": ["MAR"],
+  "FRA": ["SPG"],
+  "TRK": ["SDS"]
 };
 
 // Deterministic mock generator for Draftsim ratings since there is no public API
@@ -372,10 +377,18 @@ export default function PlayboxDetailsPage() {
         const setQuery = uniqueSets.map((s: string) => `set:${s}`).join(" OR ");
         const query = encodeURIComponent(`(${setQuery}) is:booster -type:basic`);
         let url = `https://api.scryfall.com/cards/search?q=${query}`;
-        
+        // Scryfall's is:booster flag is missing on newer play-booster sets (e.g. FRA), so
+        // retry once without it; showcase/borderless duplicates are deduped by name below.
+        let triedWithoutBoosterFlag = false;
+
         while (url) {
           const res = await fetch(url);
           if (!res.ok) {
+            if (res.status === 404 && !triedWithoutBoosterFlag && allCards.length === 0) {
+              triedWithoutBoosterFlag = true;
+              url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(`(${setQuery}) -type:basic`)}`;
+              continue;
+            }
             if (res.status === 404) {
                throw new Error(`No cards found for set ${foundBox.setCode}. Make sure the Set Code is valid.`);
             }

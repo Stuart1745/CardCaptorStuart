@@ -176,6 +176,27 @@ export default function PlayBoxPage() {
   const [playBoxes, setPlayBoxes] = useState<PlayBox[]>(DEFAULT_BOXES);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newBox, setNewBox] = useState({ name: "", setCode: "", cost: "", marketPrice: "", type: "Draft Booster Box", total: 30, imageUrl: "" });
+  // Live set list from Scryfall (via /api/sets) — new sets show up here automatically.
+  const [knownSets, setKnownSets] = useState<{ code: string; name: string; releasedAt: string; upcoming: boolean }[]>([]);
+
+  useEffect(() => {
+    if (!isModalOpen || knownSets.length > 0) return;
+    fetch('/api/sets')
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => { if (data?.sets) setKnownSets(data.sets); })
+      .catch(() => { /* picker falls back to free-text set code */ });
+  }, [isModalOpen, knownSets.length]);
+
+  const handleSetCodeChange = (value: string) => {
+    const code = value.toUpperCase();
+    const match = knownSets.find(s => s.code === code);
+    setNewBox(prev => ({
+      ...prev,
+      setCode: code,
+      // Fill the box name from the set when it's still blank
+      name: prev.name || !match ? prev.name : `${match.name} Play Box`,
+    }));
+  };
 
   useEffect(() => {
     const loadBoxes = async () => {
@@ -306,12 +327,21 @@ export default function PlayBoxPage() {
                     <input
                       type="text"
                       required
-                      placeholder="e.g. BLB"
-                      maxLength={4}
+                      placeholder={knownSets[0] ? `e.g. ${knownSets.find(s => !s.upcoming)?.code ?? knownSets[0].code}` : "e.g. BLB"}
+                      maxLength={5}
+                      list="ccs-set-options"
+                      autoComplete="off"
                       value={newBox.setCode}
-                      onChange={e => setNewBox({...newBox, setCode: e.target.value.toUpperCase()})}
+                      onChange={e => handleSetCodeChange(e.target.value)}
                       className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase"
                     />
+                    <datalist id="ccs-set-options">
+                      {knownSets.map(s => (
+                        <option key={s.code} value={s.code}>
+                          {`${s.name} (${s.releasedAt.slice(0, 4)})${s.upcoming ? ' — upcoming' : ''}`}
+                        </option>
+                      ))}
+                    </datalist>
                   </div>
                   <div className="flex-1">
                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Cost Spent</label>

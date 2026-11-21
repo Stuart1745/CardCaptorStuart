@@ -44,6 +44,53 @@ const HARDCODED_MECHANICS: Record<string, GuideMechanic[]> = {
     { name: 'Sagas', colors: [], desc: 'Enchantments with lore counters that trigger on your upkeep. Each chapter has an effect; when the final chapter resolves, the Saga is sacrificed. Sagas appear across all colors in FIN.' },
     { name: 'Equipment', colors: ['W', 'R'], desc: 'Equipment is a returning artifact subtype — attach to a creature for combat bonuses, and it stays on the battlefield when the creature dies. Primarily found in White and Red, supporting the R/W Equipment Aggro archetype.' },
   ],
+  // Secrets of Strixhaven — Wizards mechanics article; college colors inferred from the guide.
+  SOS: [
+    { name: 'Repartee', colors: ['W', 'B'], desc: 'Silverquill: triggers when you cast an instant or sorcery that targets a creature, and resolves before that spell. Back your creatures with tricks or remove theirs.' },
+    { name: 'Opus', colors: ['U', 'R'], desc: 'Prismari: triggers when you cast an instant or sorcery, with a bigger or extra effect if you spent 5 or more mana on it.' },
+    { name: 'Infusion', colors: ['B', 'G'], desc: 'Witherbloom: bonus effect if you gained life at any point this turn. Pest tokens and lifegain spells switch it on.' },
+    { name: 'Flashback', colors: ['R', 'W'], desc: 'Lorehold (returning): cast the card from your graveyard for its flashback cost, then exile it. Discarding flashback cards still lets you cast them later.' },
+    { name: 'Increment', colors: ['G', 'U'], desc: 'Quandrix: when you cast a spell and the mana spent is greater than this creature\'s power or toughness, put a +1/+1 counter on it.' },
+    { name: 'Prepare', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'A prepared creature puts a one-time castable copy of its linked spell in exile. The copy is lost if the creature leaves or becomes unprepared.' },
+    { name: 'Paradigm', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'One mythic Lesson sorcery per color: the first time it resolves it is exiled, then you may cast a free copy of it in each of your first main phases.' },
+  ],
+  // Marvel Super Heroes — Wizards mechanics article; color notes from the guide and Draftsim.
+  MSH: [
+    { name: 'Teamwork', colors: ['W', 'U'], desc: 'Optional extra cost on instants and sorceries: tap untapped creatures with enough total power to get the bonus or upgraded mode. Core of W/U, with commons in every color.' },
+    { name: 'Power-up', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'One-time activated ability that adds +1/+1 counters and sometimes more; it costs less if the creature entered this turn. In every color, leaning R/G.' },
+    { name: 'Plan', colors: ['B'], desc: 'Enchantment subtype that gains counters on a trigger and is sacrificed at a set total for a bigger payoff. Central to the B/R Villains deck.' },
+    { name: 'Connive', colors: ['U', 'B'], desc: 'Draw a card, then discard a card; if you discarded a nonland card, put a +1/+1 counter on this creature. Feeds U/B "draw your second card".' },
+    { name: 'Prowess', colors: ['R', 'W'], desc: 'Whenever you cast a noncreature spell, this creature gets +1/+1 until end of turn. Payoff for the R/W noncreature spells deck.' },
+  ],
+  // Reality Fracture — Wizards mechanics article; colors from the guide and Draftsim.
+  // Archetypes come automatically from the Wizards guide scrape (all ten pairs).
+  FRA: [
+    { name: 'Empower Jace', colors: ['G', 'U'], desc: 'Put loyalty counters on your Jace planeswalker token, creating a blue Jace token first if you have none. Jace tokens have "-1: Surveil 1" and "-3: Draw a card." Home of G/U, with support in W and B.' },
+    { name: 'Heartwood Tokens', colors: ['R', 'G'], desc: 'Red-green artifact tokens that tap for mana. R/G uses them to ramp into a top-heavy curve of big creatures.' },
+    { name: 'Prepare', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Returning from Strixhaven: a prepared creature lets you cast a copy of its linked spell from exile. Each color pair has its own prepare spell.' },
+    { name: 'Echoed Pairs', colors: [], desc: 'Paired Echoverse versions of iconic cards; every Play Booster has three echoed-pair slots.' },
+    { name: 'Surveil / Scry', colors: ['W', 'U'], desc: 'Filter the top of your library to set up threats. The engine of W/U Fatehold Surveil Aggro.' },
+  ],
+  // Star Trek — Wizards mechanics article; colors inferred from the guide's archetypes.
+  // Archetypes come automatically from the Wizards guide scrape (all ten pairs).
+  TRK: [
+    { name: 'Spacecraft / Station', colors: ['W', 'U'], desc: 'Spacecraft are artifacts that become creatures once they have enough charge counters. Station: at sorcery speed, tap another creature to add charge counters equal to its power.' },
+    { name: 'Face a Dilemma', colors: ['U', 'B'], desc: 'Happens whenever you choose one or more modes for a modal spell or ability — even if the spell is countered. Payoffs power U/B Dilemma Control.' },
+    { name: 'Assimilate', colors: ['W', 'B'], desc: 'Take a card into your control as a Borg artifact creature with a +1/+1 counter; it loses its other creature types. Core of W/B Borg.' },
+    { name: 'Strange New Worlds', colors: ['G', 'U'], desc: 'Ability word that counts the differently named lands you control. G/U plays Planet and Anomaly lands to max it out.' },
+    { name: 'Beam Me Up', colors: [], desc: 'Cast a spell from your graveyard by returning one of your creatures to your hand; the spell is exiled afterward.' },
+    { name: 'Federation', colors: [], desc: 'Ability word that counts the distinct creature types among your non-Borg creatures. On about six cards, mostly rares and mythics.' },
+    { name: 'Landfall', colors: ['R', 'G'], desc: 'Returning: triggers whenever a land enters under your control. R/G Away Team builds around it.' },
+  ],
+  // The Hobbit — Wizards prerelease guide + vision design article. Five two-color archetypes only.
+  HOB: [
+    { name: 'Recruit', colors: ['W', 'U'], desc: 'New keyword action: draw a card, then discard a card. If you discarded a nonland card, create a 1/1 white Human Soldier token. Fuels the W/U Humans "draw two cards in a turn" deck.' },
+    { name: 'Storied', colors: ['R', 'W'], desc: 'New: rewards controlling three or more artifacts, legendary permanents and/or Sagas. The engine of the R/W Dwarves deck — count Equipment, legendary Dwarves and Sagas toward it.' },
+    { name: 'Amass Goblins', colors: ['B', 'R'], desc: 'Returning from LTR with Goblins in place of Orcs: put +1/+1 counters on your Army token, creating a 0/0 Goblin Army first if you have none. B/R grows the Army and sacrifices it for value.' },
+    { name: 'Ferocious', colors: ['B', 'G'], desc: 'Returning: bonus effects if you control a creature with power 4 or greater. B/G Wolves ramps into a big body early to switch these on.' },
+    { name: 'Landfall', colors: ['G', 'U'], desc: 'Returning: triggers whenever a land enters under your control. The G/U Elves deck uses it to control the board and shut down opposing creatures.' },
+    { name: 'Adventure', colors: [], desc: 'Returning ("There and Back Again"): cast the instant/sorcery half first, then cast the creature later from exile — two cards of value from one.' },
+  ],
 };
 
 // Hardcoded archetypes for sets where Draftsim coverage is missing or wrong.
@@ -128,12 +175,46 @@ const HARDCODED_ARCHETYPES: Record<string, Omit<Archetype, 'source'>[]> = {
     { name: 'R/W Equipment Aggro', colors: ['Red', 'White'], desc: 'Suit up creatures with powerful Equipment to dominate combat. Zidane, Tantalus Thief benefits from gear; Giott, King of the Dwarves generates value through the job select mechanic.' },
     { name: 'G/U Town Ramp', colors: ['Green', 'Blue'], desc: 'Play Towns to squeeze extra value from lands. Ignis Scientia accelerates mana; Omega, Heartless Evolution is the late-game payoff after building Town synergies.' },
   ],
+  // Secrets of Strixhaven — five college archetypes (prerelease guide).
+  SOS: [
+    { name: 'Silverquill — Repartee Aggro', colors: ['White', 'Black'], desc: 'Target creatures with your own spells — tricks on yours, removal on theirs — to trigger repartee. Balance creatures with targeting spells. Signposts: Abigale, Poet Laureate; Snooping Page.' },
+    { name: 'Prismari — Opus Spellcasting', colors: ['Blue', 'Red'], desc: 'Cast lots of instants and sorceries and reach 5+ mana for opus bonuses; mana creatures help pay for the big spells. Signposts: Sanar, Unfinished Genius; Spectacular Skywhale.' },
+    { name: 'Witherbloom — Lifegain Swarm', colors: ['Black', 'Green'], desc: 'Gain life every turn to switch on infusion; Pest tokens gain life and still attack. Signposts: Lluwen, Exchange Student; Old-Growth Educator.' },
+    { name: 'Lorehold — Flashback Excavation', colors: ['Red', 'White'], desc: 'Cast spells from hand, then again from the graveyard; Archaeologists trigger when cards leave your graveyard. Signposts: Kirol, History Buff; Molten Note.' },
+    { name: 'Quandrix — Incremental Value', colors: ['Green', 'Blue'], desc: 'Green creatures grow off big blue spells through increment, and evasion carries the damage. Signposts: Tam, Observant Sequencer; Fractal Tender.' },
+  ],
+  // Marvel Super Heroes — all ten pairs (prerelease guide).
+  MSH: [
+    { name: 'White-Blue Teamwork', colors: ['White', 'Blue'], desc: 'Teamwork spells plus creatures to tap for them, fed by token makers. Signposts: Captain America, Living Legend; Spider-Woman, Secret Agent.' },
+    { name: 'Blue-Black Draw Second Card', colors: ['Blue', 'Black'], desc: 'Draw two cards a turn with cheap draw and connive; instant-speed draw works on the opponent\'s turn. Signposts: Kang, Temporal Tyrant; Ghost, Spectral Saboteur.' },
+    { name: 'Black-Red Villains Matter', colors: ['Black', 'Red'], desc: 'Build up Villain tokens and cash in black Plan enchantments. Signposts: Madame Hydra; Bullseye, Death Dealer.' },
+    { name: 'Red-Green Power-Up', colors: ['Red', 'Green'], desc: 'Power-up creatures grow big enough to push through blockers. Signposts: Hulk, Gamma Goliath; Abomination, Terrifying Titan.' },
+    { name: 'Green-White Heroes Matter', colors: ['Green', 'White'], desc: 'Go wide with Heroes; Hero token makers keep triggering the payoffs. Signposts: Black Panther, Vanguard; Spider-Man, To the Rescue.' },
+    { name: 'White-Black Attack Alone', colors: ['White', 'Black'], desc: 'Attack with one well-equipped creature backed by tricks. Signposts: Black Widow, Double Agent; U.S.Agent, John Walker.' },
+    { name: 'Blue-Red Artifacts', colors: ['Blue', 'Red'], desc: 'A dense artifact count with Treasure, Clue and Robot Villain tokens. Signposts: Iron Man, Master of Machines; Speedball, New Warrior.' },
+    { name: 'Black-Green Creatures in Graveyard', colors: ['Black', 'Green'], desc: 'Self-mill and cycle creatures; payoffs switch on with 2+ creature cards in your graveyard. Signposts: Killmonger, Scourge of Wakanda; Titania, Rugged Rumbler.' },
+    { name: 'Red-White Noncreature Spells', colors: ['Red', 'White'], desc: 'Cheap noncreature spells grow prowess creatures. Signposts: Thor Odinson; War Machine, Legacy of Iron.' },
+    { name: 'Green-Blue +1/+1 Counters', colors: ['Green', 'Blue'], desc: 'Evasive creatures grow from instants and sorceries and are protected by hexproof or indestructible. Signposts: Ant-Man, Colony Commander; Beast, Erudite Aerialist.' },
+  ],
+  // The Hobbit — only five supported pairs (prerelease guide: "There are five two-color draft archetypes").
+  HOB: [
+    { name: 'White-Blue Humans', colors: ['White', 'Blue'], desc: 'Draw two cards in a turn, recruit Human Soldier tokens, then pump the team and attack. Key cards: Bard the Bowman (signpost), Esgaroth Garrison, Thorin\'s Last Stand.' },
+    { name: 'Black-Red Goblins', colors: ['Black', 'Red'], desc: 'Amass a Goblin Army, sacrifice it and other creatures for value, and grind with dies triggers. Key cards: Bolg of the North and Misty Mountains Raider (signposts), Stir Up Trouble.' },
+    { name: 'Black-Green Wolves', colors: ['Black', 'Green'], desc: 'Ramp into a power 4+ creature early to turn on ferocious, then overpower the board. Key cards: The Chief Warg and Nighthowl Pursuer (signposts), Beorn, Reluctant Host.' },
+    { name: 'Red-White Dwarves', colors: ['Red', 'White'], desc: 'Assemble three or more artifacts, legendaries and Sagas to enable storied, with Equipment to win combat. Key cards: Thorin Oakenshield, Iron Hills Blacksmith, Dori, Bearer of Friends.' },
+    { name: 'Green-Blue Elves', colors: ['Green', 'Blue'], desc: 'A controlling landfall deck that locks down opposing creatures while building advantage from land drops. Key cards: Silvan Reveler and Mirkwood Pathmaker (signposts), Thranduil, Sindarin Liege.' },
+  ],
 };
 
 // Maps set codes → Wizards prerelease guide slug.
 // Pattern: https://magic.wizards.com/en/news/feature/{slug}
 // Add new sets here as guides are published.
 const WIZARDS_GUIDE_SLUGS: Record<string, string> = {
+  TRK: 'star-trek-prerelease-guide',
+  FRA: 'reality-fracture-prerelease-guide',
+  HOB: 'the-hobbit-prerelease-guide',
+  MSH: 'marvel-super-heroes-prerelease-guide',
+  SOS: 'secrets-of-strixhaven-prerelease-guide',
   TLA: 'avatar-the-last-airbender-prerelease-guide',
   FIN: 'final-fantasy-prerelease-guide',
   TDM: 'tarkir-dragonstorm-prerelease-guide',
@@ -146,6 +227,28 @@ const WIZARDS_GUIDE_SLUGS: Record<string, string> = {
   LTR: 'lord-of-the-rings-tales-of-middle-earth-prerelease-guide',
   MOM: 'march-of-the-machine-prerelease-guide',
 };
+
+/** Guess a set's Wizards prerelease guide slug from its Scryfall name. */
+async function deriveGuideSlug(setCode: string): Promise<string | null> {
+  try {
+    const res = await fetch(`https://api.scryfall.com/sets/${setCode.toLowerCase()}`, {
+      headers: { 'User-Agent': 'MTG-Collection-Tracker/1.0', Accept: 'application/json' },
+      next: { revalidate: 86400 },
+    });
+    if (!res.ok) return null;
+    const { name } = await res.json() as { name?: string };
+    if (!name) return null;
+    const slug = name
+      .toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/['’]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+    return `${slug}-prerelease-guide`;
+  } catch {
+    return null;
+  }
+}
 
 const SYMBOL_TO_NAME: Record<string, string> = {
   W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green',
@@ -277,16 +380,18 @@ interface CardRating {
 /** 17lands: fetch individual card win rates for the set */
 async function fetch17LandsCardRatings(setCode: string): Promise<CardRating[]> {
   try {
-    const url = `https://www.17lands.com/card_ratings/data?expansion=${setCode}&format=PremierDraft`;
+    const url = `https://www.17lands.com/card_ratings/data?expansion=${setCode}&event_type=PremierDraft`;
     const res = await fetch(url, {
       headers: { 'User-Agent': 'MTG-Collection-Tracker/1.0' },
       next: { revalidate: 3600 },
     });
     if (!res.ok) return [];
-    const data: Array<{ name?: string; ever_drawn_win_rate?: number; win_rate?: number; avg_last_seen_at?: number }> = await res.json();
+    const data: Array<{ name?: string; ever_drawn_win_rate?: number | null; ever_drawn_game_count?: number; win_rate?: number | null; avg_last_seen_at?: number }> = await res.json();
     if (!Array.isArray(data)) return [];
+    // The public endpoint now returns win rates for very few cards (often null with a tiny
+    // sample); keep only real rates with a usable sample so callers fall back to fit-scoring.
     return data
-      .filter(d => d.name)
+      .filter(d => d.name && (d.ever_drawn_win_rate ?? d.win_rate) != null && (d.ever_drawn_game_count ?? 0) >= 200)
       .map(d => ({
         name: d.name!,
         winRate: d.ever_drawn_win_rate ?? d.win_rate ?? 0,
@@ -301,20 +406,30 @@ async function fetch17LandsCardRatings(setCode: string): Promise<CardRating[]> {
 async function fetch17LandsTiers(setCode: string, allowThreeColor: boolean): Promise<Map<string, string>> {
   const tiers = new Map<string, string>();
   try {
-    const url = `https://www.17lands.com/color_ratings/data?expansion=${setCode}&format=PremierDraft`;
+    // 17lands requires event_type, and without an explicit date range it returns only a
+    // recent sliver of games (e.g. 813 vs 43,166 for TDM Boros), so ask for all-time data.
+    const today = new Date().toISOString().slice(0, 10);
+    const url = `https://www.17lands.com/color_ratings/data?expansion=${setCode}&event_type=PremierDraft&start_date=2020-01-01&end_date=${today}&combine_splash=false`;
     const res = await fetch(url, {
       headers: { 'User-Agent': 'MTG-Collection-Tracker/1.0' },
       next: { revalidate: 3600 },
     });
     if (!res.ok) return tiers;
-    const data: Array<{ color_name?: string; win_rate?: number; wins?: number; games?: number }> = await res.json();
+    const data: Array<{ color_name?: string; short_name?: string | number; is_summary?: boolean; win_rate?: number; wins?: number; games?: number }> = await res.json();
     if (!Array.isArray(data) || data.length === 0) return tiers;
 
-    // Include 2-color pairs; optionally include 3-color triplets
-    const pairs = data.filter(d => {
-      const len = (d.color_name || '').length;
-      return allowThreeColor ? (len === 2 || len === 3) : len === 2;
-    });
+    // short_name is the WUBRG-ordered color code ("WU", "WBR"); color_name is the display
+    // label ("Azorius (WU)"). Skip summary rows, "+ Splash" rows ("WU+"), and combos too
+    // rarely drafted to rate (TDM Grixis had 2 games).
+    const maxGames = Math.max(0, ...data.filter(d => !d.is_summary).map(d => d.games ?? 0));
+    const minGames = Math.max(100, maxGames * 0.01);
+    const pairs = data
+      .filter(d => !d.is_summary && typeof d.short_name === 'string' && /^[WUBRG]+$/.test(d.short_name))
+      .filter(d => (d.games ?? 0) >= minGames)
+      .filter(d => {
+        const len = (d.short_name as string).length;
+        return allowThreeColor ? (len === 2 || len === 3) : len === 2;
+      });
     if (pairs.length === 0) return tiers;
 
     const rates = pairs.map(d => d.win_rate ?? (d.wins && d.games ? d.wins / d.games : 0)).filter(r => r > 0);
@@ -329,7 +444,7 @@ async function fetch17LandsTiers(setCode: string, allowThreeColor: boolean): Pro
     ];
 
     for (const entry of pairs) {
-      const key = (entry.color_name || '').toUpperCase();
+      const key = String(entry.short_name).toUpperCase();
       const wr = entry.win_rate ?? (entry.wins && entry.games ? entry.wins / entry.games : 0);
       let tier = 'D';
       if (wr >= cutoffs[0]) tier = 'S';
@@ -345,15 +460,16 @@ async function fetch17LandsTiers(setCode: string, allowThreeColor: boolean): Pro
 /** Scryfall: fetch multicolor uncommons — these are the official signpost cards */
 async function fetchScryfallSignposts(setCode: string, allowThreeColor: boolean): Promise<Archetype[]> {
   const minColors = 2;
-  const query = encodeURIComponent(
-    `set:${setCode} rarity:uncommon colors>=${minColors} is:booster -type:basic`
-  );
-  const url = `https://api.scryfall.com/cards/search?q=${query}&order=color`;
-
-  const res = await fetch(url, {
-    headers: { 'User-Agent': 'MTG-Collection-Tracker/1.0' },
-    next: { revalidate: 3600 },
-  });
+  // Scryfall's is:booster flag is missing on newer play-booster sets (FRA returns 0 with it,
+  // 25 without), so retry without it when the filtered search finds nothing.
+  const search = (q: string) =>
+    fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(q)}&order=color`, {
+      headers: { 'User-Agent': 'MTG-Collection-Tracker/1.0', Accept: 'application/json' },
+      next: { revalidate: 3600 },
+    });
+  const base = `set:${setCode} rarity:uncommon colors>=${minColors} -type:basic`;
+  let res = await search(`${base} is:booster`);
+  if (res.status === 404) res = await search(base);
   if (!res.ok) return [];
 
   const data = await res.json();
@@ -464,7 +580,10 @@ export async function GET(request: Request) {
   const hardcoded: Archetype[] = (HARDCODED_ARCHETYPES[setCode] ?? []).map(a => ({ ...a, source: 'hardcoded' }));
 
   // Wizards guide URL for this set (if known)
-  const wizardsSlug = WIZARDS_GUIDE_SLUGS[setCode];
+  // New sets: derive the slug from the set's Scryfall name ("The Hobbit" →
+  // "the-hobbit-prerelease-guide"); the pattern held for HOB, SOS and MSH.
+  const wizardsSlug = WIZARDS_GUIDE_SLUGS[setCode]
+    ?? (hardcoded.length === 0 ? await deriveGuideSlug(setCode) : null);
   const wizardsUrl = wizardsSlug
     ? `https://magic.wizards.com/en/news/feature/${wizardsSlug}`
     : null;
@@ -492,7 +611,12 @@ export async function GET(request: Request) {
   const seenKeys = new Set<string>();
   const merged: Archetype[] = [];
 
-  for (const a of [...hardcoded, ...wizardsArchetypes, ...draftsimArchetypes, ...scryfallData]) {
+  // Hardcoded guide data is the complete list when present: sets like HOB support only five
+  // pairs, so don't pad them with generic Scryfall "Strategy" entries for unsupported pairs.
+  const candidates = hardcoded.length > 0
+    ? hardcoded
+    : [...wizardsArchetypes, ...draftsimArchetypes, ...scryfallData];
+  for (const a of candidates) {
     const key = [...a.colors].sort().join('/');
     if (!seenKeys.has(key)) {
       seenKeys.add(key);
