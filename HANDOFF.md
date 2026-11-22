@@ -181,7 +181,7 @@ Verify the DNS records are correctly configured for `ccs.stuartrampy.me` → Fir
 |---|---|---|
 | Firebase Auth on staging | **Blocked** | Needs env vars set in Firebase Console (see above) |
 | Custom domain `ccs.stuartrampy.me` | **Verify** | Check DNS + Firebase domain registration status |
-| Bomb Rares showing uncommon (Lorwyn/ECL) | Investigating | Rarity badge added for debugging |
+| Bomb Rares showing uncommon (Lorwyn/ECL) | **Likely fixed** (Nov 2026) | Replaying `getTopCardsForArchetype` on live ECL Scryfall data gives rare/mythic for all 30 picks. Probable cause: box 4 briefly defaulted to set code `LRW` (2007 Lorwyn), later corrected to `ECI`→`ECL`. No Firestore record can be stale: the database did not exist until 2026-11-21. Reopen if it recurs. |
 | Set Mechanics for non-guide sets | Partial | TLA + FIN have guide mechanics; others use card-scan fallback |
 | Phase 11: CSV Ratings / 17Lands Importer | **Done** (Nov 2026) | Public-dataset pipeline, see Draft stats |
 | Live market price for pack cost | **Done** | `marketPrice` field on Add Box + card |
