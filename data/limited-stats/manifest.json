@@ -89,7 +89,8 @@
       "games": 440826,
       "cards": 285,
       "hasAta": false,
-      "generatedAt": "2026-11-22T14:58:40+00:00"
+      "generatedAt": "2026-11-22T14:58:40+00:00",
+      "draftChecked": true
     },
     "KTK": {
       "gameDataModified": "Thu, 18 Jan 2024 05:16:38 GMT",

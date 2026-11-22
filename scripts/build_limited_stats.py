@@ -255,7 +255,9 @@ def main() -> int:
         if modified is None:
             continue
         prev = manifest["sets"].get(code, {})
-        if not args.force and prev.get("gameDataModified") == modified and (prev.get("hasAta") or not args.with_draft):
+        # draftChecked: ATA was attempted (17Lands may not publish draft data, e.g. KHM)
+        if not args.force and prev.get("gameDataModified") == modified and (
+                prev.get("hasAta") or prev.get("draftChecked") or not args.with_draft):
             continue
         todo.append((code, modified))
     log(f"Rebuilding {len(todo)} set(s) with {max(1, args.jobs)} worker(s): {', '.join(c for c, _ in todo) or '-'}")
@@ -278,6 +280,7 @@ def main() -> int:
                 "games": out["games"],
                 "cards": len(out["cards"]),
                 "hasAta": bool(out["source"]["draftDataModified"]),
+                "draftChecked": args.with_draft,
                 "generatedAt": out["generatedAt"],
             }
             save_manifest(manifest)  # after every set, so an interrupted run keeps its progress
