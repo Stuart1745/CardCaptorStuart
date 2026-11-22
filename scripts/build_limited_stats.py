@@ -25,6 +25,8 @@ from __future__ import annotations
 import argparse
 import csv
 import gzip
+import io
+import tarfile
 import json
 import sys
 import tempfile
@@ -91,16 +93,33 @@ def candidate_sets() -> list[str]:
     return sorted(set(codes))
 
 
+def open_csv(path: Path):
+    """Text stream of the CSV inside a 17Lands file.
+
+    Newer files are plain gzipped CSV; older ones (e.g. KHM, STX, AFR, MID, VOW) are a
+    gzipped TAR holding the CSV, so detect the tar header ("ustar" at offset 257).
+    """
+    with gzip.open(path, "rb") as g:
+        head = g.read(512)
+    if head[257:262] == b"ustar":
+        tf = tarfile.open(path, "r:gz")
+        member = next(m for m in tf.getmembers() if m.isfile() and m.name.endswith(".csv"))
+        return io.TextIOWrapper(tf.extractfile(member), encoding="utf-8", newline="")
+    return gzip.open(path, "rt", newline="", encoding="utf-8")
+
+
 def rate(wins: int, games: int) -> float | None:
     return round(wins / games, 4) if games else None
 
 
 def build_game_stats(path: Path) -> dict:
-    with gzip.open(path, "rt", newline="", encoding="utf-8") as f:
+    with open_csv(path) as f:
         reader = csv.reader(f)
         header = next(reader)
+        width = len(header)
         idx = {name: i for i, name in enumerate(header)}
-        won_i, colors_i = idx["won"], idx["main_colors"]
+        won_i = idx["won"]
+        colors_i = idx.get("main_colors")  # missing in the oldest files (KHM): no color tiers
         cards = sorted(c[5:] for c in header if c.startswith("deck_"))
         cols = [
             (name, idx[f"deck_{name}"], idx.get(f"opening_hand_{name}"), idx.get(f"drawn_{name}"))
@@ -112,10 +131,12 @@ def build_game_stats(path: Path) -> dict:
         games = wins = 0
 
         for row in reader:
+            if len(row) != width:  # truncated/malformed line
+                continue
             won = row[won_i] == "True"
             games += 1
             wins += won
-            key = row[colors_i]
+            key = row[colors_i] if colors_i is not None else ""
             if key:
                 p = pairs.setdefault(key, [0, 0])
                 p[0] += 1
@@ -160,11 +181,13 @@ def build_game_stats(path: Path) -> dict:
 def build_ata(path: Path) -> dict[str, float]:
     """Average pick a card is taken at (1-based within a pack), 17Lands' ATA."""
     totals: dict[str, list[int]] = {}
-    with gzip.open(path, "rt", newline="", encoding="utf-8") as f:
+    with open_csv(path) as f:
         reader = csv.reader(f)
         header = next(reader)
         pick_i, num_i = header.index("pick"), header.index("pick_number")
         for row in reader:
+            if len(row) <= max(pick_i, num_i) or not row[num_i].isdigit():
+                continue
             t = totals.setdefault(row[pick_i], [0, 0])
             t[0] += 1
             t[1] += int(row[num_i]) + 1

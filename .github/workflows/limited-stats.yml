@@ -46,6 +46,9 @@ jobs:
           python -I scripts/build_limited_stats.py $args
 
       - name: Commit changes
+        # Keep the sets that built even if another set failed (the build step still
+        # shows red so failures stay visible).
+        if: ${{ !cancelled() }}
         run: |
           if git diff --quiet -- data/limited-stats && [ -z "$(git ls-files --others --exclude-standard data/limited-stats)" ]; then
             echo "No stats changes"
