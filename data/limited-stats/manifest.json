@@ -7,12 +7,61 @@
       "hasAta": true,
       "generatedAt": "2026-11-22T14:50:40+00:00"
     },
+    "BLB": {
+      "gameDataModified": "Sat, 07 Sep 2024 02:41:07 GMT",
+      "games": 931230,
+      "cards": 276,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T14:55:19+00:00"
+    },
+    "BRO": {
+      "gameDataModified": "Thu, 15 Dec 2022 05:02:35 GMT",
+      "games": 542903,
+      "cards": 335,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T14:54:18+00:00"
+    },
+    "DFT": {
+      "gameDataModified": "Sun, 23 Mar 2025 16:16:14 GMT",
+      "games": 857667,
+      "cards": 286,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T14:55:15+00:00"
+    },
+    "DMU": {
+      "gameDataModified": "Fri, 28 Oct 2022 04:12:39 GMT",
+      "games": 947395,
+      "cards": 266,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T14:58:47+00:00"
+    },
+    "DSK": {
+      "gameDataModified": "Wed, 30 Oct 2024 01:44:09 GMT",
+      "games": 1011949,
+      "cards": 286,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T14:58:47+00:00"
+    },
     "ECL": {
       "gameDataModified": "Mon, 18 May 2026 20:28:10 GMT",
       "games": 536566,
       "cards": 293,
       "hasAta": true,
       "generatedAt": "2026-11-21T20:47:44+00:00"
+    },
+    "EOE": {
+      "gameDataModified": "Wed, 03 Sep 2025 12:42:21 GMT",
+      "games": 563418,
+      "cards": 321,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T14:58:02+00:00"
+    },
+    "FDN": {
+      "gameDataModified": "Thu, 19 Dec 2024 13:08:51 GMT",
+      "games": 791159,
+      "cards": 286,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T14:58:42+00:00"
     },
     "FIN": {
       "gameDataModified": "Sat, 19 Jul 2025 01:24:08 GMT",
@@ -40,7 +89,7 @@
       "games": 440826,
       "cards": 285,
       "hasAta": false,
-      "generatedAt": "2026-11-22T14:50:17+00:00"
+      "generatedAt": "2026-11-22T14:58:40+00:00"
     },
     "KTK": {
       "gameDataModified": "Thu, 18 Jan 2024 05:16:38 GMT",
@@ -48,6 +97,48 @@
       "cards": 254,
       "hasAta": true,
       "generatedAt": "2026-11-21T20:58:40+00:00"
+    },
+    "LCI": {
+      "gameDataModified": "Wed, 27 Dec 2023 18:31:11 GMT",
+      "games": 823614,
+      "cards": 291,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T15:02:34+00:00"
+    },
+    "LTR": {
+      "gameDataModified": "Wed, 30 Aug 2023 16:24:29 GMT",
+      "games": 980485,
+      "cards": 266,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T15:02:47+00:00"
+    },
+    "MH3": {
+      "gameDataModified": "Wed, 17 Jul 2024 16:29:23 GMT",
+      "games": 767772,
+      "cards": 326,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T15:02:32+00:00"
+    },
+    "MID": {
+      "gameDataModified": "Thu, 11 Jan 2024 09:55:24 GMT",
+      "games": 653944,
+      "cards": 272,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T15:01:26+00:00"
+    },
+    "MKM": {
+      "gameDataModified": "Wed, 20 Mar 2024 14:43:51 GMT",
+      "games": 964377,
+      "cards": 326,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T15:05:55+00:00"
+    },
+    "MOM": {
+      "gameDataModified": "Wed, 14 Jun 2023 19:05:54 GMT",
+      "games": 1246850,
+      "cards": 346,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T15:09:17+00:00"
     },
     "MSH": {
       "gameDataModified": "Mon, 27 Jul 2026 18:11:30 GMT",
@@ -63,12 +154,40 @@
       "hasAta": true,
       "generatedAt": "2026-11-21T20:57:22+00:00"
     },
+    "ONE": {
+      "gameDataModified": "Wed, 01 Mar 2023 03:53:51 GMT",
+      "games": 583077,
+      "cards": 270,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T15:05:02+00:00"
+    },
+    "OTJ": {
+      "gameDataModified": "Thu, 30 May 2024 14:43:27 GMT",
+      "games": 1172393,
+      "cards": 381,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T15:09:22+00:00"
+    },
+    "SNC": {
+      "gameDataModified": "Thu, 07 Jul 2022 04:06:12 GMT",
+      "games": 812978,
+      "cards": 266,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T15:08:19+00:00"
+    },
     "SOS": {
       "gameDataModified": "Fri, 05 Jun 2026 22:15:21 GMT",
       "games": 582914,
       "cards": 346,
       "hasAta": true,
       "generatedAt": "2026-11-21T21:05:29+00:00"
+    },
+    "STX": {
+      "gameDataModified": "Thu, 11 Jan 2024 09:53:45 GMT",
+      "games": 465319,
+      "cards": 343,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T15:08:39+00:00"
     },
     "TDM": {
       "gameDataModified": "Tue, 20 May 2025 02:14:28 GMT",
@@ -83,7 +202,28 @@
       "cards": 346,
       "hasAta": true,
       "generatedAt": "2026-11-21T20:40:32+00:00"
+    },
+    "TMT": {
+      "gameDataModified": "Wed, 08 Apr 2026 22:00:52 GMT",
+      "games": 180204,
+      "cards": 215,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T15:09:00+00:00"
+    },
+    "VOW": {
+      "gameDataModified": "Thu, 11 Jan 2024 09:52:43 GMT",
+      "games": 494030,
+      "cards": 272,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T15:10:33+00:00"
+    },
+    "WOE": {
+      "gameDataModified": "Wed, 18 Oct 2023 03:06:42 GMT",
+      "games": 1024028,
+      "cards": 329,
+      "hasAta": true,
+      "generatedAt": "2026-11-22T15:12:12+00:00"
     }
   },
-  "updatedAt": "2026-11-22T14:50:40+00:00"
+  "updatedAt": "2026-11-22T15:12:12+00:00"
 }
