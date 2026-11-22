@@ -1,6 +1,7 @@
-name: Refresh limited stats
+name: Refresh limited stats and pack contents
 
-# Rebuilds data/limited-stats/ from 17Lands' public datasets (CC BY 4.0).
+# Rebuilds data/limited-stats/ from 17Lands' public datasets (CC BY 4.0) and
+# data/pack-contents/ from MTGJSON booster configs.
 # Incremental: only sets whose 17Lands file changed are rebuilt, and new sets are picked up
 # automatically once 17Lands publishes them (~2 weeks after release). A commit to main
 # redeploys the app through Firebase App Hosting.
@@ -45,17 +46,28 @@ jobs:
           if [ "$FORCE" = "true" ]; then args="$args --force"; fi
           python -I scripts/build_limited_stats.py $args
 
+      - name: Build pack contents (MTGJSON)
+        if: ${{ !cancelled() }}
+        env:
+          SETS: ${{ github.event.inputs.sets }}
+          FORCE: ${{ github.event.inputs.force }}
+        run: |
+          args=""
+          if [ -n "$SETS" ]; then args="$args --sets $SETS"; fi
+          if [ "$FORCE" = "true" ]; then args="$args --force"; fi
+          python -I scripts/build_pack_contents.py $args
+
       - name: Commit changes
         # Keep the sets that built even if another set failed (the build step still
         # shows red so failures stay visible).
         if: ${{ !cancelled() }}
         run: |
-          if git diff --quiet -- data/limited-stats && [ -z "$(git ls-files --others --exclude-standard data/limited-stats)" ]; then
+          if git diff --quiet -- data && [ -z "$(git ls-files --others --exclude-standard data)" ]; then
             echo "No stats changes"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/limited-stats
-          git commit -m "chore: refresh 17Lands public-dataset limited stats"
+          git add data/limited-stats data/pack-contents
+          git commit -m "chore: refresh limited stats and pack contents"
           git push

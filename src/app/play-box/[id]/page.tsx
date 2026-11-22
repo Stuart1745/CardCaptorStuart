@@ -101,6 +101,32 @@ interface CardStat {
   ata?: number;
 }
 
+interface PackSlot {
+  sheet: string;
+  label: string;
+  /** Expected cards from this sheet per pack */
+  perPack: number;
+  /** Chance a pack has at least one */
+  chance: number;
+  cards: number;
+  foil: boolean;
+  sheets?: number;
+}
+
+interface PackContents {
+  booster: string;
+  cardsPerPack: number;
+  mythicsPerPack: number;
+  source: { name: string; url: string };
+  slots: PackSlot[];
+}
+
+const formatCount = (n: number) => (Math.round(n * 10) / 10).toString();
+const formatOdds = (chance: number) =>
+  chance >= 0.995 ? 'every pack'
+    : chance >= 0.5 ? `${Math.round(chance * 100)}% of packs`
+    : `1 in ${Math.round(1 / chance)} packs`;
+
 interface StatsSource {
   name: string;
   url: string;
@@ -278,9 +304,11 @@ export default function PlayboxDetailsPage() {
   // Per-card 17Lands public-dataset stats for tooltips, plus the source to credit (CC BY 4.0)
   const [cardStatsMap, setCardStatsMap] = useState<Map<string, CardStat>>(new Map());
   const [statsSource, setStatsSource] = useState<StatsSource | null>(null);
+  const [packContents, setPackContents] = useState<PackContents | null>(null);
 
-  const applyRatings = (data: { cardRatings?: CardStat[]; statsSource?: StatsSource | null }) => {
+  const applyRatings = (data: { cardRatings?: CardStat[]; statsSource?: StatsSource | null; packContents?: PackContents | null }) => {
     setStatsSource(data.statsSource ?? null);
+    setPackContents(data.packContents ?? null);
     if (!data.cardRatings?.length) return;
     const rmap = new Map<string, number>();
     const smap = new Map<string, CardStat>();
@@ -476,7 +504,7 @@ export default function PlayboxDetailsPage() {
               if (extractedMechanics.has(kw)) {
                 const data = extractedMechanics.get(kw)!;
                 if (card.colors) card.colors.forEach(c => data.colors.add(c));
-                data.examples.push(card);
+                if (!data.examples.includes(card)) data.examples.push(card); // keyword + same-named ability word
               }
             }
           }
@@ -498,7 +526,7 @@ export default function PlayboxDetailsPage() {
                if (extractedMechanics.has(aw)) {
                  const data = extractedMechanics.get(aw)!;
                  if (card.colors) card.colors.forEach(c => data.colors.add(c));
-                 data.examples.push(card);
+                 if (!data.examples.includes(card)) data.examples.push(card); // keyword + same-named ability word
                }
              }
           }
@@ -1087,8 +1115,51 @@ export default function PlayboxDetailsPage() {
 
           </div>
 
-          {/* Sidebar Pane: Mechanics and Mana Fixing */}
+          {/* Sidebar Pane: Pack Contents, Mechanics and Mana Fixing */}
           <div className="space-y-8">
+            {/* Pack Contents Section (MTGJSON booster configuration) */}
+            {packContents && (() => {
+              const packs = box?.totalPacks || boxInfo.total || 0;
+              // Bonus sheets worth counting per box (not partial land/foil-land slots)
+              const rareSlots = packContents.slots.filter(sl => sl.chance < 0.5 && !/land/i.test(sl.sheet));
+              return (
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <h3 className="font-bold text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-1">
+                    <Package className="w-5 h-5 text-amber-500" /> Pack Contents
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 capitalize">
+                    {packContents.booster} booster · {formatCount(packContents.cardsPerPack)} cards
+                  </p>
+                  <ul className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                    {packContents.slots.map(sl => (
+                      <li key={sl.sheet} className="flex items-baseline justify-between gap-3 py-1.5">
+                        <span className="text-slate-700 dark:text-slate-300">
+                          {sl.label}
+                          <span className="text-xs text-slate-400 dark:text-slate-500"> · {sl.cards} cards{sl.sheets ? ` across ${sl.sheets} sheets` : ''}</span>
+                        </span>
+                        <span className="text-right font-medium text-slate-900 dark:text-slate-100 whitespace-nowrap">
+                          {sl.chance >= 0.995 ? `× ${formatCount(sl.perPack)}` : formatOdds(sl.chance)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-sm text-slate-700 dark:text-slate-300 space-y-1">
+                    <p>Mythic in {formatOdds(Math.min(packContents.mythicsPerPack, 1))}</p>
+                    {packs > 0 && (
+                      <p>
+                        Per box ({packs} packs): ~{formatCount(packContents.mythicsPerPack * packs)} mythics
+                        {rareSlots.map(sl => `, ~${formatCount(sl.perPack * packs)} ${sl.label}`).join('')}
+                      </p>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-3">
+                    Booster data from{' '}
+                    <a href="https://mtgjson.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-cyan-500">MTGJSON</a>
+                  </p>
+                </div>
+              );
+            })()}
+
             {/* Set Mechanics Section */}
             {(guideMechanics.length > 0 || mechanics.length > 0) && !loading && !error && (
               <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">

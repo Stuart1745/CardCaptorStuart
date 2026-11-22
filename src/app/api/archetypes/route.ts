@@ -398,15 +398,29 @@ interface LimitedStats {
  * scripts/build_limited_stats.py into data/limited-stats/{SET}.json. 17Lands permits
  * outside use only of the public datasets, so the app no longer calls its site APIs.
  */
-async function loadLimitedStats(setCode: string): Promise<LimitedStats | null> {
+async function loadSetDataFile<T>(folder: 'limited-stats' | 'pack-contents', setCode: string): Promise<T | null> {
   if (!/^[A-Z0-9]{2,6}$/.test(setCode)) return null; // set code is used in a file path
   try {
-    const raw = await readFile(path.join(process.cwd(), 'data', 'limited-stats', `${setCode}.json`), 'utf8');
-    return JSON.parse(raw) as LimitedStats;
+    const raw = await readFile(path.join(process.cwd(), 'data', folder, `${setCode}.json`), 'utf8');
+    return JSON.parse(raw) as T;
   } catch {
-    return null; // no public data for this set yet (17Lands publishes ~2 weeks after release)
+    return null; // not built for this set (yet)
   }
 }
+
+// 17Lands publishes a set's public data ~2 weeks after release.
+const loadLimitedStats = (setCode: string) => loadSetDataFile<LimitedStats>('limited-stats', setCode);
+
+/** Play-booster slots and odds, precomputed from MTGJSON by scripts/build_pack_contents.py. */
+interface PackContents {
+  set: string;
+  booster: string;
+  cardsPerPack: number;
+  mythicsPerPack: number;
+  source: { name: string; url: string };
+  slots: { sheet: string; label: string; perPack: number; chance: number; cards: number; foil: boolean; sheets?: number }[];
+}
+const loadPackContents = (setCode: string) => loadSetDataFile<PackContents>('pack-contents', setCode);
 
 function cardRatingsFrom(stats: LimitedStats): CardRating[] {
   return Object.entries(stats.cards)
@@ -565,7 +579,7 @@ export async function GET(request: Request) {
     ? `https://magic.wizards.com/en/news/feature/${wizardsSlug}`
     : null;
 
-  const stats = await loadLimitedStats(setCode);
+  const [stats, packContents] = await Promise.all([loadLimitedStats(setCode), loadPackContents(setCode)]);
 
   // Run all sources in parallel; skip Draftsim/Wizards if hardcoded data covers the set
   const [wizardsResult, draftsimResult, scryfallResult, tiersResult, cardRatingsResult] = await Promise.allSettled([
@@ -621,6 +635,7 @@ export async function GET(request: Request) {
     tierSource: tierMap.size > 0 ? '17lands' : null,
     cardRatingsSource: cardRatings.length > 0 ? '17lands' : null,
     // Attribution required by CC BY 4.0 — the page shows this as a visible credit link
+    packContents,
     statsSource: stats
       ? { name: stats.source.name, url: stats.source.url, license: stats.source.license, games: stats.games, updated: stats.source.gameDataModified ?? stats.generatedAt }
       : null,

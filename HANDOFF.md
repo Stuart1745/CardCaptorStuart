@@ -123,6 +123,11 @@ Hardcoded archetypes: `TLA`, `FIN`, `NEO`, `ECL`, `UNF`, `KTK`, `MH2`, `SOS`, `M
 - **Attribution is required:** the box page shows a credit link under "Draft Archetypes"; tooltips show GIH WR, IWD and ATA.
 - 17Lands publishes a set's file about 2 weeks after release, so a brand-new set (e.g. TRK in Nov 2026) has archetypes but no tiers until then.
 
+### Pack contents (MTGJSON)
+
+- `scripts/build_pack_contents.py` (stdlib) reads each draftable set's MTGJSON file (`booster.play`, else `draft`, else `default`) and writes `data/pack-contents/{SET}.json`: per sheet the expected cards per pack, the chance a pack has one, sheet size; plus cards and mythics per pack. Big sheet families (FRA's ~100 echoed-pair sheets) collapse into one row. Rebuilt when missing, within 60 days of release, or with `--force`.
+- Runs in the same weekly workflow; `/api/archetypes` returns it as `packContents`; the box page shows a Pack Contents panel (with per-box mythic and bonus-sheet estimates) and an MTGJSON credit.
+
 To add guide text for a set by hand: read the Wizards prerelease guide and add to `HARDCODED_ARCHETYPES` / `HARDCODED_MECHANICS` in `route.ts`.
 
 ---
@@ -185,7 +190,7 @@ Verify the DNS records are correctly configured for `ccs.stuartrampy.me` → Fir
 | Set Mechanics for non-guide sets | Partial | TLA + FIN have guide mechanics; others use card-scan fallback |
 | Phase 11: CSV Ratings / 17Lands Importer | **Done** (Nov 2026) | Public-dataset pipeline, see Draft stats |
 | Live market price for pack cost | **Done** | `marketPrice` field on Add Box + card |
-| Pack contents / odds from MTGJSON | Idea | `mtgjson.com/api/v5/{SET}.json` → `booster.play` sheets and weights |
+| Pack contents / odds from MTGJSON | **Done** (Nov 2026) | See Pack contents below |
 
 ### Done: Live Market Price for Draft/Sealed Cost (kept for reference)
 
