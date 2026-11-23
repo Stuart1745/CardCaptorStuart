@@ -19,6 +19,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Deck Hub: anyone can view (QR codes are shared with playgroups); admin-only changes.
+    match /decks/{deckId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // Per-user data (receipt inbox queue, approved collection cards): owner only.
     match /users/{uid}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == uid;

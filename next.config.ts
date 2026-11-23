@@ -42,6 +42,16 @@ for (const [name, key] of [
 const nextConfig: NextConfig = {
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
   env: firebaseEnv,
+  // Serve Firebase Auth's sign-in helper from our own domain, so Google's account chooser
+  // can say "continue to ccs.stuartrampy.me" instead of "<project>.firebaseapp.com".
+  // (Firebase's documented custom-authDomain proxy setup.)
+  async rewrites() {
+    const authHost = "https://cardcaptorstuart.firebaseapp.com";
+    return [
+      { source: "/__/auth/:path*", destination: `${authHost}/__/auth/:path*` },
+      { source: "/__/firebase/init.json", destination: `${authHost}/__/firebase/init.json` },
+    ];
+  },
   // The archetypes API reads precomputed 17Lands public-dataset stats and MTGJSON pack contents from disk at
   // request time; make sure they ship with the server bundle.
   outputFileTracingIncludes: {

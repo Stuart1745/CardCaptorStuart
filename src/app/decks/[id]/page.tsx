@@ -1,21 +1,80 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Edit3, Share2 } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { deleteDoc, doc, getDoc } from "firebase/firestore";
+import { QRCodeSVG } from "qrcode.react";
+import { ArrowLeft, Edit3, ExternalLink, Loader2, Share2, Trash2, X } from "lucide-react";
+import { DeckEditor } from "@/components/DeckEditor";
+import { useAuth } from "@/components/AuthProvider";
+import { db } from "@/lib/firebase";
+import { isAdminUser } from "@/lib/admin";
+import { DEFAULT_DECKS, type Deck, deckSize, groupDeck, linkLabel } from "@/lib/decks";
 
-export default function DeckDetailsPage({ params }: { params: { id: string } }) {
-  // Mock data for internal deck viewer
-  const mockCards = [
-    { name: "The Ur-Dragon", type: "Legendary Creature", image: "https://cards.scryfall.io/small/front/7/e/7e78b70b-0c67-4f14-8ad7-c9f8e3f59743.jpg?1562614382" },
-    { name: "Sol Ring", type: "Artifact", image: "https://cards.scryfall.io/small/front/c/b/cbfa38af-6761-4601-8fcb-2b6241a41857.jpg?1674367355" },
-    { name: "Arcane Signet", type: "Artifact", image: "https://cards.scryfall.io/small/front/9/d/9d44c8f5-3c1e-4ba0-afab-b9baee8293dd.jpg?1674367200" },
-    { name: "Crux of Fate", type: "Sorcery", image: "https://cards.scryfall.io/small/front/1/2/12a5e4cb-d3ed-466e-bc35-01e403dcc5cc.jpg?1673814421" },
-    { name: "Dragon Tempest", type: "Enchantment", image: "https://cards.scryfall.io/small/front/f/1/f1933d08-07fe-45ea-9b60-d9afb98d5753.jpg?1562855620" },
-    { name: "Savage Ventmaw", type: "Creature", image: "https://cards.scryfall.io/small/front/4/7/471cd229-c80f-4dc2-a174-96984fc80a2f.jpg?1562909475" },
-    { name: "Utvara Hellkite", type: "Creature", image: "https://cards.scryfall.io/small/front/3/3/33f6914d-808f-4502-a87a-70912d98d8fc.jpg?1562604627" },
-    { name: "Scion of the Ur-Dragon", type: "Legendary Creature", image: "https://cards.scryfall.io/small/front/5/6/565b2a40-57b1-451f-8c2a-e02222502288.jpg?1562608891" }
-  ];
+const MANA_BG: Record<string, string> = { W: "#f8f6d8", U: "#c1d7e9", B: "#bab1ab", R: "#e49977", G: "#a3c095" };
+
+export default function DeckDetailsPage() {
+  const params = useParams();
+  const id = params?.id as string;
+  const router = useRouter();
+  const { user } = useAuth();
+  const isAdmin = isAdminUser(user);
+
+  const [deck, setDeck] = useState<Deck | null>(() => DEFAULT_DECKS.find(d => d.id === id) ?? null);
+  const [loading, setLoading] = useState(true);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      if (!db) { setLoading(false); return; }
+      try {
+        const snap = await getDoc(doc(db, "decks", id));
+        if (snap.exists()) setDeck({ id: snap.id, ...snap.data() } as Deck);
+      } catch {
+        // keep the built-in fallback, if any
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [id]);
+
+  const handleDelete = async () => {
+    if (!db || !deck) return;
+    setDeleteError(null);
+    try {
+      await deleteDoc(doc(db, "decks", deck.id));
+      router.push("/decks");
+    } catch {
+      setDeleteError("Deleting was refused. Make sure you're signed in with the admin account.");
+    }
+  };
+
+  const shareUrl = typeof window !== "undefined" ? window.location.href.split("#")[0] : "";
+  const copyLink = async () => {
+    try { await navigator.clipboard.writeText(shareUrl); setCopied(true); setTimeout(() => setCopied(false), 1600); }
+    catch { /* clipboard refused; the URL is shown for manual copying */ }
+  };
+
+  if (!deck) {
+    return (
+      <main className="flex-1 p-4 md:p-8">
+        <div className="max-w-7xl mx-auto">
+          <Link href="/decks" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-indigo-600 mb-6"><ArrowLeft className="w-4 h-4" /> Back to Deck Hub</Link>
+          {loading
+            ? <p className="flex items-center gap-2 text-slate-500"><Loader2 className="w-4 h-4 animate-spin" /> Loading deck…</p>
+            : <p className="text-slate-600 dark:text-slate-400">This deck doesn&apos;t exist or was deleted.</p>}
+        </div>
+      </main>
+    );
+  }
+
+  const groups = groupDeck(deck.cards ?? []);
+  const total = deckSize(deck.cards ?? []);
 
   return (
     <main className="flex-1 bg-transparent p-4 md:p-8">
@@ -24,53 +83,121 @@ export default function DeckDetailsPage({ params }: { params: { id: string } }) 
           <ArrowLeft className="w-4 h-4" />
           Back to Deck Hub
         </Link>
-        
+
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-          <div className="flex items-center gap-6">
-            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-lg shrink-0">
-              <img src={mockCards[0].image} className="w-full h-full object-cover" style={{ objectPosition: 'center 20%' }} alt="Commander" />
+          <div className="flex items-center gap-6 min-w-0">
+            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-lg shrink-0 bg-slate-200 dark:bg-slate-800">
+              {deck.thumbnail && <img src={deck.thumbnail} alt={deck.commander ?? deck.name} className="w-full h-full object-cover" />}
             </div>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">Ur-Dragon Tribal</h1>
-              <p className="text-slate-500 dark:text-slate-400 mt-1">Commander Format • 100 Cards</p>
+            <div className="min-w-0">
+              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">{deck.name}</h1>
+              <p className="text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap items-center gap-2">
+                <span>{deck.format}{total > 0 ? ` · ${total} cards` : ""}{deck.commander ? ` · ${deck.commander}` : ""}</span>
+                <span className="flex gap-1">
+                  {deck.colors.map(c => (
+                    <span key={c} className="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-600 inline-flex items-center justify-center text-[8px] font-bold text-slate-900" style={{ backgroundColor: MANA_BG[c] ?? "#ccc" }}>{c}</span>
+                  ))}
+                </span>
+              </p>
             </div>
           </div>
-          <div className="flex gap-3">
-            <button 
-              onClick={() => alert("Sharing decks is disabled in Offline Mode. Please configure Firebase.")}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors font-medium"
-            >
+          <div className="flex flex-wrap gap-3">
+            {deck.link && (
+              <a href={deck.link} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 font-medium">
+                <ExternalLink className="w-4 h-4" /> {linkLabel(deck.link)}
+              </a>
+            )}
+            <button type="button" onClick={() => setIsShareOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 font-medium">
               <Share2 className="w-4 h-4" /> Share
             </button>
-            <button 
-              onClick={() => alert("Editing decks is disabled in Offline Mode. Please configure Firebase to enable database writes.")}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
-            >
-              <Edit3 className="w-4 h-4" /> Edit List
-            </button>
+            {isAdmin && (
+              <>
+                <button type="button" onClick={() => setIsEditorOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm">
+                  <Edit3 className="w-4 h-4" /> Edit Deck
+                </button>
+                <button type="button" onClick={() => setConfirmDelete(true)}
+                  className="flex items-center gap-2 px-4 py-2 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 font-medium">
+                  <Trash2 className="w-4 h-4" /> Delete
+                </button>
+              </>
+            )}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {mockCards.map((card, idx) => (
-            <div key={idx} className="relative group cursor-pointer">
-              <img 
-                src={card.image} 
-                alt={card.name} 
-                className="w-full rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 group-hover:scale-105 group-hover:shadow-lg transition-all duration-300"
-              />
+        {confirmDelete && (
+          <div role="alert" className="mb-8 p-4 rounded-xl border border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-900/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <p className="text-red-800 dark:text-red-300">Delete <strong>{deck.name}</strong>? This can&apos;t be undone.{deleteError && <span className="block text-sm mt-1">{deleteError}</span>}</p>
+            <div className="flex gap-2">
+              <button type="button" onClick={() => { setConfirmDelete(false); setDeleteError(null); }}
+                className="px-4 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800 font-medium">Keep deck</button>
+              <button type="button" onClick={handleDelete}
+                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium">Delete deck</button>
             </div>
-          ))}
-          {/* Add more placeholders to simulate a full deck */}
-          {Array.from({ length: 12 }).map((_, idx) => (
-            <div key={`placeholder-${idx}`} className="relative group">
-               <div className="w-full aspect-[2.5/3.5] bg-slate-100 dark:bg-slate-800/50 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex items-center justify-center opacity-50">
-                 <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700"></div>
-               </div>
-            </div>
-          ))}
-        </div>
+          </div>
+        )}
+
+        {groups.length === 0 ? (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-10 border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+            <p className="text-slate-700 dark:text-slate-300 font-medium">No decklist yet.</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+              {isAdmin ? "Use Edit Deck to import it from Moxfield or paste the list." : deck.link ? `See the list on ${linkLabel(deck.link)}.` : "Check back later."}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {groups.map(g => (
+              <section key={g.label} className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">
+                  {g.label} <span className="text-slate-400 font-normal">({g.count})</span>
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {g.cards.map(card => (
+                    <a key={`${card.board}-${card.name}`} href={card.scryfallUri ?? `https://scryfall.com/search?q=!"${encodeURIComponent(card.name)}"`}
+                      target="_blank" rel="noopener noreferrer" className="group flex flex-col gap-1.5 min-w-0">
+                      <div className="relative aspect-[2.5/3.5] rounded-xl overflow-hidden shadow-sm group-hover:shadow-md group-hover:-translate-y-0.5 transition-all bg-slate-200 dark:bg-slate-800">
+                        {card.image && <img src={card.image} alt={card.name} loading="lazy" className="w-full h-full object-cover" />}
+                        {card.qty > 1 && (
+                          <span className="absolute top-1.5 right-1.5 text-xs font-bold px-1.5 py-0.5 rounded-md bg-slate-900/85 text-white">×{card.qty}</span>
+                        )}
+                      </div>
+                      <p className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate">{card.name}</p>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
       </div>
+
+      {isShareOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-sm w-full overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="font-bold text-slate-900 dark:text-slate-100">Share {deck.name}</h3>
+              <button type="button" aria-label="Close" onClick={() => setIsShareOpen(false)} className="p-1 rounded-md text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-8 flex flex-col items-center gap-5">
+              <div className="bg-white p-4 rounded-xl border border-slate-200"><QRCodeSVG value={shareUrl} size={200} level="H" /></div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 break-all text-center select-all">{shareUrl}</p>
+              <button type="button" onClick={copyLink} className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium">
+                {copied ? "Copied" : "Copy link"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isEditorOpen && (
+        <DeckEditor
+          deck={deck}
+          onClose={() => setIsEditorOpen(false)}
+          onSaved={saved => { setDeck(saved); setIsEditorOpen(false); }}
+        />
+      )}
     </main>
   );
 }
