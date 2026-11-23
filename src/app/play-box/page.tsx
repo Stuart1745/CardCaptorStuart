@@ -228,7 +228,9 @@ export default function PlayBoxPage() {
       }
     };
     loadBoxes();
-  }, []);
+    // Re-run when the signed-in user changes: the first run usually happens before auth has
+    // restored, so its default-box seed is refused by the rules (admin-only writes).
+  }, [user?.uid]);
 
   const handleAction = () => {
     alert("Opening packs/editing is not yet implemented.");
