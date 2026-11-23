@@ -180,7 +180,7 @@ DNS at **Hover**: A `ccs` → 35.219.200.198, TXT `ccs` fah-claim, CNAME `_acme-
 | Open Pack | **Done** (Nov 2026) | Decrements `remaining`, 8 s Undo; admin-only |
 | Inbox "Sync Gmail" | **Removed** (Nov 2026, Stuart's call) | It used Supabase auth (always 401); Gmail read scopes need Google restricted-scope verification (CASA). Removed the route, all Supabase code, `@supabase/supabase-js`, `googleapis`, `@google/genai`. The Inbox page (not in the menu) keeps approve/reject but nothing feeds it now. |
 | Bomb Rares showing uncommon (Lorwyn/ECL) | **Likely fixed** (Nov 2026) | Replaying `getTopCardsForArchetype` on live ECL Scryfall data gives rare/mythic for all 30 picks. Probable cause: box 4 briefly defaulted to set code `LRW` (2007 Lorwyn), later corrected to `ECI`→`ECL`. No Firestore record can be stale: the database did not exist until 2026-11-21. Reopen if it recurs. |
-| Set Mechanics for non-guide sets | Partial | TLA + FIN have guide mechanics; others use card-scan fallback |
+| Set Mechanics for non-guide sets | **Improved** (Nov 2026) | Hand-entered from Wizards for TDM, ECL, UNF, TLA, FIN, SOS, MSH, FRA, TRK, HOB. Other sets use the card scan: keywords described by their reminder text, ability words (Landfall, Eerie…) by the text after the dash, and example cards picked by 17Lands GIH win rate (rarity when there are no stats). |
 | Phase 11: CSV Ratings / 17Lands Importer | **Done** (Nov 2026) | Public-dataset pipeline, see Draft stats |
 | Live market price for pack cost | **Done** | `marketPrice` field on Add Box + card |
 | Pack contents / odds from MTGJSON | **Done** (Nov 2026) | See Pack contents below |

@@ -5,10 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Package, Plus, X, DollarSign, Image as ImageIcon } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
+import { isAdminUser } from "@/lib/admin";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, addDoc, doc, writeBatch } from "firebase/firestore";
 
-const ADMIN_EMAILS = ['rampy1745@gmail.com'];
 
 interface PlayBox {
   id: string;
@@ -173,7 +173,7 @@ const getTheme = (color: string) => {
 
 export default function PlayBoxPage() {
   const { user } = useAuth();
-  const isAdmin = ADMIN_EMAILS.includes(user?.email ?? '');
+  const isAdmin = isAdminUser(user);
   const router = useRouter();
   const [playBoxes, setPlayBoxes] = useState<PlayBox[]>(DEFAULT_BOXES);
   const [isModalOpen, setIsModalOpen] = useState(false);

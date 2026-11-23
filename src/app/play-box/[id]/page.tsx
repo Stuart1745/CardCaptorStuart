@@ -59,6 +59,7 @@ interface ScryfallCard {
   card_faces?: {
     mana_cost?: string;
     oracle_text?: string;
+    colors?: string[];
     image_uris?: {
       normal: string;
       art_crop?: string;
@@ -165,15 +166,6 @@ const BONUS_SHEETS: Record<string, string[]> = {
 };
 
 // Deterministic mock generator for Draftsim ratings since there is no public API
-const getMockRating = (name: string) => {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const score = 1.0 + (Math.abs(hash) % 41) / 10; 
-  return score.toFixed(1);
-};
-
 const getCardQualityTier = (topCards: { signposts: ScryfallCard[], rares: ScryfallCard[], removal: ScryfallCard[], evasion: ScryfallCard[], draw: ScryfallCard[], commons: ScryfallCard[] }) => {
   const r = (c: ScryfallCard) => (c.rarity || '').toLowerCase();
   let score = 0;
@@ -322,6 +314,14 @@ export default function PlayboxDetailsPage() {
     setCardRatingMap(rmap);
     setCardStatsMap(smap);
   };
+  /** Best three cards for a mechanic: highest 17Lands GIH win rate, else highest rarity. */
+  const RARITY_RANK: Record<string, number> = { mythic: 4, rare: 3, uncommon: 2, common: 1 };
+  const bestExamples = (cards: ScryfallCard[]) =>
+    [...cards]
+      .sort((a, b) =>
+        (cardRatingMap.get(b.name) ?? -1) - (cardRatingMap.get(a.name) ?? -1) ||
+        (RARITY_RANK[b.rarity] ?? 0) - (RARITY_RANK[a.rarity] ?? 0))
+      .slice(0, 3);
   const [error, setError] = useState<string | null>(null);
   const [isSharedMode, setIsSharedMode] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -528,11 +528,14 @@ export default function PlayboxDetailsPage() {
           if (card.keywords && card.keywords.length > 0) {
             for (const kw of card.keywords) {
               if (EVERGREEN_KEYWORDS.has(kw) || kw.toLowerCase().includes('cycling')) continue;
+              const textToSearch = card.oracle_text || (card.card_faces ? card.card_faces.map(f => f.oracle_text).join("\n") : "");
+              const escapedKw = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              // Scryfall lists ability words as keywords too; the ability-word scan below handles those.
+              if (new RegExp('(?:^|\\n)' + escapedKw + '\\s+—').test(textToSearch)) continue;
 
               if (!extractedMechanics.has(kw)) {
-                const textToSearch = card.oracle_text || (card.card_faces ? card.card_faces.map(f => f.oracle_text).join(" ") : "");
-                const escapedKw = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const regex = new RegExp(escapedKw + '[^\\(]*\\((.*?)\\)', 'i');
+                // Reminder text on the same line as the keyword, not a later ability's
+                const regex = new RegExp(escapedKw + '[^\\(\\n]*\\((.*?)\\)', 'i');
                 const match = textToSearch.match(regex);
 
                 if (match && match[1]) {
@@ -544,44 +547,47 @@ export default function PlayboxDetailsPage() {
               
               if (extractedMechanics.has(kw)) {
                 const data = extractedMechanics.get(kw)!;
-                if (card.colors) card.colors.forEach(c => data.colors.add(c));
+                (card.colors ?? card.card_faces?.flatMap(f => f.colors ?? []) ?? []).forEach(c => data.colors.add(c));
                 if (!data.examples.includes(card)) data.examples.push(card); // keyword + same-named ability word
               }
             }
           }
           
-          const abilityWordMatch = (card.oracle_text || "").match(/(?:^|\n)([A-Z][a-z]+)\s+—/);
-          if (abilityWordMatch && abilityWordMatch[1]) {
-             const aw = abilityWordMatch[1];
-             if (!EVERGREEN_KEYWORDS.has(aw) && !aw.toLowerCase().includes('cycling')) {
-               if (!extractedMechanics.has(aw)) {
-                 const regex = new RegExp(aw + '[^\\(]*\\((.*?)\\)', 'i');
-                 const match = (card.oracle_text || "").match(regex);
-                 if (match && match[1]) {
-                   let desc = match[1].trim();
-                   desc = desc.charAt(0).toUpperCase() + desc.slice(1);
-                   extractedMechanics.set(aw, { desc, colors: new Set(), examples: [] });
-                 }
-               }
-               
-               if (extractedMechanics.has(aw)) {
-                 const data = extractedMechanics.get(aw)!;
-                 if (card.colors) card.colors.forEach(c => data.colors.add(c));
-                 if (!data.examples.includes(card)) data.examples.push(card); // keyword + same-named ability word
-               }
+          // Ability words ("Landfall — Whenever…") carry no reminder text, so describe them by the
+          // text that follows the dash on the first card that uses them. Every line is checked,
+          // since a card can have more than one.
+          const cardText = card.oracle_text || (card.card_faces ? card.card_faces.map(f => f.oracle_text).join("\n") : "");
+          for (const m of cardText.matchAll(/(?:^|\n)([A-Z][a-z]+)\s+—\s*([^\n]*)/g)) {
+             const aw = m[1];
+             if (EVERGREEN_KEYWORDS.has(aw) || aw.toLowerCase().includes('cycling') || /^(Choose|Chapter)$/.test(aw)) continue;
+             const effect = m[2].replace(/\s*\(.*?\)\s*/g, ' ').trim().replace(/[,.].*$/, '');
+             const existing = extractedMechanics.get(aw);
+             if (!existing) {
+               if (!effect) continue;
+               extractedMechanics.set(aw, { desc: `Ability word: ${effect}…`, colors: new Set(), examples: [] });
+             } else if (existing.desc.startsWith('Ability word: {') && effect && !effect.startsWith('{')) {
+               // Prefer a trigger or condition ("As long as…") over an activated cost
+               existing.desc = `Ability word: ${effect}…`;
              }
+             const data = extractedMechanics.get(aw)!;
+             (card.colors ?? card.card_faces?.flatMap(f => f.colors ?? []) ?? []).forEach(c => data.colors.add(c));
+             if (!data.examples.includes(card)) data.examples.push(card); // keyword + same-named ability word
           }
         }
 
+        // Keep every example; the panel picks the best three by 17Lands win rate when it renders,
+        // because the stats can arrive after the card list.
         const sortedMechanics = Array.from(extractedMechanics.entries())
           .filter(([, data]) => data.examples.length >= 3)
+          // "Manifest" rides along with "Manifest dread": keep only the longer name
+          .filter(([name, data], _i, all) => !all.some(([other, od]) =>
+            other.startsWith(name + ' ') && od.examples.length >= data.examples.length * 0.8))
           .map(([name, data]) => {
-             const topExamples = [...data.examples].sort((a, b) => parseFloat(getMockRating(b.name)) - parseFloat(getMockRating(a.name))).slice(0, 3);
-             return { 
-               name, 
-               desc: data.desc, 
+             return {
+               name,
+               desc: data.desc,
                colors: Array.from(data.colors).sort((a, b) => "WUBRG".indexOf(a) - "WUBRG".indexOf(b)),
-               examples: topExamples
+               examples: data.examples
              };
           })
           .sort((a, b) => a.name.localeCompare(b.name));
@@ -1265,7 +1271,7 @@ export default function PlayboxDetailsPage() {
                             <Star className="w-4 h-4 text-amber-400" fill="currentColor" /> Top {mech.name} Cards
                           </h5>
                           <div className="flex gap-4 justify-center">
-                            {mech.examples.map(card => (
+                            {bestExamples(mech.examples).map(card => (
                                <div key={card.id} className="relative aspect-[2.5/3.5] w-[7.5rem] sm:w-36 rounded-xl overflow-hidden shadow-sm border border-slate-700">
                                  <img src={getImageUrl(card)} alt={card.name} className="w-full h-full object-cover" />
                                </div>

@@ -6,13 +6,12 @@ import { ThemeToggle } from "./ThemeToggle";
 import { LoginButton } from "./LoginButton";
 import { useAuth } from "./AuthProvider";
 import { Layers, Box, Package } from "lucide-react";
-
-const ADMIN_EMAILS = ['rampy1745@gmail.com'];
+import { isAdminUser } from "@/lib/admin";
 
 export function Navigation() {
   const pathname = usePathname();
   const { user } = useAuth();
-  const isAdmin = ADMIN_EMAILS.includes(user?.email ?? '');
+  const isAdmin = isAdminUser(user);
 
   const links = [
     { href: "/play-box", label: "Play Box", icon: Package, requiresAdmin: false },
@@ -26,7 +25,7 @@ export function Navigation() {
         <div className="flex flex-col sm:flex-row items-center justify-between h-auto sm:h-16 py-4 sm:py-0 gap-4">
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-indigo-600 dark:text-indigo-400">
-              <img src="/icon.png" alt="Wand Icon" className="w-8 h-8 object-contain" />
+              <img src="/logo.png" alt="" width={32} height={32} className="w-8 h-8 object-contain" />
               Cardcaptor Stuart
             </Link>
             <div className="flex items-center gap-1">

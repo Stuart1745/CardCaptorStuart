@@ -4,13 +4,12 @@ import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import CsvImporter from "@/components/CsvImporter";
-
-const ADMIN_EMAILS = ['rampy1745@gmail.com'];
+import { isAdminUser } from "@/lib/admin";
 
 export default function CollectionPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const isAdmin = ADMIN_EMAILS.includes(user?.email ?? '');
+  const isAdmin = isAdminUser(user);
 
   useEffect(() => {
     if (!loading && !isAdmin) {
