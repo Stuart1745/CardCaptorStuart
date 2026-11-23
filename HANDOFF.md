@@ -88,7 +88,7 @@ users/{uid}/cards/{id}        — approved collection items
 | `src/app/play-box/page.tsx` | Box listing — loads from Firestore `playBoxes` |
 | `src/app/play-box/[id]/page.tsx` | Box detail — fetches all set cards from Scryfall, shows archetypes |
 | `src/app/api/archetypes/route.ts` | Archetype API — calls 17lands + Scryfall + Draftsim, returns tiers |
-| `src/app/inbox/page.tsx` | Receipt inbox — Firebase Auth client component |
+| `src/app/inbox/page.tsx` | Receipt inbox (unlinked; nothing feeds it since Gmail sync was removed) |
 | `src/app/inbox/InboxClient.tsx` | Inbox mutations — Firestore `writeBatch` for approve/reject |
 | `src/app/collection/page.tsx` | CSV importer — admin-only |
 | `src/app/login/LoginForm.tsx` | Google sign-in form on `/login` |
@@ -178,7 +178,7 @@ DNS at **Hover**: A `ccs` → 35.219.200.198, TXT `ccs` fah-claim, CNAME `_acme-
 | Google sign-in shows firebaseapp.com | **In progress** | See Blocking Issues 3 |
 | Deck Hub | **Done** (Nov 2026) | Real decks in Firestore; paste a decklist (Moxfield Export). Moxfield's api2 is behind Cloudflare and 403s Google Cloud and browser-origin requests, so there is no direct import. |
 | Open Pack | **Done** (Nov 2026) | Decrements `remaining`, 8 s Undo; admin-only |
-| Inbox "Sync Gmail" | **Broken (legacy)** | `/api/gmail/sync` still uses Supabase auth (always 401). Gmail read scopes need Google restricted-scope verification (CASA); privacy policy must change first. |
+| Inbox "Sync Gmail" | **Removed** (Nov 2026, Stuart's call) | It used Supabase auth (always 401); Gmail read scopes need Google restricted-scope verification (CASA). Removed the route, all Supabase code, `@supabase/supabase-js`, `googleapis`, `@google/genai`. The Inbox page (not in the menu) keeps approve/reject but nothing feeds it now. |
 | Bomb Rares showing uncommon (Lorwyn/ECL) | **Likely fixed** (Nov 2026) | Replaying `getTopCardsForArchetype` on live ECL Scryfall data gives rare/mythic for all 30 picks. Probable cause: box 4 briefly defaulted to set code `LRW` (2007 Lorwyn), later corrected to `ECI`→`ECL`. No Firestore record can be stale: the database did not exist until 2026-11-21. Reopen if it recurs. |
 | Set Mechanics for non-guide sets | Partial | TLA + FIN have guide mechanics; others use card-scan fallback |
 | Phase 11: CSV Ratings / 17Lands Importer | **Done** (Nov 2026) | Public-dataset pipeline, see Draft stats |

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react";
-import { Mail, CheckCircle, XCircle, RefreshCw, AlertCircle, CheckSquare, Trash2, ChevronDown, ChevronRight, PackageOpen } from "lucide-react";
+import { Mail, CheckCircle, XCircle, AlertCircle, CheckSquare, Trash2, ChevronDown, ChevronRight, PackageOpen } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, collection, writeBatch } from "firebase/firestore";
 
@@ -33,7 +33,6 @@ export default function InboxClient({
   uid: string;
   onReload: () => Promise<void>;
 }) {
-  const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
@@ -57,22 +56,6 @@ export default function InboxClient({
       else next.add(groupId);
       return next;
     });
-  };
-
-  const handleSync = async () => {
-    setIsSyncing(true);
-    setError(null);
-    try {
-      const res = await fetch('/api/gmail/sync', { method: 'POST' });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to sync');
-      alert(`Found and parsed ${data.processed} new MTG items from your Gmail receipts!`);
-      await onReload();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setIsSyncing(false);
-    }
   };
 
   const handleApprove = async (itemsToApprove: QueueItem[]) => {
@@ -140,17 +123,8 @@ export default function InboxClient({
       <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h2 className="text-4xl font-bold tracking-tight mb-2 bg-gradient-to-br from-white to-neutral-500 bg-clip-text text-transparent">Receipt Inbox</h2>
-          <p className="text-neutral-400">Review and approve cards extracted by AI from your Gmail order confirmations.</p>
+          <p className="text-neutral-400">Review and approve queued cards before they join your collection.</p>
         </div>
-        <button
-          type="button"
-          onClick={handleSync}
-          disabled={isSyncing}
-          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white transition-all text-sm font-medium shadow-lg shadow-blue-500/20"
-        >
-          <RefreshCw size={16} className={isSyncing ? "animate-spin" : ""} />
-          {isSyncing ? "Scanning Gmail..." : "Sync Gmail Receipts"}
-        </button>
       </header>
 
       {error && (
@@ -167,7 +141,7 @@ export default function InboxClient({
               <Mail size={24} />
             </div>
             <p className="text-neutral-400 font-medium">Your queue is empty.</p>
-            <p className="text-sm text-neutral-500 mt-1">Click Sync Gmail to scan for new orders.</p>
+            <p className="text-sm text-neutral-500 mt-1">Add cards to your collection with the CSV importer on the Collection page.</p>
           </div>
         </div>
       ) : (
