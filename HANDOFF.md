@@ -58,17 +58,22 @@ Everyone (signed-in or not) can view play boxes and draft archetypes.
 
 ## Firestore Data Model
 
-```
-playBoxes/{boxId}           — box metadata (name, setCode, cost, remaining, etc.)
-                              Default boxes seeded with IDs "2"–"6" on first load.
+Database `(default)` in **us-east4**, created 2026-11-21 (before that Firestore was never enabled and every read/write silently failed).
 
-users/{uid}/receiptQueue/{id} — Gmail receipt items (status: Draft/Approved/Rejected)
+```
+playBoxes/{boxId}             — box metadata (name, setCode, cost, marketPrice, remaining, total, customArchetypes…)
+                                Default boxes "2"–"6" are seeded on the first ADMIN visit.
+decks/{deckId}                — Deck Hub decks (name, format, commander, thumbnail, link, colors,
+                                cards[], decklistText). Original 5 decks seeded on the first admin visit.
+users/{uid}/receiptQueue/{id} — receipt inbox items (status: Draft/Approved/Rejected)
 users/{uid}/cards/{id}        — approved collection items
 ```
 
-**Security rules** are in Firebase Console → Firestore → Rules (not in a local file):
-- `playBoxes`: authenticated read, admin-only write
-- `users/{uid}/**`: owner-only read/write
+**Security rules** live in `firestore.rules` (deploy: `npx firebase-tools deploy --only firestore:rules --project cardcaptorstuart`):
+- `playBoxes`, `decks`: public read, admin-only write (`isAdmin()` = verified email in the list; keep in sync with `src/lib/admin.ts`)
+- `users/{uid}/**`: owner-only read/write; everything else closed
+
+**Verify saves by reading Firestore, not the UI**: when Firebase isn't initialized the pages fall back to built-in boxes/decks and "saves" only change the screen.
 
 ---
 
@@ -150,33 +155,17 @@ npm run build       # next build
 
 The site went down because the project's billing account ("Firebase Payment") was closed; App Hosting needs Blaze. It is now linked to "My Billing Account". If the site ever returns Google's generic 404 again, check `gcloud billing projects describe cardcaptorstuart` first.
 
-### 1. Firebase Authentication Not Working on Staging
+### 1. Firebase not initializing in the browser (resolved 2026-11-22)
 
-Sign-in fails on `ccs.stuartrampy.me` / the hosted app URL because Firebase env vars are not configured in Firebase App Hosting.
+The App Hosting env var names were saved with a trailing TAB (`NEXT_PUBLIC_FIREBASE_API_KEY⇥`, also PROJECT_ID, STORAGE_BUCKET, MEASUREMENT_ID), so Next never inlined them and Firebase never started client-side. `next.config.ts` now resolves each value by whitespace-trimmed name, falling back to App Hosting's injected `FIREBASE_WEBAPP_CONFIG`. Retyping the names in the console is still worthwhile but no longer required.
 
-**Fix:**
+### 2. Custom domain `ccs.stuartrampy.me` (resolved 2026-11-23)
 
-1. Go to Firebase Console → Your project → App Hosting → Backend → Environment Variables
-2. Add all 6 vars with **BUILD** availability:
+DNS at **Hover**: A `ccs` → 35.219.200.198, TXT `ccs` fah-claim, CNAME `_acme-challenge_tko4xnq2rja5zoh7` → certificatemanager. App Hosting reports host/ownership/cert ACTIVE.
 
-   - `NEXT_PUBLIC_FIREBASE_API_KEY`
-   - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-   - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
-   - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
-   - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
-   - `NEXT_PUBLIC_FIREBASE_APP_ID`
+### 3. Google sign-in shows `cardcaptorstuart.firebaseapp.com` (in progress)
 
-3. Trigger a redeploy (push a commit or manually roll back/redeploy in Firebase Console)
-
-**Also check:** Firebase Console → Authentication → Settings → Authorized Domains — add `ccs.stuartrampy.me` and the hosted app domain.
-
-### 2. Custom Domain Registration — `ccs.stuartrampy.me`
-
-Verify the DNS records are correctly configured for `ccs.stuartrampy.me` → Firebase App Hosting. Check:
-
-- Firebase Console → App Hosting → Domains — confirm the domain shows "Active" status
-- DNS registrar — confirm the CNAME/A records match what Firebase requires
-- If still propagating, wait 24–48 hours and check again
+`next.config.ts` proxies `/__/auth/*` to firebaseapp.com on both hosts. Branding (name, logo, `/privacy`, `/terms`) submitted for Google verification 2026-11-23. **Before** merging local branch `auth-own-domain` (authDomain = page host), the OAuth web client `413719591693-d58lsnmamjcs6s7lrh4esetebgb5acj9` must list `https://ccs.stuartrampy.me/__/auth/handler` and the hosted.app equivalent as redirect URIs, or sign-in breaks. Check: Google's authorize URL with that redirect_uri must not say `redirect_uri_mismatch`.
 
 ---
 
@@ -184,8 +173,12 @@ Verify the DNS records are correctly configured for `ccs.stuartrampy.me` → Fir
 
 | Item | Status | Notes |
 |---|---|---|
-| Firebase Auth on staging | **Blocked** | Needs env vars set in Firebase Console (see above) |
-| Custom domain `ccs.stuartrampy.me` | **Verify** | Check DNS + Firebase domain registration status |
+| Firebase Auth / saving | **Fixed** (Nov 2026) | See Blocking Issues 1 |
+| Custom domain `ccs.stuartrampy.me` | **Live** (Nov 2026) | |
+| Google sign-in shows firebaseapp.com | **In progress** | See Blocking Issues 3 |
+| Deck Hub | **Done** (Nov 2026) | Real decks in Firestore; paste a decklist (Moxfield Export). Moxfield's api2 is behind Cloudflare and 403s Google Cloud and browser-origin requests, so there is no direct import. |
+| Open Pack | **Done** (Nov 2026) | Decrements `remaining`, 8 s Undo; admin-only |
+| Inbox "Sync Gmail" | **Broken (legacy)** | `/api/gmail/sync` still uses Supabase auth (always 401). Gmail read scopes need Google restricted-scope verification (CASA); privacy policy must change first. |
 | Bomb Rares showing uncommon (Lorwyn/ECL) | **Likely fixed** (Nov 2026) | Replaying `getTopCardsForArchetype` on live ECL Scryfall data gives rare/mythic for all 30 picks. Probable cause: box 4 briefly defaulted to set code `LRW` (2007 Lorwyn), later corrected to `ECI`→`ECL`. No Firestore record can be stale: the database did not exist until 2026-11-21. Reopen if it recurs. |
 | Set Mechanics for non-guide sets | Partial | TLA + FIN have guide mechanics; others use card-scan fallback |
 | Phase 11: CSV Ratings / 17Lands Importer | **Done** (Nov 2026) | Public-dataset pipeline, see Draft stats |
