@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { db } from "@/lib/firebase";
+import { useAuth } from "@/components/AuthProvider";
+import { isAdminUser } from "@/lib/admin";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import NextImage from "next/image";
 import { ArrowLeft, Package, Loader2, AlertCircle, BookOpen, Map as MapIcon, Star, Zap, Share2, Check, Settings, X, Image as ImageIcon } from "lucide-react";
@@ -324,6 +326,43 @@ export default function PlayboxDetailsPage() {
   const [isSharedMode, setIsSharedMode] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { user } = useAuth();
+  const isAdmin = isAdminUser(user);
+  // Last pack change, kept briefly so a mis-tap can be undone
+  const [packToast, setPackToast] = useState<{ text: string; undo?: number; error?: boolean } | null>(null);
+  const [isSavingPack, setIsSavingPack] = useState(false);
+
+  /** Change the packs-remaining count by `delta` (-1 opens a pack, +1 undoes) and save it. */
+  const changePacks = async (delta: number) => {
+    if (!db || !box || isSavingPack) return;
+    const before = boxInfo.remaining;
+    const after = Math.min(Math.max(before + delta, 0), boxInfo.total || before);
+    if (after === before) return;
+    setIsSavingPack(true);
+    // Keep `box` in step too: the Edit modal saves the whole box object back.
+    const setRemaining = (n: number) => {
+      setBoxInfo(prev => ({ ...prev, remaining: n }));
+      setBox(prev => (prev ? ({ ...prev, remaining: n } as PlayBox) : prev));
+    };
+    setRemaining(after);
+    try {
+      await updateDoc(doc(db, 'playBoxes', box.id), { remaining: after });
+      setPackToast(delta < 0
+        ? { text: `Opened a pack · ${after} left`, undo: -delta }
+        : { text: `Undone · ${after} left` });
+    } catch {
+      setRemaining(before);
+      setPackToast({ text: "Couldn't save the pack count. Make sure you're signed in as the admin.", error: true });
+    } finally {
+      setIsSavingPack(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!packToast) return;
+    const t = setTimeout(() => setPackToast(null), packToast.error ? 6000 : 8000);
+    return () => clearTimeout(t);
+  }, [packToast]);
   const [editFormData, setEditFormData] = useState({ name: '', setCode: '', cost: '', imageUrl: '' });
   const [autoHeroImage, setAutoHeroImage] = useState<string | null>(null);
 
@@ -374,6 +413,8 @@ export default function PlayboxDetailsPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       setIsSharedMode(window.location.search.includes("mode=shared"));
+      // The Play Box list's Edit button links here with ?edit=1
+      if (new URLSearchParams(window.location.search).get("edit") === "1") setIsEditModalOpen(true);
     }
 
     (async () => {
@@ -932,7 +973,7 @@ export default function PlayboxDetailsPage() {
                 {copied ? "Copied Link!" : "Share Link"}
               </button>
             )}
-            {!isSharedMode && (
+            {!isSharedMode && isAdmin && (
               <button 
                 onClick={() => setIsEditModalOpen(true)}
                 className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors font-semibold shadow-sm"
@@ -940,12 +981,14 @@ export default function PlayboxDetailsPage() {
                 <Settings className="w-4 h-4" /> Edit
               </button>
             )}
-            {!isSharedMode && (
+            {!isSharedMode && isAdmin && (
               <button 
-                onClick={() => alert("Opening packs is disabled in Offline Mode. Please configure Firebase to enable database writes.")}
-                className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold shadow-sm"
+                type="button"
+                onClick={() => changePacks(-1)}
+                disabled={isSavingPack || boxInfo.remaining <= 0}
+                className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Package className="w-4 h-4" /> Open Pack
+                <Package className="w-4 h-4" /> {boxInfo.remaining <= 0 ? "Box Empty" : "Open Pack"}
               </button>
             )}
             {isSharedMode && (
@@ -956,6 +999,17 @@ export default function PlayboxDetailsPage() {
             )}
           </div>
         </div>
+
+        {packToast && (
+          <div role="status" aria-live="polite"
+            className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[120] flex items-center gap-4 px-5 py-3 rounded-xl shadow-xl text-sm font-medium ${packToast.error ? "bg-red-600 text-white" : "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"}`}>
+            <span>{packToast.text}</span>
+            {packToast.undo && (
+              <button type="button" onClick={() => changePacks(packToast.undo!)} disabled={isSavingPack}
+                className="font-bold underline underline-offset-2 hover:opacity-80">Undo</button>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {/* Main Pane: Draft Archetypes */}

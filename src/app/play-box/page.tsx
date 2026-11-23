@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Package, Plus, X, DollarSign, Image as ImageIcon } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { db } from "@/lib/firebase";
@@ -173,6 +174,7 @@ const getTheme = (color: string) => {
 export default function PlayBoxPage() {
   const { user } = useAuth();
   const isAdmin = ADMIN_EMAILS.includes(user?.email ?? '');
+  const router = useRouter();
   const [playBoxes, setPlayBoxes] = useState<PlayBox[]>(DEFAULT_BOXES);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newBox, setNewBox] = useState({ name: "", setCode: "", cost: "", marketPrice: "", type: "Draft Booster Box", total: 30, imageUrl: "" });
@@ -232,9 +234,6 @@ export default function PlayBoxPage() {
     // restored, so its default-box seed is refused by the rules (admin-only writes).
   }, [user?.uid]);
 
-  const handleAction = () => {
-    alert("Opening packs/editing is not yet implemented.");
-  };
 
   const handleAddBox = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -520,7 +519,7 @@ export default function PlayBoxPage() {
                     <div className="mt-auto pt-2">
                       <button
                         type="button"
-                        onClick={(e) => { e.preventDefault(); handleAction(); }}
+                        onClick={(e) => { e.preventDefault(); router.push(`/play-box/${box.id}?edit=1`); }}
                         className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium transition-colors"
                       >
                         Edit
