@@ -48,3 +48,4 @@ next-env.d.ts
 
 # Claude Code local state (agent worktrees)
 /.claude/
+__pycache__/

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { doc, setDoc } from "firebase/firestore";
-import { Loader2, X, AlertCircle, Download } from "lucide-react";
+import { Loader2, X, AlertCircle } from "lucide-react";
 import { db } from "@/lib/firebase";
 import {
   DECK_FORMATS, type Deck, parseDecklist, resolveDecklist, fetchCardByName, coverArtFor, colorIdentityOf, slugify,
@@ -36,33 +36,6 @@ export function DeckEditor({ deck, onClose, onSaved }: {
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState<string[]>([]);
   const [savedWithMisses, setSavedWithMisses] = useState<Deck | null>(null);
-  const [moxUrl, setMoxUrl] = useState("");
-  const [importNote, setImportNote] = useState<string | null>(null);
-
-  // One request per click; the server route caches and spaces calls (Moxfield is behind
-  // Cloudflare rate limiting), and nothing retries automatically.
-  const importFromMoxfield = async () => {
-    setError(null);
-    setImportNote(null);
-    if (!moxUrl.trim()) { setError("Paste a Moxfield deck link first."); return; }
-    setBusy("Importing from Moxfield…");
-    try {
-      const res = await fetch(`/api/moxfield?deck=${encodeURIComponent(moxUrl.trim())}`);
-      const data = await res.json();
-      if (!res.ok) { setError(data.error ?? `Import failed (HTTP ${res.status}).`); return; }
-      if (!name.trim()) setName(data.name);
-      setFormat(data.format);
-      if (data.commander) setCommander(data.commander);
-      setLink(data.link);
-      setDecklist(data.decklistText);
-      setImportNote(`Imported ${data.cardCount} cards from Moxfield. Check the list, then ${deck ? "save" : "create the deck"}.`);
-    } catch {
-      setError("Couldn't reach the import service. Paste the decklist instead.");
-    } finally {
-      setBusy(null);
-    }
-  };
-
   const isCommanderFormat = format === "Commander" || format === "Brawl";
 
   const save = async (e: React.FormEvent) => {
@@ -163,19 +136,6 @@ export function DeckEditor({ deck, onClose, onSaved }: {
           </div>
         ) : (
           <form onSubmit={save} className="p-6 flex flex-col gap-4 overflow-y-auto">
-            <div className="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/40 flex flex-col gap-2">
-              <label htmlFor="deck-moxfield" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Import from Moxfield <span className="font-normal text-slate-500">(public decks)</span></label>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input id="deck-moxfield" type="url" value={moxUrl} onChange={e => setMoxUrl(e.target.value)}
-                  placeholder="https://moxfield.com/decks/…" className={inputCls} />
-                <button type="button" onClick={importFromMoxfield} disabled={!!busy}
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium disabled:opacity-50 whitespace-nowrap">
-                  <Download className="w-4 h-4" /> Import
-                </button>
-              </div>
-              {importNote && <p className="text-sm text-emerald-700 dark:text-emerald-400">{importNote}</p>}
-              <p className="text-xs text-slate-500 dark:text-slate-400">Fills in everything below. If Moxfield refuses, use its Export → Copy and paste the list.</p>
-            </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="sm:col-span-2">
                 <label htmlFor="deck-name" className={labelCls}>Deck name</label>
@@ -207,7 +167,7 @@ export function DeckEditor({ deck, onClose, onSaved }: {
                 placeholder={PLACEHOLDER} spellCheck={false}
                 className={`${inputCls} font-mono text-sm leading-relaxed`} />
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
-                Section headers like <code>Commander</code>, <code>Deck</code> and <code>Sideboard</code> are understood, as is Moxfield&apos;s <code>*CMDR*</code> marker. Art and colors come from the commander.
+                From Moxfield: open the deck, choose <strong>Export</strong>, copy the list, and paste it here. Section headers like <code>Commander</code>, <code>Deck</code> and <code>Sideboard</code> are understood, as is Moxfield&apos;s <code>*CMDR*</code> marker. Art and colors come from the commander.
               </p>
             </div>
 
