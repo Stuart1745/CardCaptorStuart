@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Link from "next/link";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 import { Navigation } from "@/components/Navigation";
@@ -36,6 +37,15 @@ export default function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="dark">
             <Navigation />
             {children}
+            <footer className="mt-auto border-t border-slate-200 dark:border-slate-800 px-4 py-6 text-xs text-slate-500 dark:text-slate-400">
+              <div className="max-w-7xl mx-auto flex flex-col sm:flex-row gap-2 sm:items-center justify-between">
+                <p>Cardcaptor Stuart is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.</p>
+                <nav className="flex gap-4 shrink-0">
+                  <Link href="/privacy" className="hover:text-indigo-500 underline-offset-2 hover:underline">Privacy Policy</Link>
+                  <Link href="/terms" className="hover:text-indigo-500 underline-offset-2 hover:underline">Terms of Service</Link>
+                </nav>
+              </div>
+            </footer>
           </ThemeProvider>
         </AuthProvider>
       </body>
