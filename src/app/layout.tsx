@@ -41,8 +41,8 @@ export default function RootLayout({
               <div className="max-w-7xl mx-auto flex flex-col sm:flex-row gap-2 sm:items-center justify-between">
                 <p>Cardcaptor Stuart is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.</p>
                 <nav className="flex gap-4 shrink-0">
-                  <Link href="/privacy" className="hover:text-indigo-500 underline-offset-2 hover:underline">Privacy Policy</Link>
-                  <Link href="/terms" className="hover:text-indigo-500 underline-offset-2 hover:underline">Terms of Service</Link>
+                  <Link href="/privacy" className="hover:text-copper-700 underline-offset-2 hover:underline">Privacy Policy</Link>
+                  <Link href="/terms" className="hover:text-copper-700 underline-offset-2 hover:underline">Terms of Service</Link>
                 </nav>
               </div>
             </footer>

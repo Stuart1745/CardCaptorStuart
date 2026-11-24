@@ -36,7 +36,7 @@ export default function PrivacyPage() {
       <ul>
         <li><strong>Play boxes and decks</strong> created by the site owner. These are public on the site.</li>
         <li>
-          <strong>Your own data, if you use per-user features</strong> (such as the collection inbox): stored under your
+          <strong>Your own data, if you use per-user features</strong> (such as the collection importer): stored under your
           account and readable only by you.
         </li>
       </ul>

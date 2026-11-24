@@ -193,14 +193,14 @@ export default function CsvImporter() {
         <div className="mt-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
             <div className="flex items-center gap-2">
-              <FileSpreadsheet className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+              <FileSpreadsheet className="w-5 h-5 text-copper-600 dark:text-copper-400" />
               <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Parsed Collection ({data.length} cards)</h3>
             </div>
             
             <div className="flex flex-col sm:flex-row items-center gap-4">
               {isFetchingScryfall && (
                 <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-full">
-                  <div className="w-4 h-4 rounded-full border-2 border-indigo-600 dark:border-indigo-400 border-t-transparent animate-spin"></div>
+                  <div className="w-4 h-4 rounded-full border-2 border-copper-600 dark:border-copper-400 border-t-transparent animate-spin"></div>
                   Fetching Scryfall Data... ({scryfallProgress.current} / {scryfallProgress.total})
                 </div>
               )}
@@ -235,23 +235,23 @@ export default function CsvImporter() {
                   
                   <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 mt-3 text-sm">
                     <div>
-                      <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-slate-500 block leading-none mb-0.5">Set</span>
+                      <span className="text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 block leading-none mb-0.5">Set</span>
                       <span className="font-medium text-slate-700 dark:text-slate-300 uppercase">{card["Set Code"]}</span>
                       {card.Foil && card.Foil.toLowerCase() === 'true' && (
-                        <span className="ml-1.5 text-[9px] bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 px-1 py-0.5 rounded font-bold">FOIL</span>
+                        <span className="ml-1.5 text-xs leading-none bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 px-1 py-0.5 rounded font-bold">FOIL</span>
                       )}
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-slate-500 block leading-none mb-0.5">Qty</span>
+                      <span className="text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 block leading-none mb-0.5">Qty</span>
                       <span className="font-medium text-slate-700 dark:text-slate-300">{card.Quantity}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-slate-500 block leading-none mb-0.5">Paid</span>
+                      <span className="text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 block leading-none mb-0.5">Paid</span>
                       <span className="font-medium text-slate-700 dark:text-slate-300">{card["Purchase Price"] || '--'}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-semibold text-indigo-500 dark:text-indigo-400 block leading-none mb-0.5">TCGPlayer Market</span>
-                      <span className="font-semibold text-indigo-600 dark:text-indigo-400">{card.scryfallPrice || '--'}</span>
+                      <span className="text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 block leading-none mb-0.5">TCGPlayer Market</span>
+                      <span className="font-semibold text-slate-900 dark:text-slate-100 tabular-nums">{card.scryfallPrice || '--'}</span>
                     </div>
                   </div>
                 </div>

@@ -64,7 +64,7 @@ export default function DeckDetailsPage() {
     return (
       <main className="flex-1 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
-          <Link href="/decks" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-indigo-600 mb-6"><ArrowLeft className="w-4 h-4" /> Back to Deck Hub</Link>
+          <Link href="/decks" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-copper-600 mb-6"><ArrowLeft className="w-4 h-4" /> Back to Deck Hub</Link>
           {loading
             ? <p className="flex items-center gap-2 text-slate-500"><Loader2 className="w-4 h-4 animate-spin" /> Loading deck…</p>
             : <p className="text-slate-600 dark:text-slate-400">This deck doesn&apos;t exist or was deleted.</p>}
@@ -83,7 +83,7 @@ export default function DeckDetailsPage() {
   return (
     <main className="flex-1 bg-transparent p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <Link href="/decks" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 mb-6 transition-colors">
+        <Link href="/decks" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-copper-600 dark:hover:text-copper-400 mb-6 transition-colors">
           <ArrowLeft className="w-4 h-4" />
           Back to Deck Hub
         </Link>
@@ -113,12 +113,12 @@ export default function DeckDetailsPage() {
                   {bracket && (
                     <span title={bracket.detail} className={`text-xs font-bold px-2 py-1 rounded-md ${bracket.estimated
                       ? "border border-dashed border-slate-400 text-slate-700 dark:text-slate-300"
-                      : "bg-indigo-600 text-white"}`}>
+                      : "bg-accent text-on-accent"}`}>
                       {bracket.estimated ? `${bracket.label} (estimated)` : bracket.detail}
                     </span>
                   )}
                   {deck.pods?.map(p => (
-                    <Link key={p} href="/decks" className="text-xs font-medium px-2 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800/50">{p}</Link>
+                    <Link key={p} href="/decks" className="text-xs font-medium px-2 py-1 rounded-full bg-copper-50 dark:bg-copper-900/30 text-copper-700 dark:text-copper-300 border border-copper-100 dark:border-copper-800/50">{p}</Link>
                   ))}
                 </div>
               )}
@@ -143,7 +143,7 @@ export default function DeckDetailsPage() {
             {isAdmin && (
               <>
                 <button type="button" onClick={() => setIsEditorOpen(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm">
+                  className="flex items-center gap-2 px-4 py-2 bg-accent text-on-accent rounded-lg hover:bg-accent-hover font-medium shadow-sm">
                   <Edit3 className="w-4 h-4" /> Edit Deck
                 </button>
                 <button type="button" onClick={() => setConfirmDelete(true)}
@@ -185,7 +185,7 @@ export default function DeckDetailsPage() {
                   {g.cards.map(card => (
                     <a key={`${card.board}-${card.name}`} href={card.scryfallUri ?? `https://scryfall.com/search?q=!"${encodeURIComponent(card.name)}"`}
                       target="_blank" rel="noopener noreferrer" className="group flex flex-col gap-1.5 min-w-0">
-                      <div className="relative aspect-[488/680] rounded-[4.5%/3.2%] overflow-hidden shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10 group-hover:ring-2 group-hover:ring-indigo-500 transition-shadow duration-150 bg-slate-200 dark:bg-slate-800">
+                      <div className="relative aspect-[488/680] rounded-[4.5%/3.2%] overflow-hidden shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10 group-hover:ring-2 group-hover:ring-copper-500 transition-shadow duration-150 bg-slate-200 dark:bg-slate-800">
                         {card.image && <img src={card.image} alt={card.name} loading="lazy" className="w-full h-full object-cover" />}
                         {card.qty > 1 && (
                           <span className="absolute top-1.5 right-1.5 text-xs font-bold px-1.5 py-0.5 rounded-md bg-slate-900/85 text-white">×{card.qty}</span>
@@ -211,7 +211,7 @@ export default function DeckDetailsPage() {
             <div className="p-8 flex flex-col items-center gap-5">
               <div className="bg-white p-4 rounded-xl border border-slate-200"><QRCodeSVG value={shareUrl} size={200} level="H" /></div>
               <p className="text-xs text-slate-500 dark:text-slate-400 break-all text-center select-all">{shareUrl}</p>
-              <button type="button" onClick={copyLink} className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium">
+              <button type="button" onClick={copyLink} className="w-full px-4 py-2 bg-accent hover:bg-accent-hover text-on-accent rounded-lg font-medium">
                 {copied ? "Copied" : "Copy link"}
               </button>
             </div>

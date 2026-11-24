@@ -23,7 +23,8 @@ interface PlayBox {
   marketPrice?: string;
   setCode?: string;
   imageUrl?: string;
-  theme: {
+  /** Legacy: stored on older boxes, no longer read. */
+  theme?: {
     borderTop: string;
     badge: string;
     icon: string;
@@ -41,16 +42,8 @@ const DEFAULT_BOXES: PlayBox[] = [
     remaining: 30,
     total: 30,
     format: "Draft",
-    color: "cyan",
     cost: "140.00",
     setCode: "TLA",
-    theme: {
-      borderTop: "bg-cyan-500 dark:bg-cyan-600",
-      badge: "bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400",
-      icon: "text-cyan-600 dark:text-cyan-400",
-      progressFill: "bg-cyan-500 dark:bg-cyan-400",
-      btn: "bg-cyan-50 dark:bg-cyan-900/20 hover:bg-cyan-100 dark:hover:bg-cyan-900/40 text-cyan-700 dark:text-cyan-400 border-cyan-200 dark:border-cyan-800/50"
-    }
   },
   {
     id: "3",
@@ -60,16 +53,8 @@ const DEFAULT_BOXES: PlayBox[] = [
     remaining: 30,
     total: 30,
     format: "Draft",
-    color: "rose",
     cost: "125.00",
     setCode: "TDM",
-    theme: {
-      borderTop: "bg-rose-500 dark:bg-rose-600",
-      badge: "bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400",
-      icon: "text-rose-600 dark:text-rose-400",
-      progressFill: "bg-rose-500 dark:bg-rose-400",
-      btn: "bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800/50"
-    }
   },
   {
     id: "4",
@@ -79,16 +64,8 @@ const DEFAULT_BOXES: PlayBox[] = [
     remaining: 36,
     total: 36,
     format: "Draft",
-    color: "emerald",
     cost: "135.00",
     setCode: "ECL",
-    theme: {
-      borderTop: "bg-emerald-500 dark:bg-emerald-600",
-      badge: "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400",
-      icon: "text-emerald-600 dark:text-emerald-400",
-      progressFill: "bg-emerald-500 dark:bg-emerald-400",
-      btn: "bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50"
-    }
   },
   {
     id: "5",
@@ -98,16 +75,8 @@ const DEFAULT_BOXES: PlayBox[] = [
     remaining: 36,
     total: 36,
     format: "Draft",
-    color: "amber",
     cost: "95.00",
     setCode: "UNF",
-    theme: {
-      borderTop: "bg-amber-500 dark:bg-amber-600",
-      badge: "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400",
-      icon: "text-amber-600 dark:text-amber-400",
-      progressFill: "bg-amber-500 dark:bg-amber-400",
-      btn: "bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50"
-    }
   },
   {
     id: "6",
@@ -117,58 +86,21 @@ const DEFAULT_BOXES: PlayBox[] = [
     remaining: 30,
     total: 30,
     format: "Draft",
-    color: "indigo",
     cost: "150.00",
     setCode: "FIN",
-    theme: {
-      borderTop: "bg-indigo-500 dark:bg-indigo-600",
-      badge: "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400",
-      icon: "text-indigo-600 dark:text-indigo-400",
-      progressFill: "bg-indigo-500 dark:bg-indigo-400",
-      btn: "bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/50"
-    }
   }
 ];
 
-const getTheme = (color: string) => {
-  const themes: Record<string, PlayBox['theme']> = {
-    indigo: {
-      borderTop: "bg-indigo-500 dark:bg-indigo-600",
-      badge: "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400",
-      icon: "text-indigo-600 dark:text-indigo-400",
-      progressFill: "bg-indigo-500 dark:bg-indigo-400",
-      btn: "bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/50"
-    },
-    emerald: {
-      borderTop: "bg-emerald-500 dark:bg-emerald-600",
-      badge: "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400",
-      icon: "text-emerald-600 dark:text-emerald-400",
-      progressFill: "bg-emerald-500 dark:bg-emerald-400",
-      btn: "bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50"
-    },
-    rose: {
-      borderTop: "bg-rose-500 dark:bg-rose-600",
-      badge: "bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400",
-      icon: "text-rose-600 dark:text-rose-400",
-      progressFill: "bg-rose-500 dark:bg-rose-400",
-      btn: "bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800/50"
-    },
-    amber: {
-      borderTop: "bg-amber-500 dark:bg-amber-600",
-      badge: "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400",
-      icon: "text-amber-600 dark:text-amber-400",
-      progressFill: "bg-amber-500 dark:bg-amber-400",
-      btn: "bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50"
-    },
-    cyan: {
-      borderTop: "bg-cyan-500 dark:bg-cyan-600",
-      badge: "bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400",
-      icon: "text-cyan-600 dark:text-cyan-400",
-      progressFill: "bg-cyan-500 dark:bg-cyan-400",
-      btn: "bg-cyan-50 dark:bg-cyan-900/20 hover:bg-cyan-100 dark:hover:bg-cyan-900/40 text-cyan-700 dark:text-cyan-400 border-cyan-200 dark:border-cyan-800/50"
-    }
-  };
-  return themes[color] || themes.indigo;
+/**
+ * Each product type has a fixed color for its set symbol and packs-left bar, so a box looks
+ * the same every time. Copper is the site accent and is kept out of this set.
+ */
+const typeTheme = (type: string) => {
+  const t = type.toLowerCase();
+  if (t.includes("collector")) return { icon: "text-amber-600 dark:text-amber-400", progressFill: "bg-amber-500 dark:bg-amber-400" };
+  if (t.includes("set booster")) return { icon: "text-sky-700 dark:text-sky-400", progressFill: "bg-sky-600 dark:bg-sky-400" };
+  if (t.includes("cube") || t.includes("jumpstart")) return { icon: "text-rose-600 dark:text-rose-400", progressFill: "bg-rose-500 dark:bg-rose-400" };
+  return { icon: "text-emerald-700 dark:text-emerald-400", progressFill: "bg-emerald-600 dark:bg-emerald-400" };
 };
 
 export default function PlayBoxPage() {
@@ -239,9 +171,6 @@ export default function PlayBoxPage() {
     e.preventDefault();
     if (!newBox.name || !newBox.setCode) return;
 
-    const colors = ["indigo", "emerald", "rose", "amber", "cyan"];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    const theme = getTheme(randomColor);
 
     const boxData = {
       name: newBox.name,
@@ -250,12 +179,10 @@ export default function PlayBoxPage() {
       remaining: newBox.total,
       total: newBox.total,
       format: newBox.type.includes("Draft") ? "Draft" : "Sealed",
-      color: randomColor,
       cost: newBox.cost,
       marketPrice: newBox.marketPrice,
       setCode: newBox.setCode.toUpperCase(),
-      imageUrl: newBox.imageUrl,
-      theme
+      imageUrl: newBox.imageUrl
     };
 
     if (db) {
@@ -275,7 +202,7 @@ export default function PlayBoxPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Package className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+              <Package className="w-8 h-8 text-copper-600 dark:text-copper-400" />
               <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">Play Box</h1>
             </div>
             <p className="text-slate-500 dark:text-slate-400 mt-1">Manage your sealed product inventory, draft boxes, and custom cubes.</p>
@@ -284,7 +211,7 @@ export default function PlayBoxPage() {
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow-sm hover:bg-indigo-700 transition-colors w-full sm:w-auto"
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-accent text-on-accent font-medium rounded-lg shadow-sm hover:bg-accent-hover transition-colors w-full sm:w-auto"
             >
               <Plus className="w-4 h-4" />
               Add Box
@@ -298,7 +225,7 @@ export default function PlayBoxPage() {
             <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
                 <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <Package className="w-5 h-5 text-indigo-500" /> Add New Box
+                  <Package className="w-5 h-5 text-copper-600" /> Add New Box
                 </h3>
                 <button
                   type="button"
@@ -319,7 +246,7 @@ export default function PlayBoxPage() {
                     placeholder="e.g. Bloomburrow Draft Box"
                     value={newBox.name}
                     onChange={e => setNewBox({...newBox, name: e.target.value})}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-copper-500"
                   />
                 </div>
                 <div className="flex gap-4">
@@ -334,7 +261,7 @@ export default function PlayBoxPage() {
                       autoComplete="off"
                       value={newBox.setCode}
                       onChange={e => handleSetCodeChange(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase"
+                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-copper-500 uppercase"
                     />
                     <datalist id="ccs-set-options">
                       {knownSets.map(s => (
@@ -356,7 +283,7 @@ export default function PlayBoxPage() {
                         placeholder="120.00"
                         value={newBox.cost}
                         onChange={e => setNewBox({...newBox, cost: e.target.value})}
-                        className="w-full pl-9 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full pl-9 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-copper-500"
                       />
                     </div>
                   </div>
@@ -388,7 +315,7 @@ export default function PlayBoxPage() {
                       placeholder="https://..."
                       value={newBox.imageUrl}
                       onChange={e => setNewBox({...newBox, imageUrl: e.target.value})}
-                      className="w-full pl-9 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full pl-9 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-copper-500"
                     />
                   </div>
                 </div>
@@ -398,7 +325,7 @@ export default function PlayBoxPage() {
                     aria-label="Box Type"
                     value={newBox.type}
                     onChange={e => setNewBox({...newBox, type: e.target.value})}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-copper-500"
                   >
                     <option value="Draft Booster Box">Draft Booster Box</option>
                     <option value="Set Booster Box">Set Booster Box</option>
@@ -415,7 +342,7 @@ export default function PlayBoxPage() {
                     min="1"
                     value={newBox.total}
                     onChange={e => setNewBox({...newBox, total: parseInt(e.target.value) || 0})}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-copper-500"
                   />
                 </div>
 
@@ -429,7 +356,7 @@ export default function PlayBoxPage() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors"
+                    className="flex-1 px-4 py-2 bg-accent hover:bg-accent-hover text-on-accent font-medium rounded-lg shadow-sm transition-colors"
                   >
                     Add to Inventory
                   </button>
@@ -441,7 +368,7 @@ export default function PlayBoxPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
             {playBoxes.map(box => {
-              const theme = box.theme || getTheme(box.color || "indigo");
+              const theme = typeTheme(box.type);
               const percentage = Math.round((box.remaining / box.total) * 100);
               // Use cost for price-per-pack calculations (visible to everyone; specific paid price is admin-only)
               const packPrice = box.cost && box.total ? parseFloat(box.cost) / box.total : null;
@@ -475,7 +402,7 @@ export default function PlayBoxPage() {
                         ) : <Package className="w-5 h-5" />}
                       </div>
                       <div className="min-w-0">
-                        <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight line-clamp-2">
+                        <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100 group-hover:text-copper-600 dark:group-hover:text-copper-400 transition-colors leading-tight line-clamp-2">
                           {box.name}
                         </h3>
                         <p className="text-xs text-slate-500 dark:text-slate-400 font-medium flex gap-2">

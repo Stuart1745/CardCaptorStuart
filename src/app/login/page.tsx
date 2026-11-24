@@ -20,7 +20,7 @@ export default function LoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="" width={48} height={48} className="w-12 h-12 rounded-xl shadow-lg shadow-indigo-500/20" />
+          <img src="/logo.png" alt="" width={48} height={48} className="w-12 h-12 rounded-xl shadow-lg" />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-white tracking-tight">
           Welcome to Cardcaptor Stuart

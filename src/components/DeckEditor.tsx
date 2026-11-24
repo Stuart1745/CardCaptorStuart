@@ -19,7 +19,7 @@ Deck
 ...`;
 
 const inputCls =
-  "w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+  "w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-copper-500";
 const labelCls = "block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5";
 
 /** A new deck’s document id: its name plus a short random suffix. */
@@ -176,7 +176,7 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
             </ul>
             <p className="text-sm text-slate-500 dark:text-slate-400">Fix the spelling with Edit and save again to add them.</p>
             <button type="button" onClick={() => onSaved(savedWithMisses)}
-              className="self-end px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium">Done</button>
+              className="self-end px-4 py-2 bg-accent hover:bg-accent-hover text-on-accent rounded-lg font-medium">Done</button>
           </div>
         ) : (
           <form onSubmit={save} className="p-6 flex flex-col gap-4 overflow-y-auto">
@@ -194,7 +194,7 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
               {importNote && (
                 <p role={importNote.tone === "error" ? "alert" : "status"} className={`mt-2 flex items-start gap-2 text-sm rounded-lg p-3 border ${importNote.tone === "error"
                   ? "text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50"
-                  : "text-indigo-800 dark:text-indigo-200 bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800/50"}`}>
+                  : "text-copper-800 dark:text-copper-200 bg-copper-50 dark:bg-copper-900/20 border-copper-200 dark:border-copper-800/50"}`}>
                   {importNote.tone === "error" ? <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" /> : <Info className="w-4 h-4 mt-0.5 shrink-0" />} {importNote.text}
                 </p>
               )}
@@ -242,7 +242,7 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {podSuggestions.map(p => (
                       <button key={p} type="button" onClick={() => setPodsText([...currentPods, p].join(", "))}
-                        className="text-xs px-2 py-1 rounded-full border border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30">
+                        className="text-xs px-2 py-1 rounded-full border border-copper-200 dark:border-copper-800/60 text-copper-700 dark:text-copper-300 hover:bg-copper-50 dark:hover:bg-copper-900/30">
                         + {p}
                       </button>
                     ))}
@@ -271,7 +271,7 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
               <button type="button" onClick={onClose} disabled={!!busy}
                 className="px-4 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium disabled:opacity-50">Cancel</button>
               <button type="submit" disabled={!!busy}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium disabled:opacity-50">
+                className="px-4 py-2 bg-accent hover:bg-accent-hover text-on-accent rounded-lg font-medium disabled:opacity-50">
                 {deck ? "Save Changes" : "Create Deck"}
               </button>
             </div>

@@ -6,7 +6,7 @@
 
 ## What This App Is
 
-A personal MTG collection tracker and play-box manager for Stuart Rampy. It lets him manage sealed booster boxes (tracking packs opened), view draft archetypes pulled from 17lands + Scryfall + Draftsim, analyze set mechanics, and manage a receipt inbox for card purchases parsed from Gmail.
+A personal MTG collection tracker and play-box manager for Stuart Rampy. It lets him manage sealed booster boxes (tracking packs opened), view draft archetypes pulled from 17lands + Scryfall + Draftsim, analyze set mechanics, and browse Commander decks grouped into pods.
 
 ---
 
@@ -181,8 +181,9 @@ DNS at **Hover**: A `ccs` → 35.219.200.198, TXT `ccs` fah-claim, CNAME `_acme-
 | Commander bracket | **Done** (Nov 2026) | `deck.bracket` (1-5, set in the editor or imported). Unset = estimate from Game Changers (Scryfall `game_changer`, saved per card as `gameChanger`): 0 = 1-2, 1-3 = 3, 4+ = 4, shown as "(est.)". Decks saved before this need one re-save to pick up the flags. |
 | Pods / battle boxes | **Done** (Nov 2026) | `deck.pods: string[]`; editor field with suggestions; filter chips on the Deck Hub. |
 | Open Pack | **Done** (Nov 2026) | Decrements `remaining`, 8 s Undo; admin-only |
-| Inbox "Sync Gmail" | **Removed** (Nov 2026, Stuart's call) | It used Supabase auth (always 401); Gmail read scopes need Google restricted-scope verification (CASA). Removed the route, all Supabase code, `@supabase/supabase-js`, `googleapis`, `@google/genai`. The Inbox page (not in the menu) keeps approve/reject but nothing feeds it now. |
+| Inbox "Sync Gmail" | **Removed** (Nov 2026, Stuart's call) | It used Supabase auth (always 401); Gmail read scopes need Google restricted-scope verification (CASA). Removed the route, all Supabase code, `@supabase/supabase-js`, `googleapis`, `@google/genai`. The Inbox page was deleted 2026-11-24: Gmail receipts are dropped from the plan. |
 | Bomb Rares showing uncommon (Lorwyn/ECL) | **Likely fixed** (Nov 2026) | Replaying `getTopCardsForArchetype` on live ECL Scryfall data gives rare/mythic for all 30 picks. Probable cause: box 4 briefly defaulted to set code `LRW` (2007 Lorwyn), later corrected to `ECI`→`ECL`. No Firestore record can be stale: the database did not exist until 2026-11-21. Reopen if it recurs. |
+| Design system (impeccable) | **Done** (Nov 2026) | `PRODUCT.md` (product truth) and `DESIGN.md` + `.impeccable/design.json` (look: "The Draft Table", Mythic Copper accent replacing indigo). Solid accent surfaces use `bg-accent` / `text-on-accent` from `globals.css` so light and dark both pass contrast. Play-box colors come from product type, not stored per box. The impeccable design hook runs from `.claude/settings.local.json` (this project only). |
 | Set Mechanics for non-guide sets | **Improved** (Nov 2026) | Hand-entered from Wizards for TDM, ECL, UNF, TLA, FIN, SOS, MSH, FRA, TRK, HOB. Other sets use the card scan: keywords described by their reminder text, ability words (Landfall, Eerie…) by the text after the dash, and example cards picked by 17Lands GIH win rate (rarity when there are no stats). |
 | Phase 11: CSV Ratings / 17Lands Importer | **Done** (Nov 2026) | Public-dataset pipeline, see Draft stats |
 | Live market price for pack cost | **Done** | `marketPrice` field on Add Box + card |

@@ -61,7 +61,7 @@ export function LoginButton() {
     <button
       onClick={handleSignIn}
       aria-label="Sign in with Google"
-      className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-sm"
+      className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium text-on-accent bg-accent hover:bg-accent-hover rounded-lg transition-colors shadow-sm"
     >
       <LogIn className="w-4 h-4" />
       <span className="hidden sm:inline">Sign in with Google</span>

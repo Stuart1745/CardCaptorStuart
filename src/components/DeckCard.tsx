@@ -29,12 +29,12 @@ export function DeckCard({ deck }: { deck: Deck }) {
             <span title={bracket.detail}
               className={`absolute top-2 right-2 text-xs font-bold px-2 py-1 rounded-md shadow-sm backdrop-blur-sm ${bracket.estimated
                 ? "bg-slate-900/70 text-slate-100 border border-dashed border-slate-300/70"
-                : "bg-indigo-600/90 text-white"}`}>
+                : "bg-copper-600/90 text-white"}`}>
               {bracket.label}{bracket.estimated ? " (est.)" : ""}
             </span>
           )}
           <div className="absolute bottom-3 left-4 right-4 flex justify-between items-end">
-            <h3 className="font-bold text-white text-lg leading-tight line-clamp-2 pr-2 group-hover:text-indigo-200 transition-colors">{deck.name}</h3>
+            <h3 className="font-bold text-white text-lg leading-tight line-clamp-2 pr-2 group-hover:text-copper-200 transition-colors">{deck.name}</h3>
           </div>
         </Link>
 
@@ -51,7 +51,7 @@ export function DeckCard({ deck }: { deck: Deck }) {
           {deck.pods && deck.pods.length > 0 && (
             <div className="flex flex-wrap gap-1.5 -mt-1">
               {deck.pods.map(p => (
-                <span key={p} className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800/50">{p}</span>
+                <span key={p} className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">{p}</span>
               ))}
             </div>
           )}
@@ -72,7 +72,7 @@ export function DeckCard({ deck }: { deck: Deck }) {
               <button
                 type="button"
                 onClick={() => setIsQrModalOpen(true)}
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 rounded-lg text-sm font-medium transition-colors border border-indigo-100 dark:border-indigo-800/50"
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-copper-50 dark:bg-copper-900/30 hover:bg-copper-100 dark:hover:bg-copper-900/50 text-copper-700 dark:text-copper-400 rounded-lg text-sm font-medium transition-colors border border-copper-100 dark:border-copper-800/50"
               >
                 <QrCode className="w-4 h-4" />
                 QR Code
@@ -112,7 +112,7 @@ export function DeckCard({ deck }: { deck: Deck }) {
             <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-t border-slate-100 dark:border-slate-800">
               <button
                 onClick={() => setIsQrModalOpen(false)}
-                className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
+                className="w-full px-4 py-2 bg-accent hover:bg-accent-hover text-on-accent rounded-lg font-medium transition-colors"
               >
                 Done
               </button>

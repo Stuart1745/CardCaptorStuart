@@ -59,7 +59,7 @@ export default function DecksPage() {
             <button
               type="button"
               onClick={() => setIsEditorOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors w-full sm:w-auto justify-center"
+              className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-on-accent font-medium rounded-lg shadow-sm transition-colors w-full sm:w-auto justify-center"
             >
               <Plus className="w-4 h-4" />
               New Deck
@@ -76,9 +76,9 @@ export default function DecksPage() {
               return (
                 <button key={p ?? "__all"} type="button" aria-pressed={active} onClick={() => setPod(p)}
                   className={`text-sm px-3 py-1.5 rounded-full border font-medium transition-colors ${active
-                    ? "bg-indigo-600 border-indigo-600 text-white"
+                    ? "bg-accent border-accent text-on-accent"
                     : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"}`}>
-                  {p ?? "All decks"} <span className={active ? "text-indigo-100" : "text-slate-400"}>{count}</span>
+                  {p ?? "All decks"} <span className={active ? "text-on-accent/75" : "text-slate-400"}>{count}</span>
                 </button>
               );
             })}

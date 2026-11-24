@@ -19,10 +19,10 @@ const CARD_RADIUS = "rounded-[4.5%/3.2%]";
 
 const rarityBadge = (rarity?: string) => {
   const r = (rarity || '').toLowerCase();
-  const base = "absolute bottom-1 left-1 text-[9px] font-bold px-1 py-0.5 rounded shadow-sm";
-  if (r === 'mythic') return <span className={`${base} bg-orange-500 text-white`}>M</span>;
+  const base = "absolute bottom-1 left-1 text-xs leading-none font-bold px-1 py-0.5 rounded shadow-sm";
+  if (r === 'mythic') return <span className={`${base} bg-orange-500 text-slate-950`}>M</span>;
   if (r === 'rare') return <span className={`${base} bg-amber-400 text-slate-900`}>R</span>;
-  if (r === 'uncommon') return <span className={`${base} bg-slate-400 text-white`}>U</span>;
+  if (r === 'uncommon') return <span className={`${base} bg-slate-300 text-slate-900`}>U</span>;
   return <span className={`${base} bg-slate-600 text-white`}>C</span>;
 };
 
@@ -875,7 +875,7 @@ export default function PlayboxDetailsPage() {
       target="_blank"
       rel="noopener noreferrer"
       data-preview-anchor
-      className="group flex flex-col gap-1.5 min-w-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-500"
+      className="group flex flex-col gap-1.5 min-w-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-copper-500"
       onMouseEnter={e => { if (!touchRef.current) setPreview({ kind: 'card', card, anchor: e.currentTarget.getBoundingClientRect(), interactive: false }); }}
       onMouseLeave={hidePreview}
       onFocus={e => setPreview({ kind: 'card', card, anchor: e.currentTarget.getBoundingClientRect(), interactive: touchRef.current })}
@@ -886,13 +886,13 @@ export default function PlayboxDetailsPage() {
         setPreview({ kind: 'card', card, anchor: e.currentTarget.getBoundingClientRect(), interactive: true });
       }}
     >
-      <div className={`relative ${CARD_ASPECT} w-full ${CARD_RADIUS} overflow-hidden bg-slate-200 dark:bg-slate-800 shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10 transition-shadow duration-150 group-hover:ring-2 group-hover:ring-indigo-500 group-hover:shadow-md`}>
+      <div className={`relative ${CARD_ASPECT} w-full ${CARD_RADIUS} overflow-hidden bg-slate-200 dark:bg-slate-800 shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10 transition-shadow duration-150 group-hover:ring-2 group-hover:ring-copper-500 group-hover:shadow-md`}>
         <img src={getImageUrl(card)} alt={card.name} loading="lazy" className="w-full h-full object-cover" />
         {rarityBadge(card.rarity)}
       </div>
       <div className="min-w-0 px-0.5">
         <p className="text-xs font-medium leading-snug text-slate-800 dark:text-slate-200 truncate">{card.name}</p>
-        {caption && <p className="text-[11px] leading-snug text-slate-500 dark:text-slate-400 truncate">{caption}</p>}
+        {caption && <p className="text-xs leading-snug text-slate-500 dark:text-slate-400 truncate">{caption}</p>}
       </div>
     </a>
   );
@@ -956,7 +956,7 @@ export default function PlayboxDetailsPage() {
     <main className="flex-1 bg-transparent p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {!isSharedMode && (
-          <Link href="/play-box" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 mb-6 transition-colors">
+          <Link href="/play-box" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-copper-600 dark:hover:text-copper-400 mb-6 transition-colors">
             <ArrowLeft className="w-4 h-4" />
             Back to Inventory
           </Link>
@@ -974,13 +974,13 @@ export default function PlayboxDetailsPage() {
 
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-2">
-              <Package className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+              <Package className="w-8 h-8 text-copper-600 dark:text-copper-400" />
               <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">
                 {boxInfo.name}
               </h1>
             </div>
             <p className="text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap gap-x-2 gap-y-1 items-center">
-              <span className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider">
+              <span className="bg-copper-100 dark:bg-copper-900/30 text-copper-700 dark:text-copper-300 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider">
                 Draft Box
               </span>
               • Set: {boxInfo.setCode} • {boxInfo.remaining} / {boxInfo.total} Packs Remaining
@@ -1009,7 +1009,7 @@ export default function PlayboxDetailsPage() {
                 type="button"
                 onClick={() => changePacks(-1)}
                 disabled={isSavingPack || boxInfo.remaining <= 0}
-                className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-6 py-2.5 bg-accent text-on-accent rounded-lg hover:bg-accent-hover transition-colors font-semibold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Package className="w-4 h-4" /> {boxInfo.remaining <= 0 ? "Box Empty" : "Open Pack"}
               </button>
@@ -1084,7 +1084,7 @@ export default function PlayboxDetailsPage() {
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-3">
                     Booster data from{' '}
-                    <a href="https://mtgjson.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-indigo-600 dark:hover:text-indigo-400">MTGJSON</a>
+                    <a href="https://mtgjson.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-copper-600 dark:hover:text-copper-400">MTGJSON</a>
                   </p>
                 </div>
               )}
@@ -1092,7 +1092,7 @@ export default function PlayboxDetailsPage() {
               {showMechanics && (
                 <div className="bg-white dark:bg-slate-900 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                   <h2 className="font-bold text-lg text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-1">
-                    <Zap className="w-5 h-5 text-indigo-500" /> Set Mechanics
+                    <Zap className="w-5 h-5 text-copper-600" /> Set Mechanics
                   </h2>
                   <ul className="grid sm:grid-cols-2 gap-x-8">
                     {mechanicRows.map((mech, i) => {
@@ -1114,19 +1114,19 @@ export default function PlayboxDetailsPage() {
                                 onBlur: hidePreview,
                                 onClick: (e: React.MouseEvent<HTMLDivElement>) => { if (touchRef.current) showMechanicPreview(e, mech.name, mech.examples, true); },
                               } : {})}
-                              className={`py-3 rounded-md ${hasExamples ? 'cursor-help focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500' : ''}`}
+                              className={`py-3 rounded-md ${hasExamples ? 'cursor-help focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-copper-500' : ''}`}
                             >
                               <div className="flex items-center justify-between gap-3">
                                 <h3 className="font-semibold text-slate-900 dark:text-slate-100">{mech.name}</h3>
                                 <span className="flex gap-1 shrink-0">
                                   {mech.colors.length > 0
                                     ? mech.colors.map(c => <ManaIcon key={c} symbol={c} size={18} />)
-                                    : <span className="text-[11px] text-slate-500 dark:text-slate-400">Colorless</span>}
+                                    : <span className="text-xs text-slate-500 dark:text-slate-400">Colorless</span>}
                                 </span>
                               </div>
                               <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mt-1">{mech.desc}</p>
                               {hasExamples && (
-                                <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-1 flex items-center gap-1">
+                                <p className="text-xs text-copper-600 dark:text-copper-400 mt-1 flex items-center gap-1">
                                   <Star className="w-3 h-3" fill="currentColor" /> Top cards: hover or tap
                                 </p>
                               )}
@@ -1146,13 +1146,13 @@ export default function PlayboxDetailsPage() {
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-5">
             <div>
               <h2 className="font-bold text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-indigo-500" /> Draft Archetypes &amp; Signposts
+                <BookOpen className="w-5 h-5 text-copper-600" /> Draft Archetypes &amp; Signposts
               </h2>
               <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">The main draft strategies for this set, with the cards that make each one work.</p>
               {statsSource && (
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                   Tiers and card win rates from{' '}
-                  <a href={statsSource.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-indigo-600 dark:hover:text-indigo-400">
+                  <a href={statsSource.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-copper-600 dark:hover:text-copper-400">
                     {statsSource.name}
                   </a>{' '}
                   ({statsSource.license}) · {statsSource.games.toLocaleString()} Premier Draft games
@@ -1176,7 +1176,7 @@ export default function PlayboxDetailsPage() {
 
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-              <Loader2 className="w-8 h-8 text-indigo-500 animate-spin mb-4" />
+              <Loader2 className="w-8 h-8 text-copper-600 animate-spin mb-4" />
               <p className="text-slate-500 font-medium">Loading the set from Scryfall. This can take a moment.</p>
             </div>
           ) : error ? (
@@ -1204,7 +1204,7 @@ export default function PlayboxDetailsPage() {
                           </React.Fragment>
                         ))}
                       </p>
-                      <span className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded border ${getTierStyle(tier)}`}>
+                      <span className={`text-xs font-bold uppercase px-2 py-0.5 rounded border ${getTierStyle(tier)}`}>
                         Tier {tier}
                       </span>
                     </div>
@@ -1265,7 +1265,7 @@ export default function PlayboxDetailsPage() {
                 <div className="min-w-0 flex-1 flex flex-col gap-2">
                   <div className="flex items-start justify-between gap-2">
                     <h4 className="font-semibold text-sm leading-snug">{card.name}</h4>
-                    {mana && <span className="font-mono text-[11px] text-slate-300 whitespace-nowrap">{mana}</span>}
+                    {mana && <span className="font-mono text-xs text-slate-300 whitespace-nowrap">{mana}</span>}
                   </div>
                   <p className="text-xs text-slate-400 leading-snug">
                     {card.type_line} · <span className="capitalize">{card.rarity}</span>
@@ -1274,7 +1274,7 @@ export default function PlayboxDetailsPage() {
                     {getOracleText(card)}
                   </p>
                   {st && (
-                    <p className="text-[11px] text-cyan-300 font-medium">
+                    <p className="text-xs text-slate-100 font-semibold tabular-nums">
                       GIH WR {(st.winRate * 100).toFixed(1)}%
                       {st.iwd != null && <> · IWD {st.iwd >= 0 ? '+' : ''}{(st.iwd * 100).toFixed(1)}pp</>}
                       {st.ata != null && <> · ATA {st.ata.toFixed(1)}</>}
@@ -1283,9 +1283,9 @@ export default function PlayboxDetailsPage() {
                   )}
                   {preview.interactive ? (
                     <a href={scryfallUrl(card)} target="_blank" rel="noopener noreferrer"
-                      className="mt-auto text-xs font-semibold text-indigo-300 underline underline-offset-2">Open on Scryfall</a>
+                      className="mt-auto text-xs font-semibold text-copper-300 underline underline-offset-2">Open on Scryfall</a>
                   ) : (
-                    <p className="mt-auto text-[11px] text-slate-400">Click to open on Scryfall</p>
+                    <p className="mt-auto text-xs text-slate-400">Click to open on Scryfall</p>
                   )}
                 </div>
               </div>
@@ -1317,7 +1317,7 @@ export default function PlayboxDetailsPage() {
               <X className="w-5 h-5" />
             </button>
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <Settings className="w-5 h-5 text-indigo-500" />
+              <Settings className="w-5 h-5 text-copper-600" />
               Edit Box Settings
             </h3>
             
@@ -1329,7 +1329,7 @@ export default function PlayboxDetailsPage() {
                   aria-label="Box Name"
                   value={editFormData.name}
                   onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-copper-500"
                 />
               </div>
               <div>
@@ -1339,7 +1339,7 @@ export default function PlayboxDetailsPage() {
                   value={editFormData.setCode}
                   onChange={(e) => setEditFormData({...editFormData, setCode: e.target.value})}
                   placeholder="e.g. FIN, FCA"
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-copper-500"
                 />
                 <p className="text-xs text-slate-500 mt-2">
                   You can specify multiple set abbreviations separated by commas (e.g. FIN, FCA) to combine them into one draft environment!
@@ -1357,7 +1357,7 @@ export default function PlayboxDetailsPage() {
                     placeholder="https://... (Leave blank for random Mythic)"
                     value={editFormData.imageUrl}
                     onChange={(e) => setEditFormData({...editFormData, imageUrl: e.target.value})}
-                    className="w-full pl-9 pr-3 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full pl-9 pr-3 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-copper-500"
                   />
                 </div>
               </div>
@@ -1371,12 +1371,12 @@ export default function PlayboxDetailsPage() {
                     step="0.01"
                     value={editFormData.cost}
                     onChange={(e) => setEditFormData({...editFormData, cost: e.target.value})}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg pl-8 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg pl-8 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-copper-500"
                   />
                 </div>
               </div>
 
-              <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
+              <div className="bg-copper-50 dark:bg-copper-900/20 p-4 rounded-xl border border-copper-100 dark:border-copper-800/30">
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Box Paid Price</span>
                   <span className="font-bold text-slate-900 dark:text-slate-100">${parseFloat(editFormData.cost || '0').toFixed(2)}</span>
@@ -1385,7 +1385,7 @@ export default function PlayboxDetailsPage() {
                   <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Current Market Value (Opened)</span>
                   <span className="font-bold text-emerald-600 dark:text-emerald-400">${calculateMarketValue()}</span>
                 </div>
-                <div className="h-px bg-indigo-200 dark:bg-indigo-800/50 my-2"></div>
+                <div className="h-px bg-copper-200 dark:bg-copper-800/50 my-2"></div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Net Return</span>
                   <span className={`font-bold ${parseFloat(calculateMarketValue()) - parseFloat(editFormData.cost || '0') >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
@@ -1404,7 +1404,7 @@ export default function PlayboxDetailsPage() {
               </button>
               <button 
                 onClick={handleSaveEdit}
-                className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 dark:shadow-none"
+                className="flex-1 py-3 bg-accent text-on-accent rounded-xl font-bold hover:bg-accent-hover transition-colors shadow-sm dark:shadow-none"
               >
                 Save Changes
               </button>
