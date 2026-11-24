@@ -23,7 +23,7 @@ export default function LoginPage() {
           <img src="/logo.png" alt="" width={48} height={48} className="w-12 h-12 rounded-xl shadow-lg" />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-white tracking-tight">
-          Welcome to Cardcaptor Stuart
+          Welcome to <span className="font-brand text-pink-400">Cardcaptor Stuart</span>
         </h2>
         <p className="mt-2 text-center text-sm text-neutral-400">
           Sign in to view and manage your collection

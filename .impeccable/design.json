@@ -1,46 +1,178 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-24T19:45:00Z",
+  "generatedAt": "2026-11-24T20:00:00Z",
   "title": "Design System: Cardcaptor Stuart",
   "extensions": {
     "colorMeta": {
-      "mythic-copper": { "role": "primary", "displayName": "Mythic Copper", "canonical": "oklch(55.5% 0.16 42)", "tonalRamp": ["#3F1604", "#682B11", "#83330D", "#9E3E0E", "#BC4A10", "#EC6E38", "#FA895C", "#FEB092", "#FFD1BF", "#FEF4F1"] },
-      "mythic-copper-deep": { "role": "primary", "displayName": "Mythic Copper Deep", "canonical": "oklch(49% 0.14 42)" },
-      "mythic-copper-bright": { "role": "primary", "displayName": "Mythic Copper Bright (dark theme accent)", "canonical": "oklch(74.5% 0.15 42)" },
-      "mythic-copper-glow": { "role": "primary", "displayName": "Mythic Copper Glow (dark theme hover)", "canonical": "oklch(82.5% 0.115 42)" },
-      "copper-wash": { "role": "primary", "displayName": "Copper Wash", "canonical": "oklch(97.5% 0.018 42)" },
-      "ink-on-copper": { "role": "neutral", "displayName": "Ink on Copper" },
-      "table-night": { "role": "neutral", "displayName": "Table Night", "tonalRamp": ["#020617", "#0F172A", "#1E293B", "#334155", "#475569", "#64748B", "#94A3B8", "#CBD5E1", "#E2E8F0", "#F8FAFC"] },
-      "panel-night": { "role": "neutral", "displayName": "Panel Night" },
-      "raised-night": { "role": "neutral", "displayName": "Raised Night" },
-      "rule-night": { "role": "neutral", "displayName": "Rule Night" },
-      "paper": { "role": "neutral", "displayName": "Paper" },
-      "panel-paper": { "role": "neutral", "displayName": "Panel Paper" },
-      "rule-paper": { "role": "neutral", "displayName": "Rule Paper" },
-      "ink": { "role": "neutral", "displayName": "Ink" },
-      "muted-ink": { "role": "neutral", "displayName": "Muted Ink" },
-      "muted-night": { "role": "neutral", "displayName": "Muted Night" }
+      "mythic-copper": {
+        "role": "primary",
+        "displayName": "Mythic Copper",
+        "canonical": "oklch(55.5% 0.16 42)",
+        "tonalRamp": [
+          "#3F1604",
+          "#682B11",
+          "#83330D",
+          "#9E3E0E",
+          "#BC4A10",
+          "#EC6E38",
+          "#FA895C",
+          "#FEB092",
+          "#FFD1BF",
+          "#FEF4F1"
+        ]
+      },
+      "mythic-copper-deep": {
+        "role": "primary",
+        "displayName": "Mythic Copper Deep",
+        "canonical": "oklch(49% 0.14 42)"
+      },
+      "mythic-copper-bright": {
+        "role": "primary",
+        "displayName": "Mythic Copper Bright (dark theme accent)",
+        "canonical": "oklch(74.5% 0.15 42)"
+      },
+      "mythic-copper-glow": {
+        "role": "primary",
+        "displayName": "Mythic Copper Glow (dark theme hover)",
+        "canonical": "oklch(82.5% 0.115 42)"
+      },
+      "copper-wash": {
+        "role": "primary",
+        "displayName": "Copper Wash",
+        "canonical": "oklch(97.5% 0.018 42)"
+      },
+      "ink-on-copper": {
+        "role": "neutral",
+        "displayName": "Ink on Copper"
+      },
+      "table-night": {
+        "role": "neutral",
+        "displayName": "Table Night",
+        "tonalRamp": [
+          "#020617",
+          "#0F172A",
+          "#1E293B",
+          "#334155",
+          "#475569",
+          "#64748B",
+          "#94A3B8",
+          "#CBD5E1",
+          "#E2E8F0",
+          "#F8FAFC"
+        ]
+      },
+      "panel-night": {
+        "role": "neutral",
+        "displayName": "Panel Night"
+      },
+      "raised-night": {
+        "role": "neutral",
+        "displayName": "Raised Night"
+      },
+      "rule-night": {
+        "role": "neutral",
+        "displayName": "Rule Night"
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper"
+      },
+      "panel-paper": {
+        "role": "neutral",
+        "displayName": "Panel Paper"
+      },
+      "rule-paper": {
+        "role": "neutral",
+        "displayName": "Rule Paper"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink"
+      },
+      "muted-ink": {
+        "role": "neutral",
+        "displayName": "Muted Ink"
+      },
+      "muted-night": {
+        "role": "neutral",
+        "displayName": "Muted Night"
+      },
+      "sakura-pink": {
+        "role": "tertiary",
+        "displayName": "Sakura Pink (site name, dark theme)"
+      },
+      "sakura-pink-deep": {
+        "role": "tertiary",
+        "displayName": "Sakura Pink Deep (site name, light theme)"
+      }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display", "purpose": "One per page: the page, set or deck name. 1.875rem on phones, 2.25rem from md." },
-      "headline": { "displayName": "Headline", "purpose": "Section titles." },
-      "title": { "displayName": "Title", "purpose": "Panel, archetype, box and deck names; clamp at two lines." },
-      "body": { "displayName": "Body", "purpose": "Descriptions and oracle text, within about 75ch." },
-      "label": { "displayName": "Label", "purpose": "Card captions, stat lines and badges; tabular figures for numbers." }
+      "display": {
+        "displayName": "Display",
+        "purpose": "One per page: the page, set or deck name. 1.875rem on phones, 2.25rem from md."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section titles."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Panel, archetype, box and deck names; clamp at two lines."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Descriptions and oracle text, within about 75ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Card captions, stat lines and badges; tabular figures for numbers."
+      },
+      "brand": {
+        "displayName": "Brand Wordmark",
+        "purpose": "Cherry Swash 700, only for the words 'Cardcaptor Stuart'."
+      }
     },
     "shadows": [
-      { "name": "panel", "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)", "purpose": "Resting panels (shadow-sm). The page is otherwise flat." },
-      { "name": "panel-hover", "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)", "purpose": "Hovered index tiles (shadow-md); the ceiling for hover." },
-      { "name": "float", "value": "0 25px 50px -12px rgb(0 0 0 / 0.25)", "purpose": "Card previews and dialogs only (shadow-2xl)." }
+      {
+        "name": "panel",
+        "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        "purpose": "Resting panels (shadow-sm). The page is otherwise flat."
+      },
+      {
+        "name": "panel-hover",
+        "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+        "purpose": "Hovered index tiles (shadow-md); the ceiling for hover."
+      },
+      {
+        "name": "float",
+        "value": "0 25px 50px -12px rgb(0 0 0 / 0.25)",
+        "purpose": "Card previews and dialogs only (shadow-2xl)."
+      }
     ],
     "motion": [
-      { "name": "state", "value": "150ms cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Color, border and shadow changes on hover and focus. No entrance animations." }
+      {
+        "name": "state",
+        "value": "150ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Color, border and shadow changes on hover and focus. No entrance animations."
+      }
     ],
     "breakpoints": [
-      { "name": "sm", "value": "640px" },
-      { "name": "md", "value": "768px" },
-      { "name": "lg", "value": "1024px" },
-      { "name": "xl", "value": "1280px" }
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
     ]
   },
   "components": [
@@ -94,14 +226,14 @@
     {
       "name": "Navigation",
       "kind": "nav",
-      "description": "Sticky one-row bar; copper brand, slate links, current page in a slate pill.",
+      "description": "Sticky one-row bar; pink Cherry Swash site name, slate links, current page in a slate pill.",
       "html": "<nav class=\"ds-nav\"><span class=\"ds-brand\">Cardcaptor Stuart</span><a class=\"ds-link ds-link-current\" href=\"#\">Play Box</a><a class=\"ds-link\" href=\"#\">Decks</a></nav>",
-      "css": ".ds-nav { display: flex; align-items: center; gap: 4px; height: 64px; padding: 0 16px; background: rgb(2 6 23 / 0.5); border-bottom: 1px solid #1E293B; font-family: Geist, ui-sans-serif, system-ui, sans-serif; } .ds-brand { color: #FA895C; font-weight: 700; font-size: 20px; letter-spacing: -0.025em; margin-right: 20px; } .ds-link { color: #94A3B8; text-decoration: none; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; white-space: nowrap; transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-link:hover { color: #F8FAFC; background: #1E293B; } .ds-link-current { color: #F8FAFC; background: #1E293B; } .ds-link:focus-visible { outline: 2px solid #FA895C; outline-offset: 2px; }"
+      "css": ".ds-nav { display: flex; align-items: center; gap: 4px; height: 64px; padding: 0 16px; background: rgb(2 6 23 / 0.5); border-bottom: 1px solid #1E293B; font-family: Geist, ui-sans-serif, system-ui, sans-serif; } .ds-brand { color: #F472B6; font-family: 'Cherry Swash', Geist, ui-sans-serif, sans-serif; font-weight: 700; font-size: 20px; margin-right: 20px; } .ds-link { color: #94A3B8; text-decoration: none; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; white-space: nowrap; transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-link:hover { color: #F8FAFC; background: #1E293B; } .ds-link-current { color: #F8FAFC; background: #1E293B; } .ds-link:focus-visible { outline: 2px solid #FA895C; outline-offset: 2px; }"
     }
   ],
   "narrative": {
     "northStar": "The Draft Table",
-    "overview": "The site is the table a draft happens at. It is focused and tactical: information is dense and stats come first, and every screen is built for deciding quickly what to play and how to play it. The cards are the loudest thing on any page. The interface around them is slate, quiet and exact, so card art, mana symbols and rarity marks carry the color.\n\nDark is the default theme (players at a table in the evening), and light mode is fully supported. Laptop and phone are equal: grids reflow and previews reposition, but nothing is cut or squashed at either size.\n\nOne accent, Mythic Copper, marks what you can act on: buttons, links, active filters, focus and the brand name. Its meaning is borrowed from the game, where the mythic rarity symbol is the top pull in a pack.",
+    "overview": "The site is the table a draft happens at. It is focused and tactical: information is dense and stats come first, and every screen is built for deciding quickly what to play and how to play it. The cards are the loudest thing on any page. The interface around them is slate, quiet and exact, so card art, mana symbols and rarity marks carry the color.\n\nDark is the default theme (players at a table in the evening), and light mode is fully supported. Laptop and phone are equal: grids reflow and previews reposition, but nothing is cut or squashed at either size.\n\nOne accent, Mythic Copper, marks what you can act on: buttons, links, active filters and focus. Its meaning is borrowed from the game, where the mythic rarity symbol is the top pull in a pack.",
     "keyCharacteristics": [
       "Slate neutrals and a single copper accent. Color meaning otherwise comes from Magic itself: mana, rarity, tier.",
       "Card images keep their true 488:680 shape and corner radius everywhere.",
@@ -109,11 +241,31 @@
       "Stats shown as numbers, in tabular figures, next to the cards they describe."
     ],
     "rules": [
-      { "name": "The One Accent Rule", "body": "Copper means \"you can act on this\" or \"this is the brand\". Never use it for status, data or decoration.", "section": "colors" },
-      { "name": "The Game Owns Color Rule", "body": "Any other color on screen must mean something in Magic: a mana color, a rarity, a tier, a product type. If it means nothing, it is slate.", "section": "colors" },
-      { "name": "The No Neon Rule", "body": "No cyan, violet or purple ink on dark surfaces, and no gradient text. (The current logo artwork predates this and is the only exception.)", "section": "colors" },
-      { "name": "The Tabular Stats Rule", "body": "Win rates, counts, prices and odds use tabular figures so columns line up.", "section": "typography" },
-      { "name": "The Float Only Rule", "body": "A shadow larger than `shadow-sm` means the element sits above the page (preview, dialog, sticky bar). Hover may raise a panel to `shadow-md`, never further.", "section": "elevation" }
+      {
+        "name": "The One Accent Rule",
+        "body": "Copper means \"you can act on this\". Never use it for status, data, decoration or the brand.",
+        "section": "colors"
+      },
+      {
+        "name": "The Game Owns Color Rule",
+        "body": "Any other color on screen must mean something in Magic: a mana color, a rarity, a tier, a product type. If it means nothing, it is slate.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Neon Rule",
+        "body": "No cyan, violet or purple ink on dark surfaces, and no gradient text. (The logo is the exception: Stuart chose on 2026-11-24 to keep its pink Cardcaptor-style card artwork on a violet tile. It is brand art, not interface color, so it stays as drawn.)",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Stats Rule",
+        "body": "Win rates, counts, prices and odds use tabular figures so columns line up.",
+        "section": "typography"
+      },
+      {
+        "name": "The Float Only Rule",
+        "body": "A shadow larger than `shadow-sm` means the element sits above the page (preview, dialog, sticky bar). Hover may raise a panel to `shadow-md`, never further.",
+        "section": "elevation"
+      }
     ],
     "dos": [
       "Do route every solid accent surface through `bg-accent` / `text-on-accent` so light and dark both pass contrast.",
@@ -122,7 +274,7 @@
       "Do clamp every floating element to the viewport at 390px, 1024px and 1440px."
     ],
     "donts": [
-      "Don't use copper for status, data or decoration (The One Accent Rule).",
+      "Don't use copper for status, data, decoration or the brand (The One Accent Rule).",
       "Don't add cyan, violet or purple ink on dark, gradient text, or colored glow shadows.",
       "Don't crop or rescale card art to fit a box; change the box.",
       "Don't put an eyebrow label above a heading or a one-sided bar on a rounded panel.",

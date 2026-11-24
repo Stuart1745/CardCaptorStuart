@@ -18,7 +18,14 @@ colors:
   ink: "#0F172A"
   muted-ink: "#64748B"
   muted-night: "#94A3B8"
+  sakura-pink: "#F472B6"
+  sakura-pink-deep: "#BE185D"
 typography:
+  brand:
+    fontFamily: "Cherry Swash, Geist, ui-sans-serif, sans-serif"
+    fontSize: "1.25rem"
+    fontWeight: 700
+    lineHeight: 1.2
   display:
     fontFamily: "Geist, ui-sans-serif, system-ui, sans-serif"
     fontSize: "2.25rem"
@@ -106,7 +113,7 @@ The site is the table a draft happens at. It is focused and tactical: informatio
 
 Dark is the default theme (players at a table in the evening), and light mode is fully supported. Laptop and phone are equal: grids reflow and previews reposition, but nothing is cut or squashed at either size.
 
-One accent, Mythic Copper, marks what you can act on: buttons, links, active filters, focus and the brand name. Its meaning is borrowed from the game, where the mythic rarity symbol is the top pull in a pack.
+One accent, Mythic Copper, marks what you can act on: buttons, links, active filters and focus. Its meaning is borrowed from the game, where the mythic rarity symbol is the top pull in a pack.
 
 **Key Characteristics:**
 - Slate neutrals and a single copper accent. Color meaning otherwise comes from Magic itself: mana, rarity, tier.
@@ -119,7 +126,7 @@ One accent, Mythic Copper, marks what you can act on: buttons, links, active fil
 Cool slate neutrals with one warm, game-derived accent.
 
 ### Primary
-- **Mythic Copper** (`mythic-copper`): solid buttons and active chips in light mode, with white text (5.1:1). Also the brand name and link/icon accent in light mode.
+- **Mythic Copper** (`mythic-copper`): solid buttons and active chips in light mode, with white text (5.1:1). Also the link and icon accent in light mode.
 - **Mythic Copper Bright** (`mythic-copper-bright`): the same roles in dark mode, carrying dark **Ink on Copper** text (8.0:1). Accent text and icons on dark surfaces (7.5:1 on panels).
 - **Copper Wash** (`copper-wash`): tinted secondary buttons (QR Code) and quiet highlights in light mode. Dark mode uses the deepest copper at 30% over the panel.
 
@@ -132,6 +139,10 @@ The full scale lives as `--color-copper-50…950` in `src/app/globals.css`. Soli
 - **Paper** / **Panel Paper** / **Rule Paper**: light page, panels and borders.
 - **Ink** / **Muted Ink** / **Muted Night**: primary and secondary text.
 
+### Brand
+- **Sakura Pink** (`sakura-pink`, dark theme) / **Sakura Pink Deep** (`sakura-pink-deep`, light theme): the site name only, matching the pink card in the logo (7.6:1 and 6.0:1). Nothing else on the page is pink.
+- The logo artwork (`public/logo.png`, `src/app/icon.png`) keeps its own pink card, gold star and violet tile.
+
 ### Game colors (data, not decoration)
 - Mana symbols are the WUBRG images in `public/mana/`, never recolored.
 - Rarity badges follow the game: common slate, uncommon silver, rare gold, mythic orange.
@@ -139,16 +150,17 @@ The full scale lives as `--color-copper-50…950` in `src/app/globals.css`. Soli
 - Play-box product types have fixed hues for the set symbol and packs-left bar: Draft emerald, Set Booster sky, Collector amber, Cube/Jumpstart rose.
 
 ### Named Rules
-**The One Accent Rule.** Copper means "you can act on this" or "this is the brand". Never use it for status, data or decoration.
+**The One Accent Rule.** Copper means "you can act on this". Never use it for status, data, decoration or the brand.
 
 **The Game Owns Color Rule.** Any other color on screen must mean something in Magic: a mana color, a rarity, a tier, a product type. If it means nothing, it is slate.
 
-**The No Neon Rule.** No cyan, violet or purple ink on dark surfaces, and no gradient text. (The current logo artwork predates this and is the only exception.)
+**The No Neon Rule.** No cyan, violet or purple ink on dark surfaces, and no gradient text. (The logo is the exception: Stuart chose on 2026-11-24 to keep its pink Cardcaptor-style card artwork on a violet tile. It is brand art, not interface color, so it stays as drawn.)
 
 ## Typography
 
 **Display Font:** Geist (with ui-sans-serif, system-ui)
 **Label/Mono Font:** Geist Mono, for codes and data only.
+**Brand Wordmark:** Cherry Swash 700 (Google Fonts, SIL OFL), self-hosted through `next/font`. Used only for the words "Cardcaptor Stuart" (nav and sign-in). It stands in for the anime's hand-drawn logo lettering, which is not available as a font.
 
 **Character:** One neutral, well-drawn sans in a few deliberate weights. Hierarchy comes from size and weight, never from color.
 
@@ -209,7 +221,7 @@ The page is flat. Panels are separated by a hairline border and at most a small 
 - **Focus:** copper ring.
 
 ### Navigation
-- Sticky, translucent bar with a hairline bottom border. The brand name is copper and shows from md (logo only below). Links are slate; the current page gets a slate pill. Sign-in is a primary button that collapses to an icon on phones.
+- Sticky, translucent bar with a hairline bottom border. The site name is the pink Cherry Swash wordmark and shows from md (logo only below). Links are slate; the current page gets a slate pill. Sign-in is a primary button that collapses to an icon on phones.
 
 ### Card Tile (signature)
 A card image at its true shape, a ring on hover (no scaling), the card name, then a one-line caption (role, or "Land / Artifact / Spell"). Hover or focus opens the **Floating Preview**: a fixed panel up to 26rem wide with the full card image, type line, complete oracle text and the 17Lands stat line. It is clamped inside the viewport, placed above or below its card, and on touch screens opens on the first tap.
@@ -226,7 +238,7 @@ A card image at its true shape, a ring on hover (no scaling), the card name, the
 - **Do** clamp every floating element to the viewport at 390px, 1024px and 1440px.
 
 ### Don't:
-- **Don't** use copper for status, data or decoration (The One Accent Rule).
+- **Don't** use copper for status, data, decoration or the brand (The One Accent Rule).
 - **Don't** add cyan, violet or purple ink on dark, gradient text, or colored glow shadows.
 - **Don't** crop or rescale card art to fit a box; change the box.
 - **Don't** put an eyebrow label above a heading or a one-sided bar on a rounded panel.

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cherry_Swash, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -8,6 +8,13 @@ import { Navigation } from "@/components/Navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+// Site name only: a playful storybook face next to the pink logo (DESIGN.md, Brand wordmark).
+const brandFont = Cherry_Swash({
+  variable: "--font-cherry-swash",
+  weight: "700",
   subsets: ["latin"],
 });
 
@@ -30,7 +37,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${brandFont.variable} h-full antialiased`}
     >
       <body suppressHydrationWarning className="min-h-screen flex flex-col w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 transition-colors duration-300">
         <AuthProvider>

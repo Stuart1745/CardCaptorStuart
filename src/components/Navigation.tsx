@@ -24,7 +24,7 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
           <div className="flex items-center gap-2 sm:gap-6 min-w-0">
-            <Link href="/" aria-label="Cardcaptor Stuart home" className="flex items-center gap-2 shrink-0 font-bold text-xl tracking-tight text-copper-600 dark:text-copper-400">
+            <Link href="/" aria-label="Cardcaptor Stuart home" className="flex items-center gap-2 shrink-0 font-brand font-bold text-xl text-pink-700 dark:text-pink-400">
               <img src="/logo.png" alt="" width={32} height={32} className="w-8 h-8 object-contain" />
               <span className="hidden md:inline">Cardcaptor Stuart</span>
             </Link>
