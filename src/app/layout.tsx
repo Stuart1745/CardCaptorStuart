@@ -37,7 +37,7 @@ export default function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="dark">
             <Navigation />
             {children}
-            <footer className="mt-auto border-t border-slate-200 dark:border-slate-800 px-4 py-6 text-xs text-slate-500 dark:text-slate-400">
+            <footer className="mt-auto border-t border-slate-200 dark:border-slate-800 px-4 md:px-8 py-6 text-xs text-slate-500 dark:text-slate-400">
               <div className="max-w-7xl mx-auto flex flex-col sm:flex-row gap-2 sm:items-center justify-between">
                 <p>Cardcaptor Stuart is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.</p>
                 <nav className="flex gap-4 shrink-0">

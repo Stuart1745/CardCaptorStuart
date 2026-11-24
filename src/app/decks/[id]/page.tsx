@@ -11,8 +11,8 @@ import { useAuth } from "@/components/AuthProvider";
 import { db } from "@/lib/firebase";
 import { isAdminUser } from "@/lib/admin";
 import { DEFAULT_DECKS, type Deck, deckSize, groupDeck, linkLabel, deckBracket, gameChangersIn } from "@/lib/decks";
+import { ManaIcon } from "@/components/ManaIcon";
 
-const MANA_BG: Record<string, string> = { W: "#f8f6d8", U: "#c1d7e9", B: "#bab1ab", R: "#e49977", G: "#a3c095" };
 
 export default function DeckDetailsPage() {
   const params = useParams();
@@ -73,7 +73,9 @@ export default function DeckDetailsPage() {
     );
   }
 
-  const groups = groupDeck(deck.cards ?? []);
+  const commanderCard = (deck.cards ?? []).find(c => c.board === "commander" && c.image);
+  // The commander's card goes in the header, so leave it out of the list below.
+  const groups = groupDeck(deck.cards ?? []).filter(g => !(commanderCard && g.label.startsWith("Commander") && g.cards.length === 1));
   const total = deckSize(deck.cards ?? []);
   const bracket = deckBracket(deck);
   const gameChangers = gameChangersIn(deck.cards ?? []);
@@ -87,18 +89,23 @@ export default function DeckDetailsPage() {
         </Link>
 
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-          <div className="flex items-center gap-6 min-w-0">
-            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-lg shrink-0 bg-slate-200 dark:bg-slate-800">
-              {deck.thumbnail && <img src={deck.thumbnail} alt={deck.commander ?? deck.name} className="w-full h-full object-cover" />}
-            </div>
+          <div className="flex items-center gap-5 sm:gap-6 min-w-0">
+            {commanderCard ? (
+              <a href={commanderCard.scryfallUri ?? "#"} target="_blank" rel="noopener noreferrer"
+                className="w-28 sm:w-36 shrink-0 aspect-[488/680] rounded-[4.5%/3.2%] overflow-hidden shadow-lg ring-1 ring-slate-900/10 dark:ring-white/10 bg-slate-200 dark:bg-slate-800">
+                <img src={commanderCard.image} alt={commanderCard.name} className="w-full h-full object-cover" />
+              </a>
+            ) : (
+              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-lg shrink-0 bg-slate-200 dark:bg-slate-800">
+                {deck.thumbnail && <img src={deck.thumbnail} alt={deck.commander ?? deck.name} className="w-full h-full object-cover" />}
+              </div>
+            )}
             <div className="min-w-0">
               <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">{deck.name}</h1>
               <p className="text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap items-center gap-2">
                 <span>{deck.format}{total > 0 ? ` · ${total} cards` : ""}{deck.commander ? ` · ${deck.commander}` : ""}</span>
                 <span className="flex gap-1">
-                  {deck.colors.map(c => (
-                    <span key={c} className="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-600 inline-flex items-center justify-center text-[8px] font-bold text-slate-900" style={{ backgroundColor: MANA_BG[c] ?? "#ccc" }}>{c}</span>
-                  ))}
+                  {deck.colors.map(c => <ManaIcon key={c} symbol={c} size={18} />)}
                 </span>
               </p>
               {(bracket || (deck.pods && deck.pods.length > 0)) && (
@@ -168,17 +175,17 @@ export default function DeckDetailsPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 md:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-10">
             {groups.map(g => (
-              <section key={g.label} className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">
-                  {g.label} <span className="text-slate-400 font-normal">({g.count})</span>
+              <section key={g.label}>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 pb-2 mb-4 border-b border-slate-100 dark:border-slate-800">
+                  {g.label} <span className="text-slate-500 dark:text-slate-400 font-normal">({g.count})</span>
                 </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(8.5rem,1fr))] gap-x-3 gap-y-5">
                   {g.cards.map(card => (
                     <a key={`${card.board}-${card.name}`} href={card.scryfallUri ?? `https://scryfall.com/search?q=!"${encodeURIComponent(card.name)}"`}
                       target="_blank" rel="noopener noreferrer" className="group flex flex-col gap-1.5 min-w-0">
-                      <div className="relative aspect-[2.5/3.5] rounded-xl overflow-hidden shadow-sm group-hover:shadow-md group-hover:-translate-y-0.5 transition-all bg-slate-200 dark:bg-slate-800">
+                      <div className="relative aspect-[488/680] rounded-[4.5%/3.2%] overflow-hidden shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10 group-hover:ring-2 group-hover:ring-indigo-500 transition-shadow duration-150 bg-slate-200 dark:bg-slate-800">
                         {card.image && <img src={card.image} alt={card.name} loading="lazy" className="w-full h-full object-cover" />}
                         {card.qty > 1 && (
                           <span className="absolute top-1.5 right-1.5 text-xs font-bold px-1.5 py-0.5 rounded-md bg-slate-900/85 text-white">×{card.qty}</span>

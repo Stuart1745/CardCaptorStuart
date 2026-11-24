@@ -439,7 +439,7 @@ export default function PlayBoxPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
             {playBoxes.map(box => {
               const theme = box.theme || getTheme(box.color || "indigo");
               const percentage = Math.round((box.remaining / box.total) * 100);
@@ -449,7 +449,7 @@ export default function PlayBoxPage() {
               const sealedCost = packPrice ? (packPrice * 6).toFixed(2) : null;
 
               return (
-              <Link href={`/play-box/${box.id}`} key={box.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all flex flex-col group relative">
+              <Link href={`/play-box/${box.id}`} key={box.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-[box-shadow,border-color] duration-150 flex flex-col group relative">
 
                 {/* Hero Image Overlay */}
                 {box.imageUrl && (
@@ -459,16 +459,23 @@ export default function PlayBoxPage() {
                   </div>
                 )}
 
-                <div className={`h-2 w-full ${theme.borderTop} relative z-10`}></div>
-
                 <div className="p-5 flex flex-col flex-1 relative z-10">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 ${theme.icon}`}>
-                        <Package className="w-5 h-5" />
+                  <div className="flex justify-between items-start gap-3 mb-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-11 h-11 shrink-0 rounded-lg flex items-center justify-center bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 ${theme.icon}`}>
+                        {box.setCode ? (
+                          // The set's own symbol (Scryfall SVG), drawn in the box's colour
+                          <span aria-hidden className="w-6 h-6 bg-current" style={{
+                            WebkitMaskImage: `url(https://svgs.scryfall.io/sets/${box.setCode.split(',')[0].trim().toLowerCase()}.svg)`,
+                            maskImage: `url(https://svgs.scryfall.io/sets/${box.setCode.split(',')[0].trim().toLowerCase()}.svg)`,
+                            WebkitMaskSize: 'contain', maskSize: 'contain',
+                            WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat',
+                            WebkitMaskPosition: 'center', maskPosition: 'center',
+                          }} />
+                        ) : <Package className="w-5 h-5" />}
                       </div>
-                      <div>
-                        <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">
+                      <div className="min-w-0">
+                        <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight line-clamp-2">
                           {box.name}
                         </h3>
                         <p className="text-xs text-slate-500 dark:text-slate-400 font-medium flex gap-2">
@@ -477,18 +484,18 @@ export default function PlayBoxPage() {
                       </div>
                     </div>
                     {isAdmin && box.cost && (
-                      <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
+                      <span className="shrink-0 text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
                         ${box.cost}
                       </span>
                     )}
                     {!isAdmin && box.marketPrice && (
-                      <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded">
+                      <span className="shrink-0 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded">
                         ${box.marketPrice}
                       </span>
                     )}
                   </div>
 
-                  <div className="mb-4 mt-2">
+                  <div className="mb-4">
                     <div className="flex justify-between text-xs font-medium mb-1.5">
                       <span className="text-slate-600 dark:text-slate-400">Inventory</span>
                       <span className="text-slate-900 dark:text-slate-100">{box.remaining} / {box.total}</span>
@@ -499,24 +506,24 @@ export default function PlayBoxPage() {
                   </div>
 
                   {(draftCost || sealedCost) && (
-                    <div className="mb-3 grid grid-cols-2 gap-2 text-xs">
+                    <dl className="grid grid-cols-2 divide-x divide-slate-100 dark:divide-slate-800 border-t border-slate-100 dark:border-slate-800 pt-3 text-xs">
                       {draftCost && (
-                        <div className="bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2">
-                          <div className="text-slate-400 dark:text-slate-500 mb-0.5">Draft / person</div>
-                          <div className="font-bold text-slate-900 dark:text-slate-100">${draftCost} <span className="font-normal text-slate-400">est.</span></div>
+                        <div className="pr-3">
+                          <dt className="text-slate-500 dark:text-slate-400">Draft / person</dt>
+                          <dd className="font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5">${draftCost} <span className="font-normal text-slate-500 dark:text-slate-400">est.</span></dd>
                         </div>
                       )}
                       {sealedCost && (
-                        <div className="bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2">
-                          <div className="text-slate-400 dark:text-slate-500 mb-0.5">Sealed / person</div>
-                          <div className="font-bold text-slate-900 dark:text-slate-100">${sealedCost} <span className="font-normal text-slate-400">est.</span></div>
+                        <div className="pl-3">
+                          <dt className="text-slate-500 dark:text-slate-400">Sealed / person</dt>
+                          <dd className="font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5">${sealedCost} <span className="font-normal text-slate-500 dark:text-slate-400">est.</span></dd>
                         </div>
                       )}
-                    </div>
+                    </dl>
                   )}
 
                   {isAdmin && (
-                    <div className="mt-auto pt-2">
+                    <div className="mt-auto pt-4">
                       <button
                         type="button"
                         onClick={(e) => { e.preventDefault(); router.push(`/play-box/${box.id}?edit=1`); }}

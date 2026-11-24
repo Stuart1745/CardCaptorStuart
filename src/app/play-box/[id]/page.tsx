@@ -1,40 +1,68 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/components/AuthProvider";
 import { isAdminUser } from "@/lib/admin";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import NextImage from "next/image";
+import { ManaIcon } from "@/components/ManaIcon";
 import { ArrowLeft, Package, Loader2, AlertCircle, BookOpen, Map as MapIcon, Star, Zap, Share2, Check, Settings, X, Image as ImageIcon } from "lucide-react";
 
-const MANA_SYMBOL_FILE: Record<string, string> = { W: 'w', U: 'u', B: 'b', R: 'r', G: 'g' };
 const COLOR_NAME_TO_SYMBOL: Record<string, string> = { White: 'W', Blue: 'U', Black: 'B', Red: 'R', Green: 'G' };
 
-const ManaIcon = ({ symbol, size = 20 }: { symbol: string; size?: number }) => {
-  const file = MANA_SYMBOL_FILE[symbol];
-  if (!file) return null;
-  return <NextImage src={`/mana/${file}.png`} alt={symbol} width={size} height={size} className="rounded-full" />;
+
+/** Scryfall's image ratio (488x680), so card frames never crop or squash the image. */
+const CARD_ASPECT = "aspect-[488/680]";
+const CARD_RADIUS = "rounded-[4.5%/3.2%]";
+
+const rarityBadge = (rarity?: string) => {
+  const r = (rarity || '').toLowerCase();
+  const base = "absolute bottom-1 left-1 text-[9px] font-bold px-1 py-0.5 rounded shadow-sm";
+  if (r === 'mythic') return <span className={`${base} bg-orange-500 text-white`}>M</span>;
+  if (r === 'rare') return <span className={`${base} bg-amber-400 text-slate-900`}>R</span>;
+  if (r === 'uncommon') return <span className={`${base} bg-slate-400 text-white`}>U</span>;
+  return <span className={`${base} bg-slate-600 text-white`}>C</span>;
 };
 
-const getArchetypeGradient = (colors: string[]) => {
-  const getSafeColor = (c: string) => {
-    switch(c) {
-      case 'W': return '#fef08a';
-      case 'U': return '#3b82f6';
-      case 'B': return '#1e293b';
-      case 'R': return '#ef4444';
-      case 'G': return '#10b981';
-      default: return '#94a3b8';
-    }
-  };
-  if (colors.length === 0) return { backgroundColor: '#cbd5e1' };
-  if (colors.length === 1) return { backgroundColor: getSafeColor(colors[0]) };
-  const stops = colors.map((c, i) => `${getSafeColor(c)} ${(i / (colors.length - 1)) * 100}%`).join(', ');
-  return { backgroundImage: `linear-gradient(to right, ${stops})` };
-};
+/**
+ * A hover/tap preview rendered with position: fixed, so no panel or grid can clip it. It is
+ * measured after render and placed above the anchor if it fits under the sticky nav, else
+ * below, else pinned under the nav; horizontally it is clamped inside the viewport.
+ */
+function FloatingPreview({ anchor, maxWidth, interactive, children }: {
+  anchor: DOMRect;
+  maxWidth: number;
+  interactive: boolean;
+  children: React.ReactNode;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const m = 8;
+    const vw = document.documentElement.clientWidth;
+    const vh = window.innerHeight;
+    const navBottom = Math.max(0, document.querySelector('nav')?.getBoundingClientRect().bottom ?? 0) + m;
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    const left = Math.min(Math.max(m, anchor.left + anchor.width / 2 - w / 2), vw - w - m);
+    const top = anchor.top - h - m >= navBottom ? anchor.top - h - m
+      : anchor.bottom + m + h <= vh - m ? anchor.bottom + m
+      : Math.max(navBottom, vh - h - m);
+    el.style.left = `${Math.round(left)}px`;
+    el.style.top = `${Math.round(top)}px`;
+    el.style.visibility = 'visible';
+  }, [anchor]);
+  return (
+    <div ref={ref} role="tooltip" data-floating-preview
+      style={{ position: 'fixed', top: 0, left: 0, visibility: 'hidden', width: `min(${maxWidth}px, calc(100vw - 16px))` }}
+      className={`z-[150] ${interactive ? '' : 'pointer-events-none'}`}>
+      {children}
+    </div>
+  );
+}
 
 interface PlayBox {
   id: string;
@@ -813,91 +841,78 @@ export default function PlayboxDetailsPage() {
     return { signposts, rares, commons, removal, evasion, draw };
   };
 
-  const CardRenderer = ({ card, showRarityLabel }: { card: ScryfallCard; showRarityLabel?: boolean }) => {
-    const [tooltipPos, setTooltipPos] = useState<'top' | 'bottom'>('top');
-
-    const handleMouseEnter = (e: React.MouseEvent) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      setTooltipPos(rect.top < window.innerHeight / 2 ? 'bottom' : 'top');
+  // One preview for the whole page (cards and mechanic examples). On touch screens the first
+  // tap shows it, with a link to Scryfall; on mouse screens hover or focus shows it.
+  type PreviewState =
+    | { kind: 'card'; card: ScryfallCard; anchor: DOMRect; interactive: boolean }
+    | { kind: 'mechanic'; name: string; cards: ScryfallCard[]; anchor: DOMRect; interactive: boolean };
+  const [preview, setPreview] = useState<PreviewState | null>(null);
+  const touchRef = useRef(false);
+  useEffect(() => {
+    touchRef.current = window.matchMedia('(hover: none)').matches;
+    const close = () => setPreview(null);
+    window.addEventListener('scroll', close, { passive: true });
+    window.addEventListener('resize', close);
+    return () => { window.removeEventListener('scroll', close); window.removeEventListener('resize', close); };
+  }, []);
+  useEffect(() => {
+    if (!preview?.interactive) return;
+    const outside = (e: PointerEvent) => {
+      const t = e.target as Element | null;
+      if (t?.closest('[data-floating-preview],[data-preview-anchor]')) return;
+      setPreview(null);
     };
+    document.addEventListener('pointerdown', outside);
+    return () => document.removeEventListener('pointerdown', outside);
+  }, [preview]);
+  const hidePreview = () => { if (!touchRef.current) setPreview(null); };
+  const scryfallUrl = (card: ScryfallCard) => `https://scryfall.com/search?q=!"${encodeURIComponent(card.name)}"`;
 
-    const rarityBadge = () => {
-      const r = (card.rarity || '').toLowerCase();
-      if (r === 'mythic') return <span className="absolute bottom-1 left-1 text-[9px] font-bold px-1 py-0.5 rounded bg-orange-500/90 text-white shadow-sm">M</span>;
-      if (r === 'rare') return <span className="absolute bottom-1 left-1 text-[9px] font-bold px-1 py-0.5 rounded bg-amber-400/90 text-slate-900 shadow-sm">R</span>;
-      if (r === 'uncommon') return <span className="absolute bottom-1 left-1 text-[9px] font-bold px-1 py-0.5 rounded bg-slate-400/90 text-white shadow-sm">U</span>;
-      return <span className="absolute bottom-1 left-1 text-[9px] font-bold px-1 py-0.5 rounded bg-slate-600/90 text-white shadow-sm">C</span>;
-    };
-
-    return (
-      <div
-        className="relative group w-[14rem] sm:w-[15.5rem] shrink-0 z-10 hover:z-[100] flex flex-col gap-1"
-        onMouseEnter={handleMouseEnter}
-        onClick={() => window.open(`https://scryfall.com/search?q=!"${encodeURIComponent(card.name)}"`, '_blank')}
-      >
-        <p className="text-[10px] font-semibold text-slate-700 dark:text-slate-300 text-center truncate px-0.5 leading-tight cursor-pointer">
-          {card.name}
-        </p>
-        <div className="relative aspect-[2.5/3.5] rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 group-hover:scale-105 group-hover:shadow-xl group-hover:z-50 transition-all duration-300 ease-out cursor-pointer">
-          <img
-            src={getImageUrl(card)}
-            alt={card.name}
-            className="w-full h-full object-cover"
-          />
-          {rarityBadge()}
-        </div>
-
-        {showRarityLabel && (() => {
-          const r = (card.rarity || '').toLowerCase();
-          const cls = r === 'mythic' ? 'text-orange-500' : r === 'rare' ? 'text-amber-500' : r === 'uncommon' ? 'text-slate-400' : 'text-slate-500 dark:text-slate-500';
-          const label = r.charAt(0).toUpperCase() + r.slice(1) || 'Common';
-          return <span className={`text-[9px] font-bold text-center block ${cls}`}>{label}</span>;
-        })()}
-
-        <div className={`absolute hidden group-hover:block left-1/2 -translate-x-1/2 w-[26rem] bg-slate-900/95 backdrop-blur-sm text-slate-50 p-4 rounded-xl shadow-2xl border border-slate-700 z-[100] pointer-events-none transform animate-in fade-in zoom-in-95 duration-200 ${
-          tooltipPos === 'top'
-            ? 'bottom-full mb-8 origin-bottom'
-            : 'top-full mt-4 origin-top'
-        }`}>
-          <div className="flex gap-3">
-            <div className="flex-shrink-0 w-28 rounded-lg overflow-hidden">
-              <img src={getImageUrl(card)} alt={card.name} className="w-full h-full object-cover" />
-            </div>
-            <div className="flex-1 min-w-0 flex flex-col">
-              <div className="flex justify-between items-start mb-1 gap-2">
-                <h4 className="font-bold text-sm leading-tight">{card.name}</h4>
-                <span className="font-mono text-xs whitespace-nowrap bg-slate-800 px-1 py-0.5 rounded">{getManaCost(card)}</span>
-              </div>
-              <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-700/50">
-                <p className="text-xs font-semibold text-slate-400 truncate pr-2">{card.type_line}</p>
-                <span className="text-[10px] text-slate-500 font-medium capitalize flex-shrink-0">{card.rarity}</span>
-              </div>
-              <div className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed overflow-y-auto max-h-36">
-                {getOracleText(card)}
-              </div>
-              {(() => {
-                const st = cardStatsMap.get(card.name);
-                if (!st) return null;
-                return (
-                  <p className="text-[11px] text-cyan-300 mt-2 font-medium">
-                    GIH WR {(st.winRate * 100).toFixed(1)}%
-                    {st.iwd != null && <> · IWD {st.iwd >= 0 ? '+' : ''}{(st.iwd * 100).toFixed(1)}pp</>}
-                    {st.ata != null && <> · ATA {st.ata.toFixed(1)}</>}
-                    <span className="text-slate-500"> · {st.gihGames.toLocaleString()} games</span>
-                  </p>
-                );
-              })()}
-              <p className="text-[10px] text-slate-500 mt-2">Click to open on Scryfall</p>
-            </div>
-          </div>
-          <div className={`absolute left-1/2 -translate-x-1/2 border-4 border-transparent ${
-            tooltipPos === 'top'
-              ? 'top-full -mt-1 border-t-slate-900'
-              : 'bottom-full -mb-1 border-b-slate-900'
-          }`}></div>
-        </div>
+  const renderCard = (card: ScryfallCard, caption?: string) => (
+    <a
+      key={card.id}
+      href={scryfallUrl(card)}
+      target="_blank"
+      rel="noopener noreferrer"
+      data-preview-anchor
+      className="group flex flex-col gap-1.5 min-w-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-500"
+      onMouseEnter={e => { if (!touchRef.current) setPreview({ kind: 'card', card, anchor: e.currentTarget.getBoundingClientRect(), interactive: false }); }}
+      onMouseLeave={hidePreview}
+      onFocus={e => setPreview({ kind: 'card', card, anchor: e.currentTarget.getBoundingClientRect(), interactive: touchRef.current })}
+      onBlur={hidePreview}
+      onClick={e => {
+        if (!touchRef.current) return;
+        e.preventDefault();
+        setPreview({ kind: 'card', card, anchor: e.currentTarget.getBoundingClientRect(), interactive: true });
+      }}
+    >
+      <div className={`relative ${CARD_ASPECT} w-full ${CARD_RADIUS} overflow-hidden bg-slate-200 dark:bg-slate-800 shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10 transition-shadow duration-150 group-hover:ring-2 group-hover:ring-indigo-500 group-hover:shadow-md`}>
+        <img src={getImageUrl(card)} alt={card.name} loading="lazy" className="w-full h-full object-cover" />
+        {rarityBadge(card.rarity)}
       </div>
-    );
+      <div className="min-w-0 px-0.5">
+        <p className="text-xs font-medium leading-snug text-slate-800 dark:text-slate-200 truncate">{card.name}</p>
+        {caption && <p className="text-[11px] leading-snug text-slate-500 dark:text-slate-400 truncate">{caption}</p>}
+      </div>
+    </a>
+  );
+
+  /** Key cards for an archetype as one list, most important first, each tagged with its role. */
+  const keyCardsFor = (top: ReturnType<typeof getTopCardsForArchetype>) => {
+    const seen = new Set<string>();
+    const out: { card: ScryfallCard; role: string }[] = [];
+    const add = (list: ScryfallCard[], role: string) => list.forEach(c => {
+      if (seen.has(c.id)) return;
+      seen.add(c.id);
+      out.push({ card: c, role });
+    });
+    add(top.rares, 'Bomb rare');
+    add(top.signposts, 'Signpost');
+    add(top.removal, 'Removal');
+    add(top.evasion, 'Threat');
+    add(top.draw, 'Card advantage');
+    add(top.commons, 'Synergy common');
+    return out;
   };
 
   const handleShare = async () => {
@@ -964,14 +979,14 @@ export default function PlayboxDetailsPage() {
                 {boxInfo.name}
               </h1>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 mt-1 flex gap-2 items-center">
+            <p className="text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap gap-x-2 gap-y-1 items-center">
               <span className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider">
                 Draft Box
               </span>
               • Set: {boxInfo.setCode} • {boxInfo.remaining} / {boxInfo.total} Packs Remaining
             </p>
           </div>
-          <div className="relative z-10 flex gap-3">
+          <div className="relative z-10 flex flex-wrap gap-2 sm:gap-3">
             {!isSharedMode && (
               <button 
                 onClick={handleShare}
@@ -1019,194 +1034,47 @@ export default function PlayboxDetailsPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {/* Main Pane: Draft Archetypes */}
-          <div className="lg:col-span-2 xl:col-span-3 space-y-8">
+        {(() => {
+          // Mechanics: guide entries first, then card-scanned ones not already covered. Guide entries
+          // borrow the scan's example cards when the names match.
+          const scannedExamples = new Map(mechanics.map(m => [m.name.toLowerCase(), m.examples]));
+          const extraMechanics = mechanics.filter(m => !guideMechanics.some(g => g.name.toLowerCase() === m.name.toLowerCase()));
+          const mechanicRows = [
+            ...guideMechanics.map(g => ({ ...g, examples: scannedExamples.get(g.name.toLowerCase()) ?? [], scanned: false })),
+            ...extraMechanics.map(m => ({ ...m, scanned: true })),
+          ];
+          const showMechanics = mechanicRows.length > 0 && !loading && !error;
+          if (!packContents && !showMechanics) return null;
+          const packs = box?.totalPacks || boxInfo.total || 0;
+          const rareSlots = packContents ? packContents.slots.filter(sl => sl.chance < 0.5 && !/land/i.test(sl.sheet)) : [];
+          const showMechanicPreview = (e: React.SyntheticEvent<HTMLElement>, name: string, examples: ScryfallCard[], interactive: boolean) =>
+            setPreview({ kind: 'mechanic', name, cards: bestExamples(examples), anchor: e.currentTarget.getBoundingClientRect(), interactive });
 
-            <div>
-              <div className="flex justify-between items-end mb-6">
-                <div>
-                  <h3 className="font-bold text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-2">
-                    <BookOpen className="w-5 h-5 text-indigo-500" /> Draft Archetypes & Signposts
-                  </h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm">Discover the primary draft strategies for this set.</p>
-                  {statsSource && (
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      Tiers and card win rates from{' '}
-                      <a href={statsSource.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-cyan-500">
-                        {statsSource.name}
-                      </a>{' '}
-                      ({statsSource.license}) · {statsSource.games.toLocaleString()} Premier Draft games
-                    </p>
-                  )}
-                </div>
-                <div className="flex flex-col items-end">
-                  {fetchMessage && <span className="text-sm text-cyan-400 mb-2 font-medium">{fetchMessage}</span>}
-                  {box && (
-                    <button
-                      onClick={handleFetchArchetypes}
-                      disabled={isFetchingArchetypes}
-                      className="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg font-bold shadow-lg transition-colors disabled:opacity-50 flex items-center gap-2 text-sm"
-                    >
-                      {isFetchingArchetypes ? 'Refreshing...' : 'Refresh Archetypes'}
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {loading ? (
-                <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                  <Loader2 className="w-8 h-8 text-indigo-500 animate-spin mb-4" />
-                  <p className="text-slate-500 font-medium">Fetching entire draft environment from Scryfall... This may take a moment.</p>
-                </div>
-              ) : error ? (
-                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-xl flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm font-medium text-red-800 dark:text-red-300">{error}</p>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {(box?.customArchetypes || SET_ARCHETYPES[boxInfo.setCode] || SET_ARCHETYPES.DEFAULT).map(archetype => {
-                    const topCards = getTopCardsForArchetype(archetype);
-                    const tier = (archetype as { tier?: string }).tier || getCardQualityTier(topCards);
-                    
-                    return (
-                      <div key={archetype.name} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col relative">
-                        {/* Top: Archetype Info */}
-                        <div className="relative p-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-col justify-center">
-                          {/* Sleek Top Colored Border */}
-                          <div className="absolute top-0 left-0 w-full h-2 rounded-t-2xl" style={getArchetypeGradient(archetype.colors)}></div>
-                          
-                          <div className="flex items-center justify-between mb-3 mt-1">
-                            <p className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-                              {archetype.colors.map((c, i) => (
-                                <React.Fragment key={c}>
-                                  <span className="flex items-center gap-1">
-                                    <ManaIcon symbol={COLOR_NAME_TO_SYMBOL[c] || c} size={16} />
-                                    <span className={getColorStyle(c)}>{c}</span>
-                                  </span>
-                                  {i < archetype.colors.length - 1 && <span className="text-slate-300 dark:text-slate-600">/</span>}
-                                </React.Fragment>
-                              ))}
-                            </p>
-                            <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded border shadow-sm ${getTierStyle(tier)}`}>
-                              Tier {tier}
-                            </span>
-                          </div>
-                          
-                          <h4 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">{archetype.name}</h4>
-                          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-4xl">{archetype.desc}</p>
-                        </div>
-                        
-                        {/* Right: Signpost, Rare, and Commons */}
-                        <div className="p-6 flex-1 bg-slate-100/50 dark:bg-slate-800/20">
-                          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-8">
-                             {topCards.signposts.length > 0 && (
-                               <div>
-                                 <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Signpost Uncommons</h5>
-                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-4">
-                                   {topCards.signposts.map(card => (
-                                     <CardRenderer key={card.id} card={card} />
-                                   ))}
-                                 </div>
-                               </div>
-                             )}
-
-                             {topCards.rares.length > 0 && (
-                               <div>
-                                 <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Bomb Rares</h5>
-                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-4">
-                                   {topCards.rares.map(card => (
-                                     <CardRenderer key={card.id} card={card} />
-                                   ))}
-                                 </div>
-                               </div>
-                             )}
-
-                             {topCards.removal.length > 0 && (
-                               <div>
-                                 <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Key Removal</h5>
-                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-4">
-                                   {topCards.removal.map(card => (
-                                     <CardRenderer key={card.id} card={card} />
-                                   ))}
-                                 </div>
-                               </div>
-                             )}
-
-                             {topCards.evasion.length > 0 && (
-                               <div>
-                                 <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Evasion & Threats</h5>
-                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-4">
-                                   {topCards.evasion.map(card => (
-                                     <CardRenderer key={card.id} card={card} />
-                                   ))}
-                                 </div>
-                               </div>
-                             )}
-
-                             {topCards.draw.length > 0 && (
-                               <div>
-                                 <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Card Advantage</h5>
-                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-4">
-                                   {topCards.draw.map(card => (
-                                     <CardRenderer key={card.id} card={card} />
-                                   ))}
-                                 </div>
-                               </div>
-                             )}
-
-                             {topCards.commons.length > 0 && (
-                               <div>
-                                 <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Top Synergistic Commons</h5>
-                                 <div className="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-4">
-                                   {topCards.commons.map(card => (
-                                     <CardRenderer key={card.id} card={card} />
-                                   ))}
-                                 </div>
-                               </div>
-                             )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-          </div>
-
-          {/* Sidebar Pane: Pack Contents, Mechanics and Mana Fixing */}
-          <div className="space-y-8">
-            {/* Pack Contents Section (MTGJSON booster configuration) */}
-            {packContents && (() => {
-              const packs = box?.totalPacks || boxInfo.total || 0;
-              // Bonus sheets worth counting per box (not partial land/foil-land slots)
-              const rareSlots = packContents.slots.filter(sl => sl.chance < 0.5 && !/land/i.test(sl.sheet));
-              return (
-                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                  <h3 className="font-bold text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-1">
+          return (
+            <section className={`grid gap-6 items-start mb-12 ${packContents && showMechanics ? 'lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]' : ''}`}>
+              {packContents && (
+                <div className="bg-white dark:bg-slate-900 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <h2 className="font-bold text-lg text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <Package className="w-5 h-5 text-amber-500" /> Pack Contents
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 capitalize">
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-3 capitalize">
                     {packContents.booster} booster · {formatCount(packContents.cardsPerPack)} cards
                   </p>
                   <ul className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                     {packContents.slots.map(sl => (
                       <li key={sl.sheet} className="flex items-baseline justify-between gap-3 py-1.5">
-                        <span className="text-slate-700 dark:text-slate-300">
+                        <span className="text-slate-700 dark:text-slate-300 min-w-0">
                           {sl.label}
-                          <span className="text-xs text-slate-400 dark:text-slate-500"> · {sl.cards} cards{sl.sheets ? ` across ${sl.sheets} sheets` : ''}</span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400"> · {sl.cards} cards{sl.sheets ? ` across ${sl.sheets} sheets` : ''}</span>
                         </span>
-                        <span className="text-right font-medium text-slate-900 dark:text-slate-100 whitespace-nowrap">
+                        <span className="text-right font-medium tabular-nums text-slate-900 dark:text-slate-100 whitespace-nowrap">
                           {sl.chance >= 0.995 ? `× ${formatCount(sl.perPack)}` : formatOdds(sl.chance)}
                         </span>
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-sm text-slate-700 dark:text-slate-300 space-y-1">
-                    <p>Mythic in {formatOdds(Math.min(packContents.mythicsPerPack, 1))}</p>
+                  <div className="mt-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-sm text-slate-700 dark:text-slate-300 space-y-1">
+                    <p>Mythic: {formatOdds(Math.min(packContents.mythicsPerPack, 1))}</p>
                     {packs > 0 && (
                       <p>
                         Per box ({packs} packs): ~{formatCount(packContents.mythicsPerPack * packs)} mythics
@@ -1216,138 +1084,226 @@ export default function PlayboxDetailsPage() {
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-3">
                     Booster data from{' '}
-                    <a href="https://mtgjson.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-cyan-500">MTGJSON</a>
+                    <a href="https://mtgjson.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-indigo-600 dark:hover:text-indigo-400">MTGJSON</a>
                   </p>
                 </div>
-              );
-            })()}
+              )}
 
-            {/* Set Mechanics Section */}
-            {(guideMechanics.length > 0 || mechanics.length > 0) && !loading && !error && (
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              {showMechanics && (
+                <div className="bg-white dark:bg-slate-900 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <h2 className="font-bold text-lg text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-1">
                     <Zap className="w-5 h-5 text-indigo-500" /> Set Mechanics
-                  </h3>
-                </div>
-                <div className="grid grid-cols-1 gap-4">
-                  {/* Guide-sourced mechanics first (authoritative, from Wizards prerelease guide) */}
-                  {guideMechanics.map(mech => (
-                    <div key={`guide-${mech.name}`} className="relative group p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/40 rounded-xl">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <h4 className="font-bold text-slate-900 dark:text-slate-100">{mech.name}</h4>
-                        <div className="flex gap-1 items-center">
-                          {mech.colors.map(c => (
-                            <ManaIcon key={c} symbol={c} size={20} />
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{mech.desc}</p>
-                    </div>
-                  ))}
-                  {/* Separator if both sources have data */}
-                  {guideMechanics.length > 0 && mechanics.filter(m => !guideMechanics.some(g => g.name.toLowerCase() === m.name.toLowerCase())).length > 0 && (
-                    <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest pt-1">Also in this set</p>
-                  )}
-                  {/* Card-scanned mechanics (exclude any already shown from guide) */}
-                  {mechanics.filter(m => !guideMechanics.some(g => g.name.toLowerCase() === m.name.toLowerCase())).map(mech => (
-                    <div key={mech.name} className="relative group p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 rounded-xl cursor-help">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <h4 className="font-bold text-slate-900 dark:text-slate-100">{mech.name}</h4>
-                        <div className="flex gap-1">
-                          {mech.colors.length > 0 ? mech.colors.map(c => (
-                            <ManaIcon key={c} symbol={c} size={20} />
-                          )) : (
-                            <span className="text-[10px] text-slate-400 font-medium">Colorless</span>
+                  </h2>
+                  <ul className="grid sm:grid-cols-2 gap-x-8">
+                    {mechanicRows.map((mech, i) => {
+                      const hasExamples = mech.examples.length > 0;
+                      const firstScanned = mech.scanned && (i === 0 || !mechanicRows[i - 1].scanned) && guideMechanics.length > 0;
+                      return (
+                        <React.Fragment key={`${mech.scanned ? 'scan' : 'guide'}-${mech.name}`}>
+                          {firstScanned && (
+                            <li className="sm:col-span-2 pt-4 pb-1 text-xs font-semibold text-slate-500 dark:text-slate-400">Also in this set</li>
                           )}
-                        </div>
-                      </div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed italic">
-                        &ldquo;{mech.desc}&rdquo;
-                      </p>
-                      
-                      {/* Tooltip */}
-                      {mech.examples.length > 0 && (
-                        <div className="absolute hidden group-hover:block bottom-full left-1/2 -translate-x-1/2 mb-4 w-max max-w-md bg-slate-900/95 backdrop-blur-sm text-slate-50 p-4 rounded-xl shadow-2xl border border-slate-700 z-[100] pointer-events-none transform origin-bottom animate-in fade-in zoom-in-95 duration-200">
-                          <h5 className="font-bold text-sm mb-3 flex items-center gap-2">
-                            <Star className="w-4 h-4 text-amber-400" fill="currentColor" /> Top {mech.name} Cards
-                          </h5>
-                          <div className="flex gap-4 justify-center">
-                            {bestExamples(mech.examples).map(card => (
-                               <div key={card.id} className="relative aspect-[2.5/3.5] w-[7.5rem] sm:w-36 rounded-xl overflow-hidden shadow-sm border border-slate-700">
-                                 <img src={getImageUrl(card)} alt={card.name} className="w-full h-full object-cover" />
-                               </div>
-                            ))}
-                          </div>
-                          {/* Arrow */}
-                          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900"></div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                          <li className="border-t border-slate-100 dark:border-slate-800">
+                            <div
+                              {...(hasExamples ? {
+                                tabIndex: 0,
+                                'data-preview-anchor': true,
+                                onMouseEnter: (e: React.MouseEvent<HTMLDivElement>) => { if (!touchRef.current) showMechanicPreview(e, mech.name, mech.examples, false); },
+                                onMouseLeave: hidePreview,
+                                onFocus: (e: React.FocusEvent<HTMLDivElement>) => showMechanicPreview(e, mech.name, mech.examples, touchRef.current),
+                                onBlur: hidePreview,
+                                onClick: (e: React.MouseEvent<HTMLDivElement>) => { if (touchRef.current) showMechanicPreview(e, mech.name, mech.examples, true); },
+                              } : {})}
+                              className={`py-3 rounded-md ${hasExamples ? 'cursor-help focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500' : ''}`}
+                            >
+                              <div className="flex items-center justify-between gap-3">
+                                <h3 className="font-semibold text-slate-900 dark:text-slate-100">{mech.name}</h3>
+                                <span className="flex gap-1 shrink-0">
+                                  {mech.colors.length > 0
+                                    ? mech.colors.map(c => <ManaIcon key={c} symbol={c} size={18} />)
+                                    : <span className="text-[11px] text-slate-500 dark:text-slate-400">Colorless</span>}
+                                </span>
+                              </div>
+                              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mt-1">{mech.desc}</p>
+                              {hasExamples && (
+                                <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-1 flex items-center gap-1">
+                                  <Star className="w-3 h-3" fill="currentColor" /> Top cards: hover or tap
+                                </p>
+                              )}
+                            </div>
+                          </li>
+                        </React.Fragment>
+                      );
+                    })}
+                  </ul>
                 </div>
-              </div>
-            )}
+              )}
+            </section>
+          );
+        })()}
 
-            {/* Mana Fixing Section */}
-            {manaFixing.length > 0 && !loading && !error && (
-              <div className="pt-8 border-t border-slate-200 dark:border-slate-800">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="font-bold text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <MapIcon className="w-5 h-5 text-emerald-500" /> Mana Fixing Environment
-                  </h3>
-                  <span className="text-sm font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
-                    {manaFixing.length} Fixers
-                  </span>
-                </div>
-                
-                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
-                  {(() => {
-                    const lands = manaFixing.filter(c => c.type_line.includes("Land"));
-                    const colorlessNoncreature = manaFixing.filter(c =>
-                      !c.type_line.includes("Land") &&
-                      (!c.colors || c.colors.length === 0) &&
-                      (c.type_line.includes("Artifact") || c.type_line.includes("Creature"))
-                    );
-                    const spells = manaFixing.filter(c =>
-                      !c.type_line.includes("Land") &&
-                      !((!c.colors || c.colors.length === 0) && (c.type_line.includes("Artifact") || c.type_line.includes("Creature")))
-                    );
-                    return (
-                      <>
-                        {lands.length > 0 && (
-                          <div>
-                            <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Lands</h5>
-                            <div className="grid grid-cols-2 gap-4 justify-items-center">
-                              {lands.map(card => <CardRenderer key={card.id} card={card} showRarityLabel />)}
-                            </div>
-                          </div>
-                        )}
-                        {colorlessNoncreature.length > 0 && (
-                          <div>
-                            <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Artifacts & Colorless</h5>
-                            <div className="grid grid-cols-2 gap-4 justify-items-center">
-                              {colorlessNoncreature.map(card => <CardRenderer key={card.id} card={card} showRarityLabel />)}
-                            </div>
-                          </div>
-                        )}
-                        {spells.length > 0 && (
-                          <div>
-                            <h5 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Spells</h5>
-                            <div className="grid grid-cols-2 gap-4 justify-items-center">
-                              {spells.map(card => <CardRenderer key={card.id} card={card} showRarityLabel />)}
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    );
-                  })()}
-                </div>
+        <section className="mb-12">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-5">
+            <div>
+              <h2 className="font-bold text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-indigo-500" /> Draft Archetypes &amp; Signposts
+              </h2>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">The main draft strategies for this set, with the cards that make each one work.</p>
+              {statsSource && (
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Tiers and card win rates from{' '}
+                  <a href={statsSource.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-indigo-600 dark:hover:text-indigo-400">
+                    {statsSource.name}
+                  </a>{' '}
+                  ({statsSource.license}) · {statsSource.games.toLocaleString()} Premier Draft games
+                </p>
+              )}
+            </div>
+            {box && isAdmin && !isSharedMode && (
+              <div className="flex flex-col sm:items-end gap-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleFetchArchetypes}
+                  disabled={isFetchingArchetypes}
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
+                >
+                  {isFetchingArchetypes ? 'Refreshing…' : 'Refresh archetypes'}
+                </button>
+                {fetchMessage && <span className="text-xs text-slate-500 dark:text-slate-400">{fetchMessage}</span>}
               </div>
             )}
           </div>
-        </div>
+
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <Loader2 className="w-8 h-8 text-indigo-500 animate-spin mb-4" />
+              <p className="text-slate-500 font-medium">Loading the set from Scryfall. This can take a moment.</p>
+            </div>
+          ) : error ? (
+            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-xl flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+              <p className="text-sm font-medium text-red-800 dark:text-red-300">{error}</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {(box?.customArchetypes || SET_ARCHETYPES[boxInfo.setCode] || SET_ARCHETYPES.DEFAULT).map(archetype => {
+                const topCards = getTopCardsForArchetype(archetype);
+                const tier = (archetype as { tier?: string }).tier || getCardQualityTier(topCards);
+                const keyCards = keyCardsFor(topCards);
+                return (
+                  <article key={archetype.name} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 md:p-6">
+                    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+                      <p className="text-xs font-bold uppercase tracking-wider flex flex-wrap items-center gap-1.5">
+                        {archetype.colors.map((c, i) => (
+                          <React.Fragment key={c}>
+                            <span className="flex items-center gap-1">
+                              <ManaIcon symbol={COLOR_NAME_TO_SYMBOL[c] || c} size={16} />
+                              <span className={getColorStyle(c)}>{c}</span>
+                            </span>
+                            {i < archetype.colors.length - 1 && <span className="text-slate-300 dark:text-slate-600">/</span>}
+                          </React.Fragment>
+                        ))}
+                      </p>
+                      <span className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded border ${getTierStyle(tier)}`}>
+                        Tier {tier}
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-2">{archetype.name}</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl mt-1">{archetype.desc}</p>
+                    {keyCards.length > 0 && (
+                      <div className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(8.5rem,1fr))] gap-x-3 gap-y-5">
+                        {keyCards.map(({ card, role }) => renderCard(card, role))}
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        {manaFixing.length > 0 && !loading && !error && (() => {
+          const isColorlessHelper = (c: ScryfallCard) =>
+            (!c.colors || c.colors.length === 0) && (c.type_line.includes("Artifact") || c.type_line.includes("Creature"));
+          const lands = manaFixing.filter(c => c.type_line.includes("Land"));
+          const colorless = manaFixing.filter(c => !c.type_line.includes("Land") && isColorlessHelper(c));
+          const spells = manaFixing.filter(c => !c.type_line.includes("Land") && !isColorlessHelper(c));
+          return (
+            <section>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-5">
+                <h2 className="font-bold text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  <MapIcon className="w-5 h-5 text-emerald-500" /> Mana Fixing
+                </h2>
+                <span className="text-sm font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">
+                  {manaFixing.length} cards
+                </span>
+              </div>
+              <div className="bg-white dark:bg-slate-900 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-x-3 gap-y-5">
+                {lands.map(c => renderCard(c, 'Land'))}
+                {colorless.map(c => renderCard(c, 'Artifact / colorless'))}
+                {spells.map(c => renderCard(c, 'Spell'))}
+              </div>
+            </section>
+          );
+        })()}
       </div>
+
+      {preview && (
+        <FloatingPreview
+          key={preview.kind === 'card' ? `card-${preview.card.id}` : `mech-${preview.name}`}
+          anchor={preview.anchor}
+          maxWidth={preview.kind === 'card' ? 448 : 480}
+          interactive={preview.interactive}
+        >
+          {preview.kind === 'card' ? (() => {
+            const card = preview.card;
+            const st = cardStatsMap.get(card.name);
+            const mana = getManaCost(card);
+            return (
+              <div className="flex gap-4 p-4 rounded-xl bg-slate-900 text-slate-50 shadow-2xl ring-1 ring-white/10">
+                <img src={getImageUrl(card)} alt="" className={`w-28 sm:w-36 shrink-0 self-start ${CARD_ASPECT} h-auto ${CARD_RADIUS}`} />
+                <div className="min-w-0 flex-1 flex flex-col gap-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <h4 className="font-semibold text-sm leading-snug">{card.name}</h4>
+                    {mana && <span className="font-mono text-[11px] text-slate-300 whitespace-nowrap">{mana}</span>}
+                  </div>
+                  <p className="text-xs text-slate-400 leading-snug">
+                    {card.type_line} · <span className="capitalize">{card.rarity}</span>
+                  </p>
+                  <p className="text-xs text-slate-200 whitespace-pre-wrap leading-relaxed border-t border-white/10 pt-2">
+                    {getOracleText(card)}
+                  </p>
+                  {st && (
+                    <p className="text-[11px] text-cyan-300 font-medium">
+                      GIH WR {(st.winRate * 100).toFixed(1)}%
+                      {st.iwd != null && <> · IWD {st.iwd >= 0 ? '+' : ''}{(st.iwd * 100).toFixed(1)}pp</>}
+                      {st.ata != null && <> · ATA {st.ata.toFixed(1)}</>}
+                      <span className="text-slate-400"> · {st.gihGames.toLocaleString()} games</span>
+                    </p>
+                  )}
+                  {preview.interactive ? (
+                    <a href={scryfallUrl(card)} target="_blank" rel="noopener noreferrer"
+                      className="mt-auto text-xs font-semibold text-indigo-300 underline underline-offset-2">Open on Scryfall</a>
+                  ) : (
+                    <p className="mt-auto text-[11px] text-slate-400">Click to open on Scryfall</p>
+                  )}
+                </div>
+              </div>
+            );
+          })() : (
+            <div className="p-4 rounded-xl bg-slate-900 text-slate-50 shadow-2xl ring-1 ring-white/10">
+              <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                <Star className="w-4 h-4 text-amber-400" fill="currentColor" /> Top {preview.name} cards
+              </h4>
+              <div className="grid grid-cols-3 gap-3">
+                {preview.cards.map(card => (
+                  <img key={card.id} src={getImageUrl(card)} alt={card.name} className={`w-full ${CARD_ASPECT} h-auto ${CARD_RADIUS}`} />
+                ))}
+              </div>
+            </div>
+          )}
+        </FloatingPreview>
+      )}
 
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
