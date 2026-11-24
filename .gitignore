@@ -49,3 +49,7 @@ next-env.d.ts
 # Claude Code local state (agent worktrees)
 /.claude/
 __pycache__/
+
+# impeccable: per-machine consent and hook cache
+/.impeccable/config.local.json
+/.impeccable/hook.cache.json
