@@ -12,6 +12,8 @@ export interface DeckCardEntry {
   cmc: number;
   image?: string;
   scryfallUri?: string;
+  /** On Wizards' Commander Game Changers list (from Scryfall) */
+  gameChanger?: boolean;
 }
 
 export interface Deck {
@@ -26,6 +28,10 @@ export interface Deck {
   cards: DeckCardEntry[];
   /** The decklist exactly as pasted, so Edit shows it back */
   decklistText?: string;
+  /** Commander bracket 1-5 set by hand or imported; unset = estimated from Game Changers */
+  bracket?: number;
+  /** Pods / battle boxes this deck belongs to (decks that play well together) */
+  pods?: string[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -99,6 +105,7 @@ interface ScryfallCard {
   colors?: string[];
   color_identity?: string[];
   scryfall_uri?: string;
+  game_changer?: boolean;
   image_uris?: { normal?: string; art_crop?: string };
   card_faces?: { name: string; type_line?: string; colors?: string[]; image_uris?: { normal?: string; art_crop?: string } }[];
 }
@@ -177,6 +184,7 @@ export async function resolveDecklist(lines: ParsedLine[], coverName?: string): 
       cmc: card.cmc ?? 0,
       image: frontImage(card, "normal"),
       scryfallUri: card.scryfall_uri?.split("?")[0],
+      ...(card.game_changer ? { gameChanger: true } : {}),
     });
   }
   const cards = [...merged.values()];
@@ -261,4 +269,43 @@ export function linkLabel(url?: string): string {
   } catch {
     return "Link";
   }
+}
+
+// Commander Brackets (Wizards of the Coast, 2025). Names as Wizards uses them.
+export const BRACKETS: Record<number, string> = { 1: "Exhibition", 2: "Core", 3: "Upgraded", 4: "Optimized", 5: "cEDH" };
+
+export const isCommanderDeck = (deck: Pick<Deck, "format">) => deck.format === "Commander" || deck.format === "Brawl";
+
+export const gameChangersIn = (cards: DeckCardEntry[]) =>
+  cards.filter(c => c.gameChanger && c.board !== "sideboard").map(c => c.name);
+
+/**
+ * The bracket to show for a Commander deck: the one set by hand (or imported), else an
+ * estimate from Game Changers alone, which only sets a floor: none = 1-2, one to three = 3,
+ * four or more = 4. Extra turns, mass land denial and two-card combos can push it higher.
+ */
+export function deckBracket(deck: Deck): { value: number; label: string; estimated: boolean; detail: string } | null {
+  if (!isCommanderDeck(deck)) return null;
+  if (deck.bracket && BRACKETS[deck.bracket]) {
+    return { value: deck.bracket, label: `Bracket ${deck.bracket}`, estimated: false, detail: `Bracket ${deck.bracket}: ${BRACKETS[deck.bracket]}` };
+  }
+  if (!deck.cards?.length) return null;
+  const gc = gameChangersIn(deck.cards).length;
+  const value = gc >= 4 ? 4 : gc >= 1 ? 3 : 2;
+  const label = gc === 0 ? "Bracket 1-2" : `Bracket ${value}`;
+  const count = gc === 1 ? "1 Game Changer" : `${gc} Game Changers`;
+  return { value, label, estimated: true, detail: `Estimated from ${count}. Set the bracket on the deck to override.` };
+}
+
+/** "Pod A, pod a, Battle Box" -> ["Pod A", "Battle Box"] */
+export function parsePods(text: string): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of text.split(",")) {
+    const name = raw.trim().replace(/\s+/g, " ").slice(0, 40);
+    if (!name || seen.has(name.toLowerCase())) continue;
+    seen.add(name.toLowerCase());
+    out.push(name);
+  }
+  return out;
 }

@@ -2,10 +2,11 @@
 
 import React, { useState } from "react";
 import { doc, setDoc } from "firebase/firestore";
-import { Loader2, X, AlertCircle } from "lucide-react";
+import { Loader2, X, AlertCircle, Download, Info } from "lucide-react";
 import { db } from "@/lib/firebase";
 import {
-  DECK_FORMATS, type Deck, parseDecklist, resolveDecklist, fetchCardByName, coverArtFor, colorIdentityOf, slugify,
+  DECK_FORMATS, BRACKETS, type Deck, parseDecklist, resolveDecklist, fetchCardByName, coverArtFor, colorIdentityOf, slugify,
+  parsePods,
 } from "@/lib/decks";
 
 const PLACEHOLDER = `Commander
@@ -21,9 +22,14 @@ const inputCls =
   "w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500";
 const labelCls = "block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5";
 
+/** A new deck’s document id: its name plus a short random suffix. */
+const newDeckId = (name: string) => `${slugify(name)}-${Math.random().toString(36).slice(2, 6)}`;
+
 /** Create or edit a deck. Saves to Firestore decks/{id} (admin only by the rules). */
-export function DeckEditor({ deck, onClose, onSaved }: {
+export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
   deck?: Deck;
+  /** Pod names already used on other decks, offered as suggestions */
+  allPods?: string[];
   onClose: () => void;
   onSaved: (deck: Deck) => void;
 }) {
@@ -32,11 +38,47 @@ export function DeckEditor({ deck, onClose, onSaved }: {
   const [commander, setCommander] = useState(deck?.commander ?? "");
   const [link, setLink] = useState(deck?.link ?? "");
   const [decklist, setDecklist] = useState(deck?.decklistText ?? "");
+  const [bracket, setBracket] = useState<string>(deck?.bracket ? String(deck.bracket) : "");
+  const [podsText, setPodsText] = useState((deck?.pods ?? []).join(", "));
+  const [importUrl, setImportUrl] = useState("");
+  const [importNote, setImportNote] = useState<{ text: string; tone: "info" | "error" } | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState<string[]>([]);
   const [savedWithMisses, setSavedWithMisses] = useState<Deck | null>(null);
   const isCommanderFormat = format === "Commander" || format === "Brawl";
+  const currentPods = parsePods(podsText);
+  const podSuggestions = allPods.filter(p => !currentPods.some(c => c.toLowerCase() === p.toLowerCase()));
+
+  /** Fill the form from an Archidekt link; a Moxfield link fills the Link field and explains Export. */
+  const importFromLink = async () => {
+    const url = importUrl.trim();
+    if (!url) return;
+    setImportNote(null);
+    if (/moxfield\.com/i.test(url)) {
+      setLink(url.startsWith("http") ? url : `https://${url}`);
+      setImportNote({ tone: "info", text: "Moxfield doesn’t let other sites read its decks. On the Moxfield deck, choose Export, copy the list and paste it into Decklist below. The Link field is filled in." });
+      return;
+    }
+    setBusy("Importing from Archidekt…");
+    try {
+      const res = await fetch(`/api/import-deck?url=${encodeURIComponent(url)}`);
+      const data = await res.json();
+      if (!res.ok) { setImportNote({ tone: "error", text: data.error ?? `Import failed (HTTP ${res.status}).` }); return; }
+      if (!deck || !name.trim()) setName(data.name ?? name);
+      if (data.format) setFormat(data.format);
+      if (data.commander) setCommander(data.commander);
+      if (data.bracket) setBracket(String(data.bracket));
+      setLink(data.link);
+      setDecklist(data.decklistText);
+      setImportUrl("");
+      setImportNote({ tone: "info", text: `Imported ${data.name}${data.bracket ? ` (Bracket ${data.bracket} on Archidekt)` : ""}. Check it over, then ${deck ? "save" : "create the deck"}.` });
+    } catch {
+      setImportNote({ tone: "error", text: "Couldn’t reach the import service. Try again, or paste the list." });
+    } finally {
+      setBusy(null);
+    }
+  };
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +118,7 @@ export function DeckEditor({ deck, onClose, onSaved }: {
 
       setBusy("Saving…");
       const now = new Date().toISOString();
-      const id = deck?.id ?? `${slugify(name)}-${Math.random().toString(36).slice(2, 6)}`;
+      const id = deck?.id ?? newDeckId(name);
       const saved: Deck = {
         id,
         name: name.trim(),
@@ -89,6 +131,8 @@ export function DeckEditor({ deck, onClose, onSaved }: {
         updatedAt: now,
         ...(commanderName ? { commander: commanderName } : {}),
         ...(link.trim() ? { link: link.trim() } : {}),
+        ...(isCommanderFormat && bracket ? { bracket: Number(bracket) } : {}),
+        ...(currentPods.length ? { pods: currentPods } : {}),
       };
       // Firestore rejects undefined fields; drop the id (it's the document key).
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -136,6 +180,25 @@ export function DeckEditor({ deck, onClose, onSaved }: {
           </div>
         ) : (
           <form onSubmit={save} className="p-6 flex flex-col gap-4 overflow-y-auto">
+            <div>
+              <label htmlFor="deck-import" className={labelCls}>Import from a link <span className="font-normal text-slate-400">(Archidekt; a Moxfield link fills the Link field)</span></label>
+              <div className="flex gap-2">
+                <input id="deck-import" type="url" value={importUrl} onChange={e => setImportUrl(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); importFromLink(); } }}
+                  placeholder="https://archidekt.com/decks/1234567" className={inputCls} />
+                <button type="button" onClick={importFromLink} disabled={!!busy || !importUrl.trim()}
+                  className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 font-medium disabled:opacity-50">
+                  <Download className="w-4 h-4" /> Import
+                </button>
+              </div>
+              {importNote && (
+                <p role={importNote.tone === "error" ? "alert" : "status"} className={`mt-2 flex items-start gap-2 text-sm rounded-lg p-3 border ${importNote.tone === "error"
+                  ? "text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50"
+                  : "text-indigo-800 dark:text-indigo-200 bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800/50"}`}>
+                  {importNote.tone === "error" ? <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" /> : <Info className="w-4 h-4 mt-0.5 shrink-0" />} {importNote.text}
+                </p>
+              )}
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="sm:col-span-2">
                 <label htmlFor="deck-name" className={labelCls}>Deck name</label>
@@ -159,6 +222,32 @@ export function DeckEditor({ deck, onClose, onSaved }: {
                 <label htmlFor="deck-link" className={labelCls}>Link <span className="font-normal text-slate-400">(optional)</span></label>
                 <input id="deck-link" type="url" value={link} onChange={e => setLink(e.target.value)}
                   placeholder="https://moxfield.com/decks/…" className={inputCls} />
+              </div>
+            </div>
+            <div className={`grid grid-cols-1 ${isCommanderFormat ? "sm:grid-cols-3" : ""} gap-4`}>
+              {isCommanderFormat && (
+                <div>
+                  <label htmlFor="deck-bracket" className={labelCls}>Bracket</label>
+                  <select id="deck-bracket" value={bracket} onChange={e => setBracket(e.target.value)} className={inputCls}>
+                    <option value="">Estimate from Game Changers</option>
+                    {Object.entries(BRACKETS).map(([n, label]) => <option key={n} value={n}>{n}: {label}</option>)}
+                  </select>
+                </div>
+              )}
+              <div className={isCommanderFormat ? "sm:col-span-2" : ""}>
+                <label htmlFor="deck-pods" className={labelCls}>Pods / battle boxes <span className="font-normal text-slate-400">(optional, comma-separated)</span></label>
+                <input id="deck-pods" type="text" value={podsText} onChange={e => setPodsText(e.target.value)}
+                  placeholder="e.g. Final Fantasy Pod, Precon Battle Box" className={inputCls} />
+                {podSuggestions.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {podSuggestions.map(p => (
+                      <button key={p} type="button" onClick={() => setPodsText([...currentPods, p].join(", "))}
+                        className="text-xs px-2 py-1 rounded-full border border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30">
+                        + {p}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             <div>

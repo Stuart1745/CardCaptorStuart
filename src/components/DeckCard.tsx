@@ -4,13 +4,14 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { QrCode, ExternalLink, X } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import { type Deck, linkLabel, deckSize } from "@/lib/decks";
+import { type Deck, linkLabel, deckSize, deckBracket } from "@/lib/decks";
 
 export function DeckCard({ deck }: { deck: Deck }) {
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   // QR points at this app's deck page (it has the full list); falls back to the external link.
   const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/decks/${deck.id}` : (deck.link ?? "");
   const size = deckSize(deck.cards ?? []);
+  const bracket = deckBracket(deck);
 
   return (
     <>
@@ -23,6 +24,14 @@ export function DeckCard({ deck }: { deck: Deck }) {
             style={{ objectPosition: 'center 20%' }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent"></div>
+          {bracket && (
+            <span title={bracket.detail}
+              className={`absolute top-2 right-2 text-xs font-bold px-2 py-1 rounded-md shadow-sm backdrop-blur-sm ${bracket.estimated
+                ? "bg-slate-900/70 text-slate-100 border border-dashed border-slate-300/70"
+                : "bg-indigo-600/90 text-white"}`}>
+              {bracket.label}{bracket.estimated ? " (est.)" : ""}
+            </span>
+          )}
           <div className="absolute bottom-3 left-4 right-4 flex justify-between items-end">
             <h3 className="font-bold text-white text-lg leading-tight truncate pr-2 group-hover:text-indigo-300 transition-colors">{deck.name}</h3>
           </div>
@@ -49,6 +58,14 @@ export function DeckCard({ deck }: { deck: Deck }) {
               ))}
             </div>
           </div>
+
+          {deck.pods && deck.pods.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 -mt-1">
+              {deck.pods.map(p => (
+                <span key={p} className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800/50">{p}</span>
+              ))}
+            </div>
+          )}
 
           <div className="flex gap-2 mt-auto">
             {deck.link && (

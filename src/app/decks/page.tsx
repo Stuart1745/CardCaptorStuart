@@ -17,6 +17,9 @@ export default function DecksPage() {
   const router = useRouter();
   const [decks, setDecks] = useState<Deck[]>(DEFAULT_DECKS);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [pod, setPod] = useState<string | null>(null);
+  const allPods = [...new Set(decks.flatMap(d => d.pods ?? []))].sort((a, b) => a.localeCompare(b));
+  const shown = pod ? decks.filter(d => d.pods?.includes(pod)) : decks;
 
   useEffect(() => {
     const load = async () => {
@@ -64,8 +67,26 @@ export default function DecksPage() {
           )}
         </div>
 
+        {allPods.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mb-6" role="group" aria-label="Filter by pod">
+            <span className="text-sm font-semibold text-slate-600 dark:text-slate-400 mr-1">Pods:</span>
+            {[null, ...allPods].map(p => {
+              const active = pod === p;
+              const count = p ? decks.filter(d => d.pods?.includes(p)).length : decks.length;
+              return (
+                <button key={p ?? "__all"} type="button" aria-pressed={active} onClick={() => setPod(p)}
+                  className={`text-sm px-3 py-1.5 rounded-full border font-medium transition-colors ${active
+                    ? "bg-indigo-600 border-indigo-600 text-white"
+                    : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"}`}>
+                  {p ?? "All decks"} <span className={active ? "text-indigo-100" : "text-slate-400"}>{count}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {decks.map(deck => (
+          {shown.map(deck => (
             <DeckCard key={deck.id} deck={deck} />
           ))}
         </div>
@@ -73,6 +94,7 @@ export default function DecksPage() {
 
       {isEditorOpen && (
         <DeckEditor
+          allPods={allPods}
           onClose={() => setIsEditorOpen(false)}
           onSaved={saved => {
             setIsEditorOpen(false);

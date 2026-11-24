@@ -10,7 +10,7 @@ import { DeckEditor } from "@/components/DeckEditor";
 import { useAuth } from "@/components/AuthProvider";
 import { db } from "@/lib/firebase";
 import { isAdminUser } from "@/lib/admin";
-import { DEFAULT_DECKS, type Deck, deckSize, groupDeck, linkLabel } from "@/lib/decks";
+import { DEFAULT_DECKS, type Deck, deckSize, groupDeck, linkLabel, deckBracket, gameChangersIn } from "@/lib/decks";
 
 const MANA_BG: Record<string, string> = { W: "#f8f6d8", U: "#c1d7e9", B: "#bab1ab", R: "#e49977", G: "#a3c095" };
 
@@ -75,6 +75,8 @@ export default function DeckDetailsPage() {
 
   const groups = groupDeck(deck.cards ?? []);
   const total = deckSize(deck.cards ?? []);
+  const bracket = deckBracket(deck);
+  const gameChangers = gameChangersIn(deck.cards ?? []);
 
   return (
     <main className="flex-1 bg-transparent p-4 md:p-8">
@@ -99,6 +101,25 @@ export default function DeckDetailsPage() {
                   ))}
                 </span>
               </p>
+              {(bracket || (deck.pods && deck.pods.length > 0)) && (
+                <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                  {bracket && (
+                    <span title={bracket.detail} className={`text-xs font-bold px-2 py-1 rounded-md ${bracket.estimated
+                      ? "border border-dashed border-slate-400 text-slate-700 dark:text-slate-300"
+                      : "bg-indigo-600 text-white"}`}>
+                      {bracket.estimated ? `${bracket.label} (estimated)` : bracket.detail}
+                    </span>
+                  )}
+                  {deck.pods?.map(p => (
+                    <Link key={p} href="/decks" className="text-xs font-medium px-2 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800/50">{p}</Link>
+                  ))}
+                </div>
+              )}
+              {bracket && gameChangers.length > 0 && (
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                  Game Changers ({gameChangers.length}): {gameChangers.join(", ")}
+                </p>
+              )}
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
