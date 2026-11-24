@@ -463,12 +463,29 @@ export default function PlayBoxPage() {
                     {/* The math behind the per-person costs: over the inventory row on hover or keyboard
                         focus; inline under the costs on touch screens, which have no hover. */}
                     <div className="absolute bottom-full inset-x-0 mb-2 rounded-lg border border-paper-200 dark:border-paper-700 bg-white dark:bg-paper-800 px-3 py-2 text-xs leading-relaxed tabular-nums text-paper-600 dark:text-paper-300 shadow-sm opacity-0 pointer-events-none transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 [@media(hover:none)]:static [@media(hover:none)]:order-last [@media(hover:none)]:mb-0 [@media(hover:none)]:mt-3 [@media(hover:none)]:opacity-100 [@media(hover:none)]:shadow-none space-y-1.5">
-                      {priceRows.map(r => (
-                        <div key={r.key}>
-                          <p><span className="font-semibold text-paper-900 dark:text-paper-100">{r.label}:</span> {r.box} ÷ {box.total} packs {approx(r.pack)} {money(r.pack)} a pack</p>
-                          <p>Draft {DRAFT_PACKS} × {money(r.pack)} = {money(r.pack * DRAFT_PACKS)} · Sealed {SEALED_PACKS} × {money(r.pack)} = {money(r.pack * SEALED_PACKS)}</p>
-                        </div>
-                      ))}
+                      <table className="w-full text-left">
+                        <caption className="sr-only">How the per-person costs are worked out</caption>
+                        <thead>
+                          <tr className="text-paper-500 dark:text-paper-400">
+                            <th scope="col" className="font-medium pb-0.5 pr-2"></th>
+                            <th scope="col" className="font-medium pb-0.5 pr-2">Box ÷ packs</th>
+                            <th scope="col" className="font-medium pb-0.5 pr-2">Per pack</th>
+                            <th scope="col" className="font-medium pb-0.5 pr-2">Draft ×{DRAFT_PACKS}</th>
+                            <th scope="col" className="font-medium pb-0.5 pr-2">Sealed ×{SEALED_PACKS}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {priceRows.map(r => (
+                            <tr key={r.key}>
+                              <th scope="row" className="font-semibold text-paper-900 dark:text-paper-100 pr-2">{r.label}</th>
+                              <td className="pr-2">{r.box} ÷ {box.total}</td>
+                              <td className="pr-2">{approx(r.pack)} {money(r.pack)}</td>
+                              <td className="pr-2">{money(r.pack * DRAFT_PACKS)}</td>
+                              <td>{money(r.pack * SEALED_PACKS)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                     <dl className="grid grid-cols-2 divide-x divide-paper-100 dark:divide-paper-800 border-t border-paper-100 dark:border-paper-800 pt-3 text-xs">
                       {[{ label: "Draft / person", packs: DRAFT_PACKS, pad: "pr-3" }, { label: "Sealed / person", packs: SEALED_PACKS, pad: "pl-3" }].map(col => (
