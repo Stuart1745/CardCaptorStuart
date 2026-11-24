@@ -52,8 +52,8 @@ export default function DecksPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">Deck Hub</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">Your constructed decks, with shareable QR codes.</p>
+            <h1 className="text-3xl font-brand font-bold text-paper-900 dark:text-paper-50"><span className="washi">Deck Hub</span></h1>
+            <p className="text-paper-500 dark:text-paper-400 mt-1">Your constructed decks, with shareable QR codes.</p>
           </div>
           {isAdmin && (
             <button
@@ -69,16 +69,16 @@ export default function DecksPage() {
 
         {allPods.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 mb-6" role="group" aria-label="Filter by pod">
-            <span className="text-sm font-semibold text-slate-600 dark:text-slate-400 mr-1">Pods:</span>
+            <span className="text-sm font-semibold text-paper-600 dark:text-paper-400 mr-1">Pods:</span>
             {[null, ...allPods].map(p => {
               const active = pod === p;
               const count = p ? decks.filter(d => d.pods?.includes(p)).length : decks.length;
               return (
                 <button key={p ?? "__all"} type="button" aria-pressed={active} onClick={() => setPod(p)}
                   className={`text-sm px-3 py-1.5 rounded-full border font-medium transition-colors ${active
-                    ? "bg-accent border-accent text-on-accent"
-                    : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"}`}>
-                  {p ?? "All decks"} <span className={active ? "text-on-accent/75" : "text-slate-400"}>{count}</span>
+                    ? "gel-circle bg-transparent border-transparent text-sakura-700 dark:text-sakura-300"
+                    : "bg-white dark:bg-paper-900 border-paper-200 dark:border-paper-700 text-paper-700 dark:text-paper-300 hover:bg-paper-50 dark:hover:bg-paper-800"}`}>
+                  {p ?? "All decks"} <span className={active ? "opacity-75" : "text-paper-500"}>{count}</span>
                 </button>
               );
             })}

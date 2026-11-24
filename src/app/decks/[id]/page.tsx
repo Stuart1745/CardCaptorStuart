@@ -64,10 +64,10 @@ export default function DeckDetailsPage() {
     return (
       <main className="flex-1 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
-          <Link href="/decks" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-copper-600 mb-6"><ArrowLeft className="w-4 h-4" /> Back to Deck Hub</Link>
+          <Link href="/decks" className="inline-flex items-center gap-2 text-sm text-paper-500 dark:text-paper-400 hover:text-sakura-600 mb-6"><ArrowLeft className="w-4 h-4" /> Back to Deck Hub</Link>
           {loading
-            ? <p className="flex items-center gap-2 text-slate-500"><Loader2 className="w-4 h-4 animate-spin" /> Loading deck…</p>
-            : <p className="text-slate-600 dark:text-slate-400">This deck doesn&apos;t exist or was deleted.</p>}
+            ? <p className="flex items-center gap-2 text-paper-500 dark:text-paper-400"><Loader2 className="w-4 h-4 animate-spin" /> Loading deck…</p>
+            : <p className="text-paper-600 dark:text-paper-400">This deck doesn&apos;t exist or was deleted.</p>}
         </div>
       </main>
     );
@@ -83,7 +83,7 @@ export default function DeckDetailsPage() {
   return (
     <main className="flex-1 bg-transparent p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <Link href="/decks" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-copper-600 dark:hover:text-copper-400 mb-6 transition-colors">
+        <Link href="/decks" className="inline-flex items-center gap-2 text-sm text-paper-500 dark:text-paper-400 hover:text-sakura-600 dark:hover:text-sakura-400 mb-6 transition-colors">
           <ArrowLeft className="w-4 h-4" />
           Back to Deck Hub
         </Link>
@@ -92,17 +92,17 @@ export default function DeckDetailsPage() {
           <div className="flex items-center gap-5 sm:gap-6 min-w-0">
             {commanderCard ? (
               <a href={commanderCard.scryfallUri ?? "#"} target="_blank" rel="noopener noreferrer"
-                className="w-28 sm:w-36 shrink-0 aspect-[488/680] rounded-[4.5%/3.2%] overflow-hidden shadow-lg ring-1 ring-slate-900/10 dark:ring-white/10 bg-slate-200 dark:bg-slate-800">
+                className="w-28 sm:w-36 shrink-0 aspect-[488/680] rounded-[4.5%/3.2%] overflow-hidden shadow-lg ring-1 ring-paper-900/10 dark:ring-white/10 bg-paper-200 dark:bg-paper-800">
                 <img src={commanderCard.image} alt={commanderCard.name} className="w-full h-full object-cover" />
               </a>
             ) : (
-              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-lg shrink-0 bg-slate-200 dark:bg-slate-800">
+              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-paper-800 shadow-lg shrink-0 bg-paper-200 dark:bg-paper-800">
                 {deck.thumbnail && <img src={deck.thumbnail} alt={deck.commander ?? deck.name} className="w-full h-full object-cover" />}
               </div>
             )}
             <div className="min-w-0">
-              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">{deck.name}</h1>
-              <p className="text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap items-center gap-2">
+              <h1 className="text-3xl md:text-4xl font-brand font-bold text-paper-900 dark:text-paper-50"><span className="washi">{deck.name}</span></h1>
+              <p className="text-paper-500 dark:text-paper-400 mt-1 flex flex-wrap items-center gap-2">
                 <span>{deck.format}{total > 0 ? ` · ${total} cards` : ""}{deck.commander ? ` · ${deck.commander}` : ""}</span>
                 <span className="flex gap-1">
                   {deck.colors.map(c => <ManaIcon key={c} symbol={c} size={18} />)}
@@ -111,19 +111,19 @@ export default function DeckDetailsPage() {
               {(bracket || (deck.pods && deck.pods.length > 0)) && (
                 <div className="flex flex-wrap items-center gap-1.5 mt-2">
                   {bracket && (
-                    <span title={bracket.detail} className={`text-xs font-bold px-2 py-1 rounded-md ${bracket.estimated
-                      ? "border border-dashed border-slate-400 text-slate-700 dark:text-slate-300"
-                      : "bg-accent text-on-accent"}`}>
+                    <span title={bracket.detail} className={`sticker text-xs font-bold px-2 py-1 rounded-md ${bracket.estimated
+                      ? "border border-dashed border-paper-400 text-paper-700 dark:text-paper-300"
+                      : "bg-butter text-amber-950"}`}>
                       {bracket.estimated ? `${bracket.label} (estimated)` : bracket.detail}
                     </span>
                   )}
                   {deck.pods?.map(p => (
-                    <Link key={p} href="/decks" className="text-xs font-medium px-2 py-1 rounded-full bg-copper-50 dark:bg-copper-900/30 text-copper-700 dark:text-copper-300 border border-copper-100 dark:border-copper-800/50">{p}</Link>
+                    <Link key={p} href="/decks" className="text-xs font-medium px-2 py-1 rounded-full bg-sakura-50 dark:bg-sakura-900/30 text-sakura-700 dark:text-sakura-300 border border-sakura-100 dark:border-sakura-800/50">{p}</Link>
                   ))}
                 </div>
               )}
               {bracket && gameChangers.length > 0 && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                <p className="text-xs text-paper-500 dark:text-paper-400 mt-2">
                   Game Changers ({gameChangers.length}): {gameChangers.join(", ")}
                 </p>
               )}
@@ -132,12 +132,12 @@ export default function DeckDetailsPage() {
           <div className="flex flex-wrap gap-3">
             {deck.link && (
               <a href={deck.link} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 font-medium">
+                className="flex items-center gap-2 px-4 py-2 bg-paper-100 dark:bg-paper-800 text-paper-700 dark:text-paper-300 rounded-lg hover:bg-paper-200 dark:hover:bg-paper-700 font-medium">
                 <ExternalLink className="w-4 h-4" /> {linkLabel(deck.link)}
               </a>
             )}
             <button type="button" onClick={() => setIsShareOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 font-medium">
+              className="flex items-center gap-2 px-4 py-2 bg-paper-100 dark:bg-paper-800 text-paper-700 dark:text-paper-300 rounded-lg hover:bg-paper-200 dark:hover:bg-paper-700 font-medium">
               <Share2 className="w-4 h-4" /> Share
             </button>
             {isAdmin && (
@@ -160,7 +160,7 @@ export default function DeckDetailsPage() {
             <p className="text-red-800 dark:text-red-300">Delete <strong>{deck.name}</strong>? This can&apos;t be undone.{deleteError && <span className="block text-sm mt-1">{deleteError}</span>}</p>
             <div className="flex gap-2">
               <button type="button" onClick={() => { setConfirmDelete(false); setDeleteError(null); }}
-                className="px-4 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800 font-medium">Keep deck</button>
+                className="px-4 py-2 rounded-lg text-paper-700 dark:text-paper-300 hover:bg-white/60 dark:hover:bg-paper-800 font-medium">Keep deck</button>
               <button type="button" onClick={handleDelete}
                 className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium">Delete deck</button>
             </div>
@@ -168,30 +168,30 @@ export default function DeckDetailsPage() {
         )}
 
         {groups.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-10 border border-slate-200 dark:border-slate-800 shadow-sm text-center">
-            <p className="text-slate-700 dark:text-slate-300 font-medium">No decklist yet.</p>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+          <div className="bg-white dark:bg-paper-900 rounded-2xl p-10 border border-paper-200 dark:border-paper-800 shadow-sm text-center">
+            <p className="text-paper-700 dark:text-paper-300 font-medium">No decklist yet.</p>
+            <p className="text-paper-500 dark:text-paper-400 text-sm mt-1">
               {isAdmin ? "Use Edit Deck to import it from Moxfield or paste the list." : deck.link ? `See the list on ${linkLabel(deck.link)}.` : "Check back later."}
             </p>
           </div>
         ) : (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 md:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-10">
+          <div className="bg-white dark:bg-paper-900 rounded-2xl p-5 md:p-6 border border-paper-200 dark:border-paper-800 shadow-sm space-y-10">
             {groups.map(g => (
               <section key={g.label}>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 pb-2 mb-4 border-b border-slate-100 dark:border-slate-800">
-                  {g.label} <span className="text-slate-500 dark:text-slate-400 font-normal">({g.count})</span>
+                <h2 className="text-lg font-brand font-bold text-paper-900 dark:text-paper-100 pb-2 mb-4 border-b border-paper-100 dark:border-paper-800">
+                  {g.label} <span className="text-paper-500 dark:text-paper-400 font-normal">({g.count})</span>
                 </h2>
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(8.5rem,1fr))] gap-x-3 gap-y-5">
                   {g.cards.map(card => (
                     <a key={`${card.board}-${card.name}`} href={card.scryfallUri ?? `https://scryfall.com/search?q=!"${encodeURIComponent(card.name)}"`}
                       target="_blank" rel="noopener noreferrer" className="group flex flex-col gap-1.5 min-w-0">
-                      <div className="relative aspect-[488/680] rounded-[4.5%/3.2%] overflow-hidden shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10 group-hover:ring-2 group-hover:ring-copper-500 transition-shadow duration-150 bg-slate-200 dark:bg-slate-800">
+                      <div className="relative aspect-[488/680] rounded-[4.5%/3.2%] overflow-hidden shadow-sm ring-1 ring-paper-900/10 dark:ring-white/10 group-hover:ring-2 group-hover:ring-sakura-500 transition-shadow duration-150 bg-paper-200 dark:bg-paper-800">
                         {card.image && <img src={card.image} alt={card.name} loading="lazy" className="w-full h-full object-cover" />}
                         {card.qty > 1 && (
-                          <span className="absolute top-1.5 right-1.5 text-xs font-bold px-1.5 py-0.5 rounded-md bg-slate-900/85 text-white">×{card.qty}</span>
+                          <span className="absolute top-1.5 right-1.5 text-xs font-bold px-1.5 py-0.5 rounded-md bg-paper-900/85 text-white">×{card.qty}</span>
                         )}
                       </div>
-                      <p className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate">{card.name}</p>
+                      <p className="text-xs font-medium text-paper-700 dark:text-paper-300 truncate">{card.name}</p>
                     </a>
                   ))}
                 </div>
@@ -202,15 +202,15 @@ export default function DeckDetailsPage() {
       </div>
 
       {isShareOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-sm w-full overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="font-bold text-slate-900 dark:text-slate-100">Share {deck.name}</h3>
-              <button type="button" aria-label="Close" onClick={() => setIsShareOpen(false)} className="p-1 rounded-md text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"><X className="w-5 h-5" /></button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-paper-900/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-paper-900 rounded-2xl shadow-xl max-w-sm w-full overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-paper-100 dark:border-paper-800">
+              <h3 className="font-bold text-paper-900 dark:text-paper-100">Share {deck.name}</h3>
+              <button type="button" aria-label="Close" onClick={() => setIsShareOpen(false)} className="p-1 rounded-md text-paper-500 dark:text-paper-400 hover:bg-paper-100 dark:hover:bg-paper-800"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-8 flex flex-col items-center gap-5">
-              <div className="bg-white p-4 rounded-xl border border-slate-200"><QRCodeSVG value={shareUrl} size={200} level="H" /></div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 break-all text-center select-all">{shareUrl}</p>
+              <div className="bg-white p-4 rounded-xl border border-paper-200"><QRCodeSVG value={shareUrl} size={200} level="H" /></div>
+              <p className="text-xs text-paper-500 dark:text-paper-400 break-all text-center select-all">{shareUrl}</p>
               <button type="button" onClick={copyLink} className="w-full px-4 py-2 bg-accent hover:bg-accent-hover text-on-accent rounded-lg font-medium">
                 {copied ? "Copied" : "Copy link"}
               </button>

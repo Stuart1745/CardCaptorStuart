@@ -2,40 +2,66 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Mythic Copper: the site's one accent (DESIGN.md). OKLCH hue 42, built so each step
-   lines up with Tailwind's default scales. */
+/* Letter-Set Stationery (DESIGN.md). Two scales, both OKLCH:
+   paper  = the neutral, tinted pink/plum (hue 350); replaces slate everywhere.
+   sakura = the one action color (hue 354); buttons, links, focus, current page. */
 @theme {
-  --color-copper-50: #FEF4F1;
-  --color-copper-100: #FEE7DF;
-  --color-copper-200: #FFD1BF;
-  --color-copper-300: #FEB092;
-  --color-copper-400: #FA895C;
-  --color-copper-500: #EC6E38;
-  --color-copper-600: #BC4A10;
-  --color-copper-700: #9E3E0E;
-  --color-copper-800: #83330D;
-  --color-copper-900: #682B11;
-  --color-copper-950: #3F1604;
+  --color-paper-50: #FFF8FB;
+  --color-paper-100: #FDF0F5;
+  --color-paper-200: #F6DFE9;
+  --color-paper-300: #E8C8D6;
+  --color-paper-400: #BA91A3;
+  --color-paper-500: #8E6578;
+  --color-paper-600: #774E61;
+  --color-paper-700: #61394C;
+  --color-paper-800: #4E293B;
+  --color-paper-900: #3D1C2D;
+  --color-paper-950: #2D111F;
+
+  --color-sakura-50: #FEF4F7;
+  --color-sakura-100: #FFE5EE;
+  --color-sakura-200: #FECCDF;
+  --color-sakura-300: #FEAACC;
+  --color-sakura-400: #F87AB2;
+  --color-sakura-500: #E9509A;
+  --color-sakura-600: #C52C7C;
+  --color-sakura-700: #A71F67;
+  --color-sakura-800: #861A53;
+  --color-sakura-900: #691941;
+  --color-sakura-950: #420A27;
+
+  /* Sticker and star colors (stationery extras) */
+  --color-butter: #FCD34D;
+  --color-mint: #A7F3D0;
 }
 
-/* Solid accent surfaces (primary buttons, active chips). Light: deep copper + white (5.1:1).
-   Dark: bright copper + ink (8.0:1). */
+/* Solid action surfaces. Light: raspberry + white (5.2:1). Night: sakura + plum ink (7.0:1). */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --accent: var(--color-copper-600);
-  --accent-hover: var(--color-copper-700);
+  --background: var(--color-paper-50);
+  --foreground: var(--color-paper-900);
+  --accent: var(--color-sakura-600);
+  --accent-hover: var(--color-sakura-700);
   --on-accent: #ffffff;
-  --accent-text: var(--color-copper-700);
+  --accent-text: var(--color-sakura-600);
+  --dot: var(--color-paper-200);
+  --letterhead: var(--color-paper-50);
+  --tape-a: color-mix(in oklab, var(--color-sakura-300) 55%, transparent);
+  --tape-b: color-mix(in oklab, var(--color-sakura-200) 55%, transparent);
+  --sticker-edge: #ffffff;
 }
 
 .dark {
-  --background: #020617;
-  --foreground: #f8fafc;
-  --accent: var(--color-copper-400);
-  --accent-hover: var(--color-copper-300);
-  --on-accent: #1C0A02;
-  --accent-text: var(--color-copper-400);
+  --background: var(--color-paper-950);
+  --foreground: var(--color-paper-50);
+  --accent: var(--color-sakura-400);
+  --accent-hover: var(--color-sakura-300);
+  --on-accent: var(--color-paper-950);
+  --accent-text: var(--color-sakura-400);
+  --dot: color-mix(in oklab, var(--color-paper-800) 70%, transparent);
+  --letterhead: var(--color-paper-950);
+  --tape-a: color-mix(in oklab, var(--color-sakura-800) 70%, transparent);
+  --tape-b: color-mix(in oklab, var(--color-sakura-900) 70%, transparent);
+  --sticker-edge: var(--color-paper-100);
 }
 
 @theme inline {
@@ -49,24 +75,135 @@
   --font-brand: var(--font-cherry-swash), var(--font-geist-sans), ui-sans-serif, sans-serif;
 }
 
+/* Letter paper: a faint dot grid on blush (plum at night). */
 body {
-  background: var(--background);
+  background-color: var(--background);
+  background-image: radial-gradient(var(--dot) 1px, transparent 1.4px);
+  background-size: 18px 18px;
   color: var(--foreground);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   accent-color: var(--accent);
   caret-color: var(--accent-text);
 }
 
-/* Browser-drawn surfaces carry the accent too. */
 ::selection {
-  background: color-mix(in oklab, var(--color-copper-400) 35%, transparent);
+  background: color-mix(in oklab, var(--color-sakura-300) 45%, transparent);
 }
 
 :focus-visible {
   outline-color: var(--accent-text);
 }
 
-/* Stats and counts line up in columns. */
 table, dl, .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* Letterhead nav: solid paper with a scalloped bottom edge. */
+.letterhead {
+  position: relative;
+  background-color: var(--letterhead);
+}
+.letterhead::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 7px;
+  background: radial-gradient(circle at 7px 0, var(--letterhead) 6px, transparent 6.5px) repeat-x;
+  background-size: 14px 7px;
+  filter: drop-shadow(0 1px 0 var(--color-paper-200));
+  pointer-events: none;
+}
+.dark .letterhead::after {
+  filter: drop-shadow(0 1px 0 var(--color-paper-800));
+}
+
+/* Washi tape behind a heading. On an inline span it follows every wrapped line (clone);
+   the overhang (0.3em) stays inside the 16px phone gutter. */
+.washi {
+  background: repeating-linear-gradient(-45deg, var(--tape-a) 0 7px, var(--tape-b) 7px 14px);
+  padding: 0 0.3em;
+  margin: 0 -0.3em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* Single-line section headings with an icon: the same tape as a block behind the row. */
+.washi-block {
+  position: relative;
+  isolation: isolate;
+  width: fit-content;
+}
+.washi-block::before {
+  content: "";
+  position: absolute;
+  inset: 0.15em -0.3em -0.05em -0.3em;
+  z-index: -1;
+  background: repeating-linear-gradient(-45deg, var(--tape-a) 0 7px, var(--tape-b) 7px 14px);
+  transform: rotate(-1deg);
+}
+
+/* A photo taped into the letter: white print border, slight tilt, a strip of tape on top. */
+.taped-photo {
+  position: relative;
+  border: 5px solid #ffffff;
+  box-shadow: 0 2px 6px rgb(66 10 39 / 0.22);
+  transform: rotate(2deg);
+}
+.taped-photo::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 56px;
+  height: 18px;
+  translate: -50% 0;
+  rotate: -4deg;
+  background: repeating-linear-gradient(-45deg, var(--tape-a) 0 6px, var(--tape-b) 6px 12px);
+}
+
+/* Die-cut sticker: white cut edge, soft offset shadow, a slight tilt. */
+.sticker {
+  border: 2px solid var(--sticker-edge);
+  box-shadow: 0 1px 1px rgb(66 10 39 / 0.08), 0 2px 5px rgb(66 10 39 / 0.18);
+  transform: rotate(var(--tilt, -2deg));
+}
+.sticker:nth-of-type(even) {
+  --tilt: 2deg;
+}
+
+/* Gel-pen marks, drawn in the action color. */
+.gel-underline {
+  position: relative;
+}
+.gel-underline::after {
+  content: "";
+  position: absolute;
+  left: 0.6rem;
+  right: 0.6rem;
+  bottom: 0;
+  height: 6px;
+  background: var(--accent-text);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 6'%3E%3Cpath d='M0 3 Q 6 0.5 12 3 T 24 3' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x left center / 24px 6px;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 6'%3E%3Cpath d='M0 3 Q 6 0.5 12 3 T 24 3' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x left center / 24px 6px;
+}
+
+.gel-circle {
+  position: relative;
+}
+.gel-circle::after {
+  content: "";
+  position: absolute;
+  inset: -6px -9px;
+  background: var(--accent-text);
+  pointer-events: none;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40' preserveAspectRatio='none'%3E%3Cpath d='M14 31 C 2 22, 8 7, 40 4 S 112 4, 116 17 S 92 37, 56 37 S 9 33, 18 9' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40' preserveAspectRatio='none'%3E%3Cpath d='M14 31 C 2 22, 8 7, 40 4 S 112 4, 116 17 S 92 37, 56 37 S 9 33, 18 9' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sticker {
+    transform: none;
+  }
 }

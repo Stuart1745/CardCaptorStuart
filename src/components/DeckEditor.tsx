@@ -19,8 +19,8 @@ Deck
 ...`;
 
 const inputCls =
-  "w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-copper-500";
-const labelCls = "block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5";
+  "w-full px-3 py-2 border border-paper-300 dark:border-paper-700 rounded-lg bg-paper-50 dark:bg-paper-800 text-paper-900 dark:text-paper-100 focus:outline-none focus:ring-2 focus:ring-sakura-500";
+const labelCls = "block text-sm font-semibold text-paper-700 dark:text-paper-300 mb-1.5";
 
 /** A new deck’s document id: its name plus a short random suffix. */
 const newDeckId = (name: string) => `${slugify(name)}-${Math.random().toString(36).slice(2, 6)}`;
@@ -156,45 +156,45 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
-          <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100">{deck ? "Edit Deck" : "New Deck"}</h3>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-paper-900/60 backdrop-blur-sm p-4">
+      <div className="bg-white dark:bg-paper-900 rounded-2xl shadow-xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-paper-100 dark:border-paper-800">
+          <h3 className="font-bold text-lg text-paper-900 dark:text-paper-100">{deck ? "Edit Deck" : "New Deck"}</h3>
           <button type="button" aria-label="Close" onClick={onClose}
-            className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+            className="p-1 rounded-md text-paper-500 dark:text-paper-400 hover:text-paper-600 dark:hover:text-paper-300 hover:bg-paper-100 dark:hover:bg-paper-800">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {savedWithMisses ? (
           <div className="p-6 flex flex-col gap-4">
-            <p className="text-slate-700 dark:text-slate-300">
+            <p className="text-paper-700 dark:text-paper-300">
               Saved <strong>{savedWithMisses.name}</strong>, but Scryfall couldn&apos;t find {notFound.length === 1 ? "this card" : `these ${notFound.length} cards`}, so {notFound.length === 1 ? "it was" : "they were"} left out:
             </p>
             <ul className="text-sm font-mono bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-lg p-3 max-h-48 overflow-y-auto">
               {notFound.map(n => <li key={n}>{n}</li>)}
             </ul>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Fix the spelling with Edit and save again to add them.</p>
+            <p className="text-sm text-paper-500 dark:text-paper-400">Fix the spelling with Edit and save again to add them.</p>
             <button type="button" onClick={() => onSaved(savedWithMisses)}
               className="self-end px-4 py-2 bg-accent hover:bg-accent-hover text-on-accent rounded-lg font-medium">Done</button>
           </div>
         ) : (
           <form onSubmit={save} className="p-6 flex flex-col gap-4 overflow-y-auto">
             <div>
-              <label htmlFor="deck-import" className={labelCls}>Import from a link <span className="font-normal text-slate-400">(Archidekt; a Moxfield link fills the Link field)</span></label>
+              <label htmlFor="deck-import" className={labelCls}>Import from a link <span className="font-normal text-paper-500 dark:text-paper-400">(Archidekt; a Moxfield link fills the Link field)</span></label>
               <div className="flex gap-2">
                 <input id="deck-import" type="url" value={importUrl} onChange={e => setImportUrl(e.target.value)}
                   onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); importFromLink(); } }}
                   placeholder="https://archidekt.com/decks/1234567" className={inputCls} />
                 <button type="button" onClick={importFromLink} disabled={!!busy || !importUrl.trim()}
-                  className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 font-medium disabled:opacity-50">
+                  className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg bg-paper-100 dark:bg-paper-800 text-paper-700 dark:text-paper-200 hover:bg-paper-200 dark:hover:bg-paper-700 font-medium disabled:opacity-50">
                   <Download className="w-4 h-4" /> Import
                 </button>
               </div>
               {importNote && (
                 <p role={importNote.tone === "error" ? "alert" : "status"} className={`mt-2 flex items-start gap-2 text-sm rounded-lg p-3 border ${importNote.tone === "error"
                   ? "text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50"
-                  : "text-copper-800 dark:text-copper-200 bg-copper-50 dark:bg-copper-900/20 border-copper-200 dark:border-copper-800/50"}`}>
+                  : "text-sakura-800 dark:text-sakura-200 bg-sakura-50 dark:bg-sakura-900/20 border-sakura-200 dark:border-sakura-800/50"}`}>
                   {importNote.tone === "error" ? <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" /> : <Info className="w-4 h-4 mt-0.5 shrink-0" />} {importNote.text}
                 </p>
               )}
@@ -214,12 +214,12 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="deck-commander" className={labelCls}>{isCommanderFormat ? "Commander" : "Cover card"} <span className="font-normal text-slate-400">(optional)</span></label>
+                <label htmlFor="deck-commander" className={labelCls}>{isCommanderFormat ? "Commander" : "Cover card"} <span className="font-normal text-paper-500 dark:text-paper-400">(optional)</span></label>
                 <input id="deck-commander" type="text" value={commander} onChange={e => setCommander(e.target.value)}
                   placeholder={isCommanderFormat ? "e.g. Celes, Rune Knight" : "Card whose art fronts the deck"} className={inputCls} />
               </div>
               <div>
-                <label htmlFor="deck-link" className={labelCls}>Link <span className="font-normal text-slate-400">(optional)</span></label>
+                <label htmlFor="deck-link" className={labelCls}>Link <span className="font-normal text-paper-500 dark:text-paper-400">(optional)</span></label>
                 <input id="deck-link" type="url" value={link} onChange={e => setLink(e.target.value)}
                   placeholder="https://moxfield.com/decks/…" className={inputCls} />
               </div>
@@ -235,14 +235,14 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
                 </div>
               )}
               <div className={isCommanderFormat ? "sm:col-span-2" : ""}>
-                <label htmlFor="deck-pods" className={labelCls}>Pods / battle boxes <span className="font-normal text-slate-400">(optional, comma-separated)</span></label>
+                <label htmlFor="deck-pods" className={labelCls}>Pods / battle boxes <span className="font-normal text-paper-500 dark:text-paper-400">(optional, comma-separated)</span></label>
                 <input id="deck-pods" type="text" value={podsText} onChange={e => setPodsText(e.target.value)}
                   placeholder="e.g. Final Fantasy Pod, Precon Battle Box" className={inputCls} />
                 {podSuggestions.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {podSuggestions.map(p => (
                       <button key={p} type="button" onClick={() => setPodsText([...currentPods, p].join(", "))}
-                        className="text-xs px-2 py-1 rounded-full border border-copper-200 dark:border-copper-800/60 text-copper-700 dark:text-copper-300 hover:bg-copper-50 dark:hover:bg-copper-900/30">
+                        className="text-xs px-2 py-1 rounded-full border border-sakura-200 dark:border-sakura-800/60 text-sakura-700 dark:text-sakura-300 hover:bg-sakura-50 dark:hover:bg-sakura-900/30">
                         + {p}
                       </button>
                     ))}
@@ -251,11 +251,11 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
               </div>
             </div>
             <div>
-              <label htmlFor="deck-list" className={labelCls}>Decklist <span className="font-normal text-slate-400">(paste from Moxfield, Archidekt or Arena: one card per line)</span></label>
+              <label htmlFor="deck-list" className={labelCls}>Decklist <span className="font-normal text-paper-500 dark:text-paper-400">(paste from Moxfield, Archidekt or Arena: one card per line)</span></label>
               <textarea id="deck-list" value={decklist} onChange={e => setDecklist(e.target.value)} rows={12}
                 placeholder={PLACEHOLDER} spellCheck={false}
                 className={`${inputCls} font-mono text-sm leading-relaxed`} />
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+              <p className="text-xs text-paper-500 dark:text-paper-400 mt-1.5">
                 From Moxfield: open the deck, choose <strong>Export</strong>, copy the list, and paste it here. Section headers like <code>Commander</code>, <code>Deck</code> and <code>Sideboard</code> are understood, as is Moxfield&apos;s <code>*CMDR*</code> marker. Art and colors come from the commander.
               </p>
             </div>
@@ -267,9 +267,9 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
             )}
 
             <div className="flex items-center justify-end gap-3 pt-2">
-              {busy && <span className="flex items-center gap-2 text-sm text-slate-500"><Loader2 className="w-4 h-4 animate-spin" /> {busy}</span>}
+              {busy && <span className="flex items-center gap-2 text-sm text-paper-500 dark:text-paper-400"><Loader2 className="w-4 h-4 animate-spin" /> {busy}</span>}
               <button type="button" onClick={onClose} disabled={!!busy}
-                className="px-4 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium disabled:opacity-50">Cancel</button>
+                className="px-4 py-2 rounded-lg text-paper-700 dark:text-paper-300 hover:bg-paper-100 dark:hover:bg-paper-800 font-medium disabled:opacity-50">Cancel</button>
               <button type="submit" disabled={!!busy}
                 className="px-4 py-2 bg-accent hover:bg-accent-hover text-on-accent rounded-lg font-medium disabled:opacity-50">
                 {deck ? "Save Changes" : "Create Deck"}

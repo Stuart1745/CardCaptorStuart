@@ -1,159 +1,280 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-24T20:00:00Z",
+  "generatedAt": "2026-11-24T22:07:31Z",
   "title": "Design System: Cardcaptor Stuart",
   "extensions": {
     "colorMeta": {
-      "mythic-copper": {
+      "raspberry-ink": {
         "role": "primary",
-        "displayName": "Mythic Copper",
-        "canonical": "oklch(55.5% 0.16 42)",
+        "displayName": "Raspberry Ink (sakura-600, light action)",
         "tonalRamp": [
-          "#3F1604",
-          "#682B11",
-          "#83330D",
-          "#9E3E0E",
-          "#BC4A10",
-          "#EC6E38",
-          "#FA895C",
-          "#FEB092",
-          "#FFD1BF",
-          "#FEF4F1"
+          "#420A27",
+          "#691941",
+          "#861A53",
+          "#A71F67",
+          "#C52C7C",
+          "#E9509A",
+          "#F87AB2",
+          "#FEAACC",
+          "#FECCDF",
+          "#FFE5EE",
+          "#FEF4F7"
         ]
       },
-      "mythic-copper-deep": {
+      "raspberry-deep": {
         "role": "primary",
-        "displayName": "Mythic Copper Deep",
-        "canonical": "oklch(49% 0.14 42)"
+        "displayName": "Raspberry Deep (sakura-700, light hover)"
       },
-      "mythic-copper-bright": {
+      "sakura-pink": {
         "role": "primary",
-        "displayName": "Mythic Copper Bright (dark theme accent)",
-        "canonical": "oklch(74.5% 0.15 42)"
+        "displayName": "Sakura Pink (sakura-400, night action)"
       },
-      "mythic-copper-glow": {
+      "sakura-blossom": {
         "role": "primary",
-        "displayName": "Mythic Copper Glow (dark theme hover)",
-        "canonical": "oklch(82.5% 0.115 42)"
+        "displayName": "Sakura Blossom (sakura-300, night hover, tape)"
       },
-      "copper-wash": {
+      "sakura-focus": {
         "role": "primary",
-        "displayName": "Copper Wash",
-        "canonical": "oklch(97.5% 0.018 42)"
+        "displayName": "Sakura Focus (sakura-500, focus and hover ring)"
       },
-      "ink-on-copper": {
+      "petal-wash": {
+        "role": "primary",
+        "displayName": "Petal Wash (sakura-50, tinted button)"
+      },
+      "blush-paper": {
         "role": "neutral",
-        "displayName": "Ink on Copper"
-      },
-      "table-night": {
-        "role": "neutral",
-        "displayName": "Table Night",
+        "displayName": "Blush Paper (paper-50, light ground)",
         "tonalRamp": [
-          "#020617",
-          "#0F172A",
-          "#1E293B",
-          "#334155",
-          "#475569",
-          "#64748B",
-          "#94A3B8",
-          "#CBD5E1",
-          "#E2E8F0",
-          "#F8FAFC"
+          "#2D111F",
+          "#3D1C2D",
+          "#4E293B",
+          "#61394C",
+          "#774E61",
+          "#8E6578",
+          "#BA91A3",
+          "#E8C8D6",
+          "#F6DFE9",
+          "#FDF0F5",
+          "#FFF8FB"
         ]
       },
-      "panel-night": {
+      "rose-tissue": {
         "role": "neutral",
-        "displayName": "Panel Night"
+        "displayName": "Rose Tissue (paper-100)"
       },
-      "raised-night": {
+      "dot-hairline": {
         "role": "neutral",
-        "displayName": "Raised Night"
+        "displayName": "Dot Hairline (paper-200)"
       },
-      "rule-night": {
+      "input-edge": {
         "role": "neutral",
-        "displayName": "Rule Night"
-      },
-      "paper": {
-        "role": "neutral",
-        "displayName": "Paper"
-      },
-      "panel-paper": {
-        "role": "neutral",
-        "displayName": "Panel Paper"
-      },
-      "rule-paper": {
-        "role": "neutral",
-        "displayName": "Rule Paper"
-      },
-      "ink": {
-        "role": "neutral",
-        "displayName": "Ink"
-      },
-      "muted-ink": {
-        "role": "neutral",
-        "displayName": "Muted Ink"
+        "displayName": "Input Edge (paper-300)"
       },
       "muted-night": {
         "role": "neutral",
-        "displayName": "Muted Night"
+        "displayName": "Muted Night (paper-400)"
       },
-      "sakura-pink": {
-        "role": "tertiary",
-        "displayName": "Sakura Pink (site name, dark theme)"
+      "muted-ink": {
+        "role": "neutral",
+        "displayName": "Muted Ink (paper-500)"
       },
-      "sakura-pink-deep": {
-        "role": "tertiary",
-        "displayName": "Sakura Pink Deep (site name, light theme)"
+      "soft-ink": {
+        "role": "neutral",
+        "displayName": "Soft Ink (paper-600)"
+      },
+      "quiet-ink": {
+        "role": "neutral",
+        "displayName": "Quiet Ink (paper-700)"
+      },
+      "plum-raised": {
+        "role": "neutral",
+        "displayName": "Plum Raised (paper-800)"
+      },
+      "plum-ink": {
+        "role": "neutral",
+        "displayName": "Plum Ink (paper-900, light text, night sheet)"
+      },
+      "plum-night": {
+        "role": "neutral",
+        "displayName": "Plum Night (paper-950, night ground)"
+      },
+      "letter-sheet": {
+        "role": "neutral",
+        "displayName": "Letter Sheet (white)"
+      },
+      "butter": {
+        "role": "secondary",
+        "displayName": "Butter (Collector, paid price, sparkle)",
+        "tonalRamp": [
+          "oklch(25% 0.038 91)",
+          "oklch(35% 0.076 91)",
+          "oklch(45% 0.113 91)",
+          "oklch(55% 0.151 91)",
+          "oklch(65% 0.151 91)",
+          "oklch(75% 0.113 91)",
+          "oklch(85% 0.076 91)",
+          "oklch(95% 0.034 91)"
+        ]
+      },
+      "mint": {
+        "role": "secondary",
+        "displayName": "Mint (Draft, deck format)",
+        "tonalRamp": [
+          "oklch(25% 0.031 166)",
+          "oklch(35% 0.062 166)",
+          "oklch(45% 0.093 166)",
+          "oklch(55% 0.124 166)",
+          "oklch(65% 0.124 166)",
+          "oklch(75% 0.093 166)",
+          "oklch(85% 0.062 166)",
+          "oklch(95% 0.028 166)"
+        ]
+      },
+      "sky-sticker": {
+        "role": "secondary",
+        "displayName": "Sky Sticker (Set Booster)",
+        "canonical": "oklch(90.1% 0.058 230.902)",
+        "tonalRamp": [
+          "oklch(25% 0.024 231)",
+          "oklch(35% 0.049 231)",
+          "oklch(45% 0.073 231)",
+          "oklch(55% 0.098 231)",
+          "oklch(65% 0.098 231)",
+          "oklch(75% 0.073 231)",
+          "oklch(85% 0.049 231)",
+          "oklch(95% 0.022 231)"
+        ]
+      },
+      "peach-sticker": {
+        "role": "secondary",
+        "displayName": "Peach Sticker (Cube, Jumpstart)",
+        "canonical": "oklch(90.1% 0.076 70.697)",
+        "tonalRamp": [
+          "oklch(25% 0.029 71)",
+          "oklch(35% 0.058 71)",
+          "oklch(45% 0.087 71)",
+          "oklch(55% 0.116 71)",
+          "oklch(65% 0.116 71)",
+          "oklch(75% 0.087 71)",
+          "oklch(85% 0.058 71)",
+          "oklch(95% 0.026 71)"
+        ]
+      },
+      "logo-pink": {
+        "role": "brand",
+        "displayName": "Logo Pink (site name, light; Tailwind pink-700)",
+        "canonical": "oklch(52.5% 0.223 3.958)",
+        "tonalRamp": [
+          "oklch(25% 0.049 4)",
+          "oklch(35% 0.098 4)",
+          "oklch(45% 0.147 4)",
+          "oklch(55% 0.196 4)",
+          "oklch(65% 0.196 4)",
+          "oklch(75% 0.147 4)",
+          "oklch(85% 0.098 4)",
+          "oklch(95% 0.044 4)"
+        ]
+      },
+      "logo-pink-night": {
+        "role": "brand",
+        "displayName": "Logo Pink Night (site name, night; Tailwind pink-400)",
+        "canonical": "oklch(71.8% 0.202 349.761)"
       }
     },
     "typographyMeta": {
       "display": {
-        "displayName": "Display",
-        "purpose": "One per page: the page, set or deck name. 1.875rem on phones, 2.25rem from md."
+        "displayName": "Display (Cherry Swash)",
+        "purpose": "One page title, on washi tape; 2.25rem on set pages from md."
       },
       "headline": {
-        "displayName": "Headline",
-        "purpose": "Section titles."
+        "displayName": "Headline (Cherry Swash)",
+        "purpose": "Section headings on a tilted washi block with a raspberry icon."
       },
       "title": {
-        "displayName": "Title",
-        "purpose": "Panel, archetype, box and deck names; clamp at two lines."
+        "displayName": "Title (Geist)",
+        "purpose": "Box, deck and archetype names; clamp at two lines."
       },
       "body": {
-        "displayName": "Body",
-        "purpose": "Descriptions and oracle text, within about 75ch."
+        "displayName": "Body (Geist)",
+        "purpose": "Descriptions and oracle text, within about 48rem."
       },
       "label": {
-        "displayName": "Label",
-        "purpose": "Card captions, stat lines and badges; tabular figures for numbers."
-      },
-      "brand": {
-        "displayName": "Brand Wordmark",
-        "purpose": "Cherry Swash 700, only for the words 'Cardcaptor Stuart'."
+        "displayName": "Label (Geist, tabular)",
+        "purpose": "Stickers, card captions, stat lines, cost math. Deadpan numbers."
       }
     },
     "shadows": [
       {
-        "name": "panel",
-        "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
-        "purpose": "Resting panels (shadow-sm). The page is otherwise flat."
+        "name": "sticker",
+        "value": "0 1px 1px rgb(66 10 39 / 0.08), 0 2px 5px rgb(66 10 39 / 0.18)",
+        "purpose": "Die-cut stickers pressed onto the sheet."
       },
       {
-        "name": "panel-hover",
+        "name": "taped-photo",
+        "value": "0 2px 6px rgb(66 10 39 / 0.22)",
+        "purpose": "Set art taped into the set-page header."
+      },
+      {
+        "name": "sheet-rest",
+        "value": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+        "purpose": "Letter sheets, panels and primary buttons at rest (Tailwind shadow-sm)."
+      },
+      {
+        "name": "sheet-hover",
         "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
-        "purpose": "Hovered index tiles (shadow-md); the ceiling for hover."
+        "purpose": "Hover lift on box and deck sheets and card tiles (shadow-md). The ceiling for anything on the page."
       },
       {
         "name": "float",
+        "value": "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+        "purpose": "Dialogs and the pack toast (shadow-xl)."
+      },
+      {
+        "name": "float-top",
         "value": "0 25px 50px -12px rgb(0 0 0 / 0.25)",
-        "purpose": "Card previews and dialogs only (shadow-2xl)."
+        "purpose": "Floating Preview and the edit dialog (shadow-2xl)."
+      },
+      {
+        "name": "letterhead-scallop",
+        "value": "drop-shadow(0 1px 0 #F6DFE9) (night: #4E293B)",
+        "purpose": "Hairline under the scalloped nav edge."
       }
     ],
     "motion": [
       {
-        "name": "state",
+        "name": "color-shift",
         "value": "150ms cubic-bezier(0.4, 0, 0.2, 1)",
-        "purpose": "Color, border and shadow changes on hover and focus. No entrance animations."
+        "purpose": "Default transition for buttons, links and chips (Tailwind transition-colors)."
+      },
+      {
+        "name": "sheet-lift",
+        "value": "box-shadow, border-color 150ms",
+        "purpose": "Hover lift on letter sheets and the card-tile ring."
+      },
+      {
+        "name": "cost-math-reveal",
+        "value": "opacity 150ms",
+        "purpose": "Cost-math panel fading in over the inventory row on hover or focus."
+      },
+      {
+        "name": "deck-art-zoom",
+        "value": "transform 500ms, scale 1.05",
+        "purpose": "Deck sheet art header on hover. Card images never scale."
+      },
+      {
+        "name": "dialog-in",
+        "value": "fade-in + zoom-in-95, 200ms",
+        "purpose": "Dialogs opening."
+      },
+      {
+        "name": "theme-swap",
+        "value": "colors 300ms",
+        "purpose": "Body background and text when switching light and night."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "@media (prefers-reduced-motion: reduce)",
+        "purpose": "Sticker tilt is removed."
       }
     ],
     "breakpoints": [
@@ -172,6 +293,10 @@
       {
         "name": "xl",
         "value": "1280px"
+      },
+      {
+        "name": "touch",
+        "value": "(hover: none)"
       }
     ]
   },
@@ -180,104 +305,148 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The one main action in a region. Theme-aware: deep copper with white in light mode, bright copper with ink in dark mode.",
-      "html": "<button class=\"ds-btn-primary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14\"/><path d=\"M12 5v14\"/></svg>Add Box</button>",
-      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; background: #BC4A10; color: #FFFFFF; padding: 8px 16px; border: 0; border-radius: 8px; font: 500 14px/20px Geist, ui-sans-serif, system-ui, sans-serif; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; } .ds-btn-primary:hover { background: #9E3E0E; } .ds-btn-primary:focus-visible { outline: 2px solid #EC6E38; outline-offset: 2px; }"
+      "description": "The one solid raspberry action per region (Add Box, New Deck, Open Pack, Sign In).",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"M12 5v14\"/></svg>Add Box</button>",
+      "css": ".ds-btn-primary { display:inline-flex; align-items:center; gap:8px; padding:8px 16px; background:var(--accent, #C52C7C); color:var(--on-accent, #fff); border:none; border-radius:8px; font:500 0.875rem/1.25rem Geist, ui-sans-serif, system-ui, sans-serif; box-shadow:0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); cursor:pointer; transition:background-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-primary:hover { background:var(--accent-hover, #A71F67); } .ds-btn-primary:focus-visible { outline: 2px solid var(--accent-text, #C52C7C); outline-offset: 2px; }"
     },
     {
-      "name": "Primary Button (dark theme)",
+      "name": "Neutral Button",
       "kind": "button",
-      "refersTo": "button-primary-dark",
-      "description": "The same action on a dark page.",
-      "html": "<div class=\"ds-night\"><button class=\"ds-btn-primary-dark\">Sign in with Google</button></div>",
-      "css": ".ds-night { background: #020617; padding: 16px; border-radius: 12px; } .ds-btn-primary-dark { background: #FA895C; color: #1C0A02; padding: 8px 16px; border: 0; border-radius: 8px; font: 500 14px/20px Geist, ui-sans-serif, system-ui, sans-serif; transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; } .ds-btn-primary-dark:hover { background: #FEB092; } .ds-btn-primary-dark:focus-visible { outline: 2px solid #FA895C; outline-offset: 2px; }"
+      "refersTo": "button-neutral",
+      "description": "Rose-tissue button for link-outs and admin upkeep (EDHREC, Share Link, Edit, Cancel).",
+      "html": "<button class=\"ds-btn-neutral\">Share Link</button>",
+      "css": ".ds-btn-neutral { padding:8px 12px; background:var(--color-paper-100, #FDF0F5); color:var(--color-paper-700, #61394C); border:none; border-radius:8px; font:500 0.875rem/1.25rem Geist, ui-sans-serif, system-ui, sans-serif; cursor:pointer; transition:background-color 150ms; } .ds-btn-neutral:hover { background:var(--color-paper-200, #F6DFE9); } .ds-btn-neutral:focus-visible { outline: 2px solid var(--accent-text, #C52C7C); outline-offset: 2px; }"
     },
     {
       "name": "Tinted Button",
       "kind": "button",
       "refersTo": "button-tinted",
-      "description": "Secondary action that still belongs to the accent, such as QR Code.",
+      "description": "Petal-wash secondary action that still belongs to the ink (QR Code).",
       "html": "<button class=\"ds-btn-tinted\">QR Code</button>",
-      "css": ".ds-btn-tinted { background: #FEF4F1; color: #9E3E0E; border: 1px solid #FEE7DF; padding: 8px 12px; border-radius: 8px; font: 500 14px/20px Geist, ui-sans-serif, system-ui, sans-serif; transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; } .ds-btn-tinted:hover { background: #FEE7DF; } .ds-btn-tinted:focus-visible { outline: 2px solid #EC6E38; outline-offset: 2px; }"
+      "css": ".ds-btn-tinted { padding:8px 12px; background:var(--color-sakura-50, #FEF4F7); color:var(--color-sakura-700, #A71F67); border:1px solid var(--color-sakura-100, #FFE5EE); border-radius:8px; font:500 0.875rem/1.25rem Geist, ui-sans-serif, system-ui, sans-serif; cursor:pointer; transition:background-color 150ms; } .ds-btn-tinted:hover { background:var(--color-sakura-100, #FFE5EE); } .ds-btn-tinted:focus-visible { outline: 2px solid var(--accent-text, #C52C7C); outline-offset: 2px; }"
     },
     {
-      "name": "Neutral Button",
-      "kind": "button",
-      "description": "Links out to other sites: EDHREC, Scryfall, Share Link.",
-      "html": "<button class=\"ds-btn-neutral\">EDHREC</button>",
-      "css": ".ds-btn-neutral { background: #F1F5F9; color: #334155; border: 0; padding: 8px 12px; border-radius: 8px; font: 500 14px/20px Geist, ui-sans-serif, system-ui, sans-serif; transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; } .ds-btn-neutral:hover { background: #E2E8F0; } .ds-btn-neutral:focus-visible { outline: 2px solid #EC6E38; outline-offset: 2px; }"
-    },
-    {
-      "name": "Pod Filter Chips",
+      "name": "Pod Chips",
       "kind": "chip",
       "refersTo": "chip-pod",
-      "description": "Filter decks by pod; the active chip fills with the accent.",
-      "html": "<div class=\"ds-chips\"><button class=\"ds-chip ds-chip-active\" aria-pressed=\"true\">All decks <span>5</span></button><button class=\"ds-chip\" aria-pressed=\"false\">Final Fantasy <span>4</span></button></div>",
-      "css": ".ds-chips { display: flex; gap: 8px; flex-wrap: wrap; } .ds-chip { background: #FFFFFF; color: #334155; border: 1px solid #E2E8F0; border-radius: 9999px; padding: 6px 12px; font: 500 14px/20px Geist, ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-chip span { color: #94A3B8; font-variant-numeric: tabular-nums; } .ds-chip:hover { background: #F8FAFC; } .ds-chip-active, .ds-chip-active:hover { background: #BC4A10; border-color: #BC4A10; color: #FFFFFF; } .ds-chip-active span { color: rgb(255 255 255 / 0.75); } .ds-chip:focus-visible { outline: 2px solid #EC6E38; outline-offset: 2px; }"
+      "description": "Pod filter pills; the active pod drops its fill and is circled in gel pen.",
+      "html": "<div class=\"ds-pods\"><button class=\"ds-chip\" aria-pressed=\"false\">All decks <span class=\"ds-chip-n\">12</span></button><button class=\"ds-chip ds-chip-active\" aria-pressed=\"true\">Pod A <span class=\"ds-chip-n\">4</span></button></div>",
+      "css": ".ds-pods { display:flex; gap:8px; flex-wrap:wrap; padding:8px; } .ds-chip { position:relative; padding:6px 12px; border-radius:9999px; border:1px solid var(--color-paper-200, #F6DFE9); background:#fff; color:var(--color-paper-700, #61394C); font:500 0.875rem/1.25rem Geist, ui-sans-serif, system-ui, sans-serif; cursor:pointer; transition:background-color 150ms, color 150ms; } .ds-chip:hover { background:var(--color-paper-50, #FFF8FB); } .ds-chip:focus-visible { outline: 2px solid var(--accent-text, #C52C7C); outline-offset: 2px; } .ds-chip-n { color:var(--color-paper-500, #8E6578); } .ds-chip-active { background:transparent; border-color:transparent; color:var(--color-sakura-700, #A71F67); } .ds-chip-active .ds-chip-n { color:inherit; opacity:0.75; } .ds-chip-active::after { content:''; position:absolute; inset:-6px -9px; background:var(--accent-text, #C52C7C); pointer-events:none; -webkit-mask:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40' preserveAspectRatio='none'%3E%3Cpath d='M14 31 C 2 22, 8 7, 40 4 S 112 4, 116 17 S 92 37, 56 37 S 9 33, 18 9' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E\") no-repeat center / 100% 100%; mask:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40' preserveAspectRatio='none'%3E%3Cpath d='M14 31 C 2 22, 8 7, 40 4 S 112 4, 116 17 S 92 37, 56 37 S 9 33, 18 9' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E\") no-repeat center / 100% 100%; }"
     },
     {
-      "name": "Panel",
-      "kind": "card",
-      "refersTo": "panel",
-      "description": "The flat container for a section or an index tile.",
-      "html": "<section class=\"ds-panel\"><h3>Pack Contents</h3><dl><dt>Common</dt><dd>× 7</dd><dt>Uncommon</dt><dd>× 3</dd></dl></section>",
-      "css": ".ds-panel { background: #0F172A; color: #F8FAFC; border: 1px solid #1E293B; border-radius: 12px; padding: 20px; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); font-family: Geist, ui-sans-serif, system-ui, sans-serif; } .ds-panel h3 { margin: 0 0 12px; font-size: 18px; font-weight: 700; } .ds-panel dl { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin: 0; font-size: 14px; font-variant-numeric: tabular-nums; } .ds-panel dt { color: #94A3B8; } .ds-panel dd { margin: 0; }"
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Blush-filled field with a hairline plum edge and a sakura focus ring.",
+      "html": "<label class=\"ds-field\"><span>Box Name</span><input class=\"ds-input\" placeholder=\"e.g. Bloomburrow Draft Box\"></label>",
+      "css": ".ds-field { display:flex; flex-direction:column; gap:6px; font:600 0.875rem/1.25rem Geist, ui-sans-serif, system-ui, sans-serif; color:var(--color-paper-700, #61394C); } .ds-input { padding:8px 12px; border:1px solid var(--color-paper-300, #E8C8D6); border-radius:8px; background:var(--color-paper-50, #FFF8FB); color:var(--color-paper-900, #3D1C2D); font:400 1rem/1.5rem Geist, ui-sans-serif, system-ui, sans-serif; } .ds-input:focus { outline:none; box-shadow:0 0 0 2px var(--color-sakura-500, #E9509A); }"
     },
     {
-      "name": "Navigation",
+      "name": "Letterhead",
       "kind": "nav",
-      "description": "Sticky one-row bar; pink Cherry Swash site name, slate links, current page in a slate pill.",
-      "html": "<nav class=\"ds-nav\"><span class=\"ds-brand\">Cardcaptor Stuart</span><a class=\"ds-link ds-link-current\" href=\"#\">Play Box</a><a class=\"ds-link\" href=\"#\">Decks</a></nav>",
-      "css": ".ds-nav { display: flex; align-items: center; gap: 4px; height: 64px; padding: 0 16px; background: rgb(2 6 23 / 0.5); border-bottom: 1px solid #1E293B; font-family: Geist, ui-sans-serif, system-ui, sans-serif; } .ds-brand { color: #F472B6; font-family: 'Cherry Swash', Geist, ui-sans-serif, sans-serif; font-weight: 700; font-size: 20px; margin-right: 20px; } .ds-link { color: #94A3B8; text-decoration: none; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; white-space: nowrap; transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-link:hover { color: #F8FAFC; background: #1E293B; } .ds-link-current { color: #F8FAFC; background: #1E293B; } .ds-link:focus-visible { outline: 2px solid #FA895C; outline-offset: 2px; }"
+      "refersTo": "nav-letterhead",
+      "description": "Sticky paper nav with a scalloped edge, pink Cherry Swash name, gel-pen underline on the current page.",
+      "html": "<nav class=\"ds-letterhead\"><span class=\"ds-brand\">Cardcaptor Stuart</span><a class=\"ds-nav-link\" aria-current=\"page\" href=\"#\">Play Box</a><a class=\"ds-nav-link\" href=\"#\">Decks</a></nav>",
+      "css": ".ds-letterhead { position:relative; display:flex; align-items:center; gap:8px; height:64px; padding:0 16px; background:var(--letterhead, #FFF8FB); } .ds-letterhead::after { content:''; position:absolute; left:0; right:0; top:100%; height:7px; background:radial-gradient(circle at 7px 0, var(--letterhead, #FFF8FB) 6px, transparent 6.5px) repeat-x; background-size:14px 7px; filter:drop-shadow(0 1px 0 #F6DFE9); } .ds-brand { font:700 1.25rem/1.75rem 'Cherry Swash', Geist, ui-sans-serif, sans-serif; color:oklch(52.5% 0.223 3.958); margin-right:16px; } .ds-nav-link { position:relative; padding:8px 12px; border-radius:6px; font:500 0.875rem/1.25rem Geist, ui-sans-serif, system-ui, sans-serif; color:var(--color-paper-600, #774E61); text-decoration:none; transition:background-color 150ms, color 150ms; } .ds-nav-link:hover { background:var(--color-paper-100, #FDF0F5); color:var(--color-paper-900, #3D1C2D); } .ds-nav-link:focus-visible { outline: 2px solid var(--accent-text, #C52C7C); outline-offset: 2px; } .ds-nav-link[aria-current='page'] { color:var(--color-paper-900, #3D1C2D); } .ds-nav-link[aria-current='page']::after { content:''; position:absolute; left:0.6rem; right:0.6rem; bottom:0; height:6px; background:var(--accent-text, #C52C7C); -webkit-mask:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 6'%3E%3Cpath d='M0 3 Q 6 0.5 12 3 T 24 3' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E\") repeat-x left center / 24px 6px; mask:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 6'%3E%3Cpath d='M0 3 Q 6 0.5 12 3 T 24 3' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E\") repeat-x left center / 24px 6px; }"
+    },
+    {
+      "name": "Stickers",
+      "kind": "chip",
+      "refersTo": "sticker-draft",
+      "description": "Die-cut data labels: product type in its fixed hue, and the paid and market price stickers.",
+      "html": "<div class=\"ds-stickers\"><span class=\"ds-sticker ds-st-draft\">Play Booster Box</span><span class=\"ds-sticker ds-st-sky\">Set Booster Box</span><span class=\"ds-sticker ds-st-butter\">Collector Booster Box</span><span class=\"ds-sticker ds-st-peach\">Jumpstart Cube</span><span class=\"ds-sticker ds-st-butter ds-num\">$140.00 paid</span><span class=\"ds-sticker ds-st-market ds-num\">$132.50 market</span></div>",
+      "css": ".ds-stickers { display:flex; flex-wrap:wrap; gap:10px; padding:12px; } .ds-sticker { padding:2px 6px; border-radius:6px; border:2px solid var(--sticker-edge, #fff); font:600 0.75rem/1rem Geist, ui-sans-serif, system-ui, sans-serif; box-shadow:0 1px 1px rgb(66 10 39 / 0.08), 0 2px 5px rgb(66 10 39 / 0.18); transform:rotate(-2deg); } .ds-sticker:nth-child(even) { transform:rotate(2deg); } .ds-num { padding:2px 8px; font-weight:700; font-variant-numeric:tabular-nums; } .ds-st-draft { background:#A7F3D0; color:oklch(26.2% 0.051 172.552); } .ds-st-sky { background:oklch(90.1% 0.058 230.902); color:oklch(29.3% 0.066 243.157); } .ds-st-butter { background:#FCD34D; color:oklch(27.9% 0.077 45.635); } .ds-st-peach { background:oklch(90.1% 0.076 70.697); color:oklch(26.6% 0.079 36.259); } .ds-st-market { background:#fff; color:#3D1C2D; } @media (prefers-reduced-motion: reduce) { .ds-sticker, .ds-sticker:nth-child(even) { transform:none; } }"
+    },
+    {
+      "name": "Washi Heading",
+      "kind": "custom",
+      "refersTo": "headline",
+      "description": "Cherry Swash title on striped washi tape; section headings ride a tilted tape block with a raspberry icon.",
+      "html": "<div class=\"ds-washi-demo\"><h1 class=\"ds-h1\"><span class=\"ds-washi\">Play Box</span></h1><h2 class=\"ds-h2\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z\"/><path d=\"M12 22V12\"/><path d=\"m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7\"/></svg>Pack Contents</h2></div>",
+      "css": ".ds-washi-demo { display:flex; flex-direction:column; gap:20px; padding:16px; } .ds-h1 { margin:0; font:700 1.875rem/2.25rem 'Cherry Swash', Geist, ui-sans-serif, sans-serif; color:var(--color-paper-900, #3D1C2D); } .ds-washi { background:repeating-linear-gradient(-45deg, var(--tape-a, rgb(254 170 204 / 0.55)) 0 7px, var(--tape-b, rgb(254 204 223 / 0.55)) 7px 14px); padding:0 0.3em; margin:0 -0.3em; -webkit-box-decoration-break:clone; box-decoration-break:clone; } .ds-h2 { position:relative; isolation:isolate; width:fit-content; margin:0; display:flex; align-items:center; gap:8px; font:700 1.25rem/1.75rem 'Cherry Swash', Geist, ui-sans-serif, sans-serif; color:var(--color-paper-900, #3D1C2D); } .ds-h2 svg { color:var(--accent-text, #C52C7C); } .ds-h2::before { content:''; position:absolute; inset:0.15em -0.3em -0.05em -0.3em; z-index:-1; background:repeating-linear-gradient(-45deg, var(--tape-a, rgb(254 170 204 / 0.55)) 0 7px, var(--tape-b, rgb(254 204 223 / 0.55)) 7px 14px); transform:rotate(-1deg); }"
+    },
+    {
+      "name": "Box Sheet",
+      "kind": "card",
+      "refersTo": "letter-sheet",
+      "description": "White letter sheet for a play box: name, type sticker, packs-left bar, deadpan per-person costs.",
+      "html": "<article class=\"ds-sheet\"><h3 class=\"ds-sheet-title\">Avatar</h3><span class=\"ds-sheet-sticker\">Draft Environment</span><div class=\"ds-inv\"><span>Inventory</span><span>30 / 30</span></div><div class=\"ds-bar\"><div class=\"ds-bar-fill\"></div></div><dl class=\"ds-costs\"><div><dt>Draft / person</dt><dd><b>$14.00</b> paid</dd></div><div><dt>Sealed / person</dt><dd><b>$28.00</b> paid</dd></div></dl></article>",
+      "css": ".ds-sheet { max-width:340px; padding:20px; background:#fff; border:1px solid var(--color-paper-200, #F6DFE9); border-radius:12px; box-shadow:0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); font-family:Geist, ui-sans-serif, system-ui, sans-serif; color:var(--color-paper-900, #3D1C2D); transition:box-shadow 150ms, border-color 150ms; } .ds-sheet:hover { box-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); border-color:var(--color-paper-300, #E8C8D6); } .ds-sheet-title { margin:0 0 6px; font:700 1.125rem/1.25 Geist, ui-sans-serif, sans-serif; } .ds-sheet:hover .ds-sheet-title { color:var(--accent-text, #C52C7C); } .ds-sheet-sticker { display:inline-block; padding:2px 6px; border-radius:6px; border:2px solid #fff; background:#A7F3D0; color:oklch(26.2% 0.051 172.552); font:600 0.75rem/1rem Geist, sans-serif; box-shadow:0 1px 1px rgb(66 10 39 / 0.08), 0 2px 5px rgb(66 10 39 / 0.18); transform:rotate(-2deg); } .ds-inv { display:flex; justify-content:space-between; margin:16px 0 6px; font:500 0.75rem/1rem Geist, sans-serif; color:var(--color-paper-600, #774E61); } .ds-bar { height:8px; border-radius:9999px; background:var(--color-paper-100, #FDF0F5); } .ds-bar-fill { width:100%; height:8px; border-radius:9999px; background:oklch(84.5% 0.143 164.978); } .ds-costs { display:grid; grid-template-columns:1fr 1fr; margin:16px 0 0; padding-top:12px; border-top:1px solid var(--color-paper-100, #FDF0F5); font-size:0.75rem; font-variant-numeric:tabular-nums; } .ds-costs > div + div { padding-left:12px; border-left:1px solid var(--color-paper-100, #FDF0F5); } .ds-costs dt { color:var(--color-paper-500, #8E6578); } .ds-costs dd { margin:2px 0 0; color:var(--color-paper-500, #8E6578); } .ds-costs b { color:var(--color-paper-900, #3D1C2D); }"
+    },
+    {
+      "name": "Floating Preview",
+      "kind": "custom",
+      "refersTo": "floating-preview",
+      "description": "Plum panel over the page with the card's text and 17Lands stat line; the sparkle sits only beside an earned win rate.",
+      "html": "<div class=\"ds-preview\"><div class=\"ds-preview-card\"></div><div class=\"ds-preview-body\"><h4>Example Bomb</h4><p class=\"ds-preview-meta\">Creature, Dragon · mythic</p><p class=\"ds-preview-text\">Flying. When this enters, draw a card.</p><p class=\"ds-preview-stat\"><svg viewBox=\"0 0 16 16\" width=\"14\" height=\"14\" aria-hidden=\"true\" style=\"display:inline-block;vertical-align:middle;margin-right:4px\"><path d=\"M8 0.5 C8.6 5 11 7.4 15.5 8 C11 8.6 8.6 11 8 15.5 C7.4 11 5 8.6 0.5 8 C5 7.4 7.4 5 8 0.5 Z\" fill=\"#FCD34D\" stroke=\"#B45309\" stroke-width=\"0.6\" stroke-linejoin=\"round\"/></svg>GIH WR 61.2% · IWD +6.4pp · ATA 1.8<span> · 12,480 games</span></p></div></div>",
+      "css": ".ds-preview { display:flex; gap:16px; max-width:28rem; padding:16px; border-radius:12px; background:#3D1C2D; color:#FFF8FB; box-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25), 0 0 0 1px rgb(255 255 255 / 0.1); font-family:Geist, ui-sans-serif, system-ui, sans-serif; } .ds-preview-card { width:112px; flex-shrink:0; aspect-ratio:488/680; border-radius:4.5% / 3.2%; background:#4E293B; } .ds-preview-body h4 { margin:0; font:600 0.875rem/1.375 Geist, sans-serif; } .ds-preview-meta { margin:8px 0 0; font-size:0.75rem; color:#BA91A3; } .ds-preview-text { margin:8px 0 0; padding-top:8px; border-top:1px solid rgb(255 255 255 / 0.1); font-size:0.75rem; line-height:1.625; color:#F6DFE9; } .ds-preview-stat { margin:8px 0 0; font:600 0.75rem/1rem Geist, sans-serif; font-variant-numeric:tabular-nums; color:#FDF0F5; } .ds-preview-stat span { font-weight:400; color:#BA91A3; }"
     }
   ],
   "narrative": {
-    "northStar": "The Draft Table",
-    "overview": "The site is the table a draft happens at. It is focused and tactical: information is dense and stats come first, and every screen is built for deciding quickly what to play and how to play it. The cards are the loudest thing on any page. The interface around them is slate, quiet and exact, so card art, mana symbols and rarity marks carry the color.\n\nDark is the default theme (players at a table in the evening), and light mode is fully supported. Laptop and phone are equal: grids reflow and previews reposition, but nothing is cut or squashed at either size.\n\nOne accent, Mythic Copper, marks what you can act on: buttons, links, active filters and focus. Its meaning is borrowed from the game, where the mythic rarity symbol is the top pull in a pack.",
+    "northStar": "Letter-Set Stationery",
+    "overview": "Brutally serious draft math written on the cutest letter paper money can buy. The page is a 90s fancy-stationery set: blush letter paper with a faint dot grid, white letter sheets for every box and deck, raspberry ink for anything you can act on, washi tape behind headings, die-cut stickers for labels, a gel pen that underlines the page you are on and circles the pod you picked. The numbers on that paper stay deadpan: win rates, per-person costs, brackets and pack counts are set in plain Geist with tabular figures, at the same size and weight they would have on a spreadsheet. The paper does the gushing; the stats never do. The joke is the contrast, and nothing gets harder to read because of it.\n\nLight is the default theme because the world is a sheet of stationery. Night is the same set printed on plum paper: plum ground, plum letter sheets, sakura pink ink in place of raspberry, deeper tape. Laptop and phone are equal; grids reflow, the preview repositions, and nothing is cut at either size.\n\nThis world replaced the earlier slate \"Draft Table\" system. Copper, slate neutrals and the dark-first default no longer exist anywhere in the code.",
     "keyCharacteristics": [
-      "Slate neutrals and a single copper accent. Color meaning otherwise comes from Magic itself: mana, rarity, tier.",
-      "Card images keep their true 488:680 shape and corner radius everywhere.",
-      "Flat panels with hairline borders; real elevation only for things floating over content.",
-      "Stats shown as numbers, in tabular figures, next to the cards they describe."
+      "Blush dot-grid paper ground, white letter sheets, plum ink; every neutral is tinted pink-plum, never gray.",
+      "One action color, sakura (raspberry by day, sakura pink by night). It never carries data or status.",
+      "Stationery marks carry state and labels: washi tape on headings, die-cut stickers for types and prices, gel-pen underline and circle for \"you are here\".",
+      "Stats are plain Geist, tabular, deadpan. A butter sparkle appears only beside a number that earns it.",
+      "Cards are the content: true 488:680 shape and corner, never cropped."
     ],
     "rules": [
       {
-        "name": "The One Accent Rule",
-        "body": "Copper means \"you can act on this\". Never use it for status, data, decoration or the brand.",
+        "name": "The One Ink Rule",
+        "body": "Sakura is the action color and nothing else: buttons, links, focus, the current page, the active pod, heading icons. It never labels data, a product type, a bracket or a status. Status uses emerald (success, shared view) and red (errors).",
         "section": "colors"
       },
       {
-        "name": "The Game Owns Color Rule",
-        "body": "Any other color on screen must mean something in Magic: a mana color, a rarity, a tier, a product type. If it means nothing, it is slate.",
+        "name": "The Tinted Paper Rule",
+        "body": "Every neutral is a step of the plum-tinted paper scale. No slate, no pure gray, no black text.",
         "section": "colors"
       },
       {
-        "name": "The No Neon Rule",
-        "body": "No cyan, violet or purple ink on dark surfaces, and no gradient text. (The logo is the exception: Stuart chose on 2026-11-24 to keep its pink Cardcaptor-style card artwork on a violet tile. It is brand art, not interface color, so it stays as drawn.)",
+        "name": "The Sticker Box Rule",
+        "body": "Product types have fixed sticker colors so a box looks the same every time: Draft mint, Set Booster sky, Collector butter, Cube and Jumpstart peach. Sakura is never one of them.",
         "section": "colors"
       },
       {
-        "name": "The Tabular Stats Rule",
-        "body": "Win rates, counts, prices and odds use tabular figures so columns line up.",
+        "name": "The Deadpan Numbers Rule",
+        "body": "Win rates, prices, per-person costs, counts and odds are plain Geist with tabular figures. They rank by weight and case at one body size, never by a display face, a color or a size jump.",
         "section": "typography"
       },
       {
+        "name": "The Swash Is Paper Rule",
+        "body": "Cherry Swash appears only on the site name, page titles and section headings. Never on a number, a button or body text.",
+        "section": "typography"
+      },
+      {
+        "name": "The Plum Shadow Rule",
+        "body": "Stationery shadows are tinted plum (rgb(66 10 39)), never black, and stay small and soft: an object pressed onto paper, not a card hovering in space.",
+        "section": "elevation"
+      },
+      {
         "name": "The Float Only Rule",
-        "body": "A shadow larger than `shadow-sm` means the element sits above the page (preview, dialog, sticky bar). Hover may raise a panel to `shadow-md`, never further.",
+        "body": "A shadow larger than the hover lift means the element is above the page (preview, dialog, toast). Letter sheets never go further than the hover lift.",
         "section": "elevation"
       }
     ],
     "dos": [
-      "Do route every solid accent surface through `bg-accent` / `text-on-accent` so light and dark both pass contrast.",
-      "Do keep card images at `aspect-[488/680]` with the card corner radius, in fluid `minmax()` grids.",
-      "Do show stats as numbers with tabular figures, next to the card they describe.",
-      "Do clamp every floating element to the viewport at 390px, 1024px and 1440px."
+      "Do route every solid action surface through the accent, accent-hover and on-accent tokens: white on Raspberry Ink is 5.2:1 by day, Plum Night on Sakura Pink is 6.95:1 at night.",
+      "Do put page titles in Cherry Swash on washi tape, and section headings in Cherry Swash on a tilted washi block with a raspberry icon.",
+      "Do mark \"you are here\" with the gel pen: the wavy underline for the current page, the hand-drawn circle for the active pod.",
+      "Do use stickers for data labels (type, format, tier, bracket, price), in their own hue, never sakura.",
+      "Do keep card images at 488:680 with the card's own corner (4.5% by 3.2%) in fluid auto-fill grids.",
+      "Do clamp every floating element to the viewport at 390px, 1024px and 1440px.",
+      "Do give touch screens an inline version of anything that is hover-only on laptops.",
+      "Do keep secondary text at Muted Ink or darker on white and blush (4.9:1), and Muted Night or lighter on plum (5.47:1)."
     ],
     "donts": [
-      "Don't use copper for status, data, decoration or the brand (The One Accent Rule).",
-      "Don't add cyan, violet or purple ink on dark, gradient text, or colored glow shadows.",
+      "Don't use sakura for data, status, product types, brackets or decoration (The One Ink Rule).",
+      "Don't put a sparkle anywhere except beside a number that earns it (58% or more win rate). No decorative stars, hearts or glitter in the interface (the logo's gold star is brand art).",
+      "Don't dress up a stat: no Cherry Swash, color or size jump on win rates and costs; plain Geist, tabular. The two price stickers are the only stickers that hold a figure, and their figures stay Geist tabular.",
+      "Don't use slate, pure gray or black; every neutral comes from the plum-tinted paper scale.",
+      "Don't use black shadows on stickers or photos; stationery shadows are plum-tinted and small.",
       "Don't crop or rescale card art to fit a box; change the box.",
-      "Don't put an eyebrow label above a heading or a one-sided bar on a rounded panel.",
+      "Don't recolor the logo artwork or move the site name off Logo Pink and Cherry Swash.",
       "Don't invent ratings, prices or stats; show nothing until real data exists."
     ]
   }

@@ -39,17 +39,17 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${brandFont.variable} h-full antialiased`}
     >
-      <body suppressHydrationWarning className="min-h-screen flex flex-col w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 transition-colors duration-300">
+      <body suppressHydrationWarning className="min-h-screen flex flex-col w-full bg-paper-50 dark:bg-paper-950 text-paper-900 dark:text-paper-50 transition-colors duration-300">
         <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="dark">
+          <ThemeProvider attribute="class" defaultTheme="light">
             <Navigation />
             {children}
-            <footer className="mt-auto border-t border-slate-200 dark:border-slate-800 px-4 md:px-8 py-6 text-xs text-slate-500 dark:text-slate-400">
+            <footer className="mt-auto border-t border-paper-200 dark:border-paper-800 px-4 md:px-8 py-6 text-xs text-paper-500 dark:text-paper-400">
               <div className="max-w-7xl mx-auto flex flex-col sm:flex-row gap-2 sm:items-center justify-between">
                 <p>Cardcaptor Stuart is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.</p>
                 <nav className="flex gap-4 shrink-0">
-                  <Link href="/privacy" className="hover:text-copper-700 underline-offset-2 hover:underline">Privacy Policy</Link>
-                  <Link href="/terms" className="hover:text-copper-700 underline-offset-2 hover:underline">Terms of Service</Link>
+                  <Link href="/privacy" className="hover:text-sakura-700 underline-offset-2 hover:underline">Privacy Policy</Link>
+                  <Link href="/terms" className="hover:text-sakura-700 underline-offset-2 hover:underline">Terms of Service</Link>
                 </nav>
               </div>
             </footer>

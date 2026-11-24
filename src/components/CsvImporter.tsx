@@ -169,17 +169,17 @@ export default function CsvImporter() {
   };
 
   return (
-    <div className="w-full mx-auto p-4 md:p-6 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
-      <div className="flex flex-col items-center justify-center p-8 md:p-12 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer relative">
+    <div className="w-full mx-auto p-4 md:p-6 bg-white dark:bg-paper-900 rounded-xl shadow-sm border border-paper-200 dark:border-paper-800 transition-colors">
+      <div className="flex flex-col items-center justify-center p-8 md:p-12 border-2 border-dashed border-paper-300 dark:border-paper-700 rounded-lg bg-paper-50 dark:bg-paper-900 hover:bg-paper-100 dark:hover:bg-paper-800 transition-colors cursor-pointer relative">
         <input 
           type="file" 
           accept=".csv" 
           onChange={handleFileUpload}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
-        <Upload className="w-12 h-12 text-slate-400 dark:text-slate-500 mb-4" />
-        <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200">Upload Collection CSV</h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 text-center">Drag and drop or click to browse</p>
+        <Upload className="w-12 h-12 text-paper-500 dark:text-paper-400 mb-4" />
+        <h3 className="text-lg font-semibold text-paper-700 dark:text-paper-200">Upload Collection CSV</h3>
+        <p className="text-sm text-paper-500 dark:text-paper-400 mt-2 text-center">Drag and drop or click to browse</p>
       </div>
 
       {error && (
@@ -193,14 +193,14 @@ export default function CsvImporter() {
         <div className="mt-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
             <div className="flex items-center gap-2">
-              <FileSpreadsheet className="w-5 h-5 text-copper-600 dark:text-copper-400" />
-              <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Parsed Collection ({data.length} cards)</h3>
+              <FileSpreadsheet className="w-5 h-5 text-sakura-600 dark:text-sakura-400" />
+              <h3 className="text-lg font-semibold text-paper-800 dark:text-paper-100">Parsed Collection ({data.length} cards)</h3>
             </div>
             
             <div className="flex flex-col sm:flex-row items-center gap-4">
               {isFetchingScryfall && (
-                <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-full">
-                  <div className="w-4 h-4 rounded-full border-2 border-copper-600 dark:border-copper-400 border-t-transparent animate-spin"></div>
+                <div className="text-sm text-paper-500 dark:text-paper-400 flex items-center gap-2 bg-paper-50 dark:bg-paper-800 px-3 py-1.5 rounded-full">
+                  <div className="w-4 h-4 rounded-full border-2 border-sakura-600 dark:border-sakura-400 border-t-transparent animate-spin"></div>
                   Fetching Scryfall Data... ({scryfallProgress.current} / {scryfallProgress.total})
                 </div>
               )}
@@ -209,7 +209,7 @@ export default function CsvImporter() {
                 <button
                   onClick={handleSaveToFirestore}
                   disabled={isSaving || saveSuccess}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-slate-400 dark:disabled:bg-slate-700 rounded-lg transition-colors shadow-sm w-full sm:w-auto justify-center"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-on-accent bg-accent hover:bg-accent-hover disabled:opacity-50 rounded-lg transition-colors shadow-sm w-full sm:w-auto justify-center"
                 >
                   <Save className="w-4 h-4" />
                   {isSaving ? "Saving..." : saveSuccess ? "Saved Successfully!" : "Save to Collection"}
@@ -219,39 +219,39 @@ export default function CsvImporter() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {data.map((card, idx) => (
-              <div key={idx} className="flex gap-4 p-4 rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm hover:shadow-md transition-shadow">
+              <div key={idx} className="flex gap-4 p-4 rounded-lg border border-paper-100 dark:border-paper-800 bg-white dark:bg-paper-950 shadow-sm hover:shadow-md transition-shadow">
                 <div className="shrink-0">
                   {card.scryfallImage ? (
                     <img src={card.scryfallImage} alt={card["Card Name"]} className="w-16 h-24 object-cover rounded-md shadow-sm" />
                   ) : (
-                    <div className="w-16 h-24 bg-slate-200 dark:bg-slate-800 rounded-md animate-pulse"></div>
+                    <div className="w-16 h-24 bg-paper-200 dark:bg-paper-800 rounded-md animate-pulse"></div>
                   )}
                 </div>
                 <div className="flex flex-col flex-1 justify-between min-w-0">
                   <div>
-                    <h4 className="font-semibold text-slate-900 dark:text-slate-100 truncate">{card["Card Name"]}</h4>
-                    {card.scryfallType && <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{card.scryfallType}</p>}
+                    <h4 className="font-semibold text-paper-900 dark:text-paper-100 truncate">{card["Card Name"]}</h4>
+                    {card.scryfallType && <p className="text-xs text-paper-500 dark:text-paper-400 truncate">{card.scryfallType}</p>}
                   </div>
                   
                   <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 mt-3 text-sm">
                     <div>
-                      <span className="text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 block leading-none mb-0.5">Set</span>
-                      <span className="font-medium text-slate-700 dark:text-slate-300 uppercase">{card["Set Code"]}</span>
+                      <span className="text-xs uppercase font-semibold text-paper-500 dark:text-paper-400 block leading-none mb-0.5">Set</span>
+                      <span className="font-medium text-paper-700 dark:text-paper-300 uppercase">{card["Set Code"]}</span>
                       {card.Foil && card.Foil.toLowerCase() === 'true' && (
                         <span className="ml-1.5 text-xs leading-none bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 px-1 py-0.5 rounded font-bold">FOIL</span>
                       )}
                     </div>
                     <div>
-                      <span className="text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 block leading-none mb-0.5">Qty</span>
-                      <span className="font-medium text-slate-700 dark:text-slate-300">{card.Quantity}</span>
+                      <span className="text-xs uppercase font-semibold text-paper-500 dark:text-paper-400 block leading-none mb-0.5">Qty</span>
+                      <span className="font-medium text-paper-700 dark:text-paper-300">{card.Quantity}</span>
                     </div>
                     <div>
-                      <span className="text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 block leading-none mb-0.5">Paid</span>
-                      <span className="font-medium text-slate-700 dark:text-slate-300">{card["Purchase Price"] || '--'}</span>
+                      <span className="text-xs uppercase font-semibold text-paper-500 dark:text-paper-400 block leading-none mb-0.5">Paid</span>
+                      <span className="font-medium text-paper-700 dark:text-paper-300">{card["Purchase Price"] || '--'}</span>
                     </div>
                     <div>
-                      <span className="text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 block leading-none mb-0.5">TCGPlayer Market</span>
-                      <span className="font-semibold text-slate-900 dark:text-slate-100 tabular-nums">{card.scryfallPrice || '--'}</span>
+                      <span className="text-xs uppercase font-semibold text-paper-500 dark:text-paper-400 block leading-none mb-0.5">TCGPlayer Market</span>
+                      <span className="font-semibold text-paper-900 dark:text-paper-100 tabular-nums">{card.scryfallPrice || '--'}</span>
                     </div>
                   </div>
                 </div>

@@ -8,6 +8,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { isAdminUser } from "@/lib/admin";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ManaIcon } from "@/components/ManaIcon";
+import { Sparkle } from "@/components/Sparkle";
 import { ArrowLeft, Package, Loader2, AlertCircle, BookOpen, Map as MapIcon, Star, Zap, Share2, Check, Settings, X, Image as ImageIcon } from "lucide-react";
 
 const COLOR_NAME_TO_SYMBOL: Record<string, string> = { White: 'W', Blue: 'U', Black: 'B', Red: 'R', Green: 'G' };
@@ -20,10 +21,10 @@ const CARD_RADIUS = "rounded-[4.5%/3.2%]";
 const rarityBadge = (rarity?: string) => {
   const r = (rarity || '').toLowerCase();
   const base = "absolute bottom-1 left-1 text-xs leading-none font-bold px-1 py-0.5 rounded shadow-sm";
-  if (r === 'mythic') return <span className={`${base} bg-orange-500 text-slate-950`}>M</span>;
-  if (r === 'rare') return <span className={`${base} bg-amber-400 text-slate-900`}>R</span>;
-  if (r === 'uncommon') return <span className={`${base} bg-slate-300 text-slate-900`}>U</span>;
-  return <span className={`${base} bg-slate-600 text-white`}>C</span>;
+  if (r === 'mythic') return <span className={`${base} bg-orange-500 text-paper-950`}>M</span>;
+  if (r === 'rare') return <span className={`${base} bg-amber-400 text-paper-900`}>R</span>;
+  if (r === 'uncommon') return <span className={`${base} bg-paper-300 text-paper-900`}>U</span>;
+  return <span className={`${base} bg-paper-600 text-white`}>C</span>;
 };
 
 /**
@@ -391,7 +392,7 @@ export default function PlayboxDetailsPage() {
     const t = setTimeout(() => setPackToast(null), packToast.error ? 6000 : 8000);
     return () => clearTimeout(t);
   }, [packToast]);
-  const [editFormData, setEditFormData] = useState({ name: '', setCode: '', cost: '', imageUrl: '' });
+  const [editFormData, setEditFormData] = useState({ name: '', setCode: '', cost: '', marketPrice: '', imageUrl: '' });
   const [autoHeroImage, setAutoHeroImage] = useState<string | null>(null);
 
   const calculateMarketValue = () => {
@@ -453,7 +454,7 @@ export default function PlayboxDetailsPage() {
 
       if (localFallback) {
         setBox({ id, ...localFallback, cost: 0, packsOpen: 0, totalPacks: localFallback.total, inventory: [] });
-        setEditFormData({ name: localFallback.name, setCode: localFallback.setCode, cost: '0', imageUrl: '' });
+        setEditFormData({ name: localFallback.name, setCode: localFallback.setCode, cost: '0', marketPrice: '', imageUrl: '' });
       }
 
       if (db) {
@@ -463,7 +464,7 @@ export default function PlayboxDetailsPage() {
             const matched = { id: snap.id, ...snap.data() } as any;
             foundBox = matched;
             setBox(matched);
-            setEditFormData({ name: matched.name, setCode: matched.setCode || matched.set || '', cost: matched.cost?.toString() || '0', imageUrl: matched.imageUrl || '' });
+            setEditFormData({ name: matched.name, setCode: matched.setCode || matched.set || '', cost: matched.cost?.toString() || '0', marketPrice: matched.marketPrice?.toString() || '', imageUrl: matched.imageUrl || '' });
           }
         } catch {
           // Firestore unavailable — keep local fallback already set above
@@ -639,10 +640,10 @@ export default function PlayboxDetailsPage() {
     switch (c) {
       case 'White': return 'text-amber-600 dark:text-amber-500';
       case 'Blue': return 'text-blue-600 dark:text-blue-500';
-      case 'Black': return 'text-slate-700 dark:text-slate-400';
+      case 'Black': return 'text-paper-700 dark:text-paper-400';
       case 'Red': return 'text-red-600 dark:text-red-500';
       case 'Green': return 'text-green-600 dark:text-green-500';
-      default: return 'text-slate-500';
+      default: return 'text-paper-500';
     }
   };
 
@@ -651,9 +652,9 @@ export default function PlayboxDetailsPage() {
       case 'S': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 border-amber-200 dark:border-amber-800';
       case 'A': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800';
       case 'B': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 border-blue-200 dark:border-blue-800';
-      case 'C': return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700';
+      case 'C': return 'bg-paper-100 text-paper-700 dark:bg-paper-800 dark:text-paper-300 border-paper-200 dark:border-paper-700';
       case 'D': return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 border-red-200 dark:border-red-800';
-      default: return 'bg-slate-100 text-slate-700 border-slate-200';
+      default: return 'bg-paper-100 text-paper-700 border-paper-200';
     }
   }
 
@@ -875,7 +876,7 @@ export default function PlayboxDetailsPage() {
       target="_blank"
       rel="noopener noreferrer"
       data-preview-anchor
-      className="group flex flex-col gap-1.5 min-w-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-copper-500"
+      className="group flex flex-col gap-1.5 min-w-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sakura-500"
       onMouseEnter={e => { if (!touchRef.current) setPreview({ kind: 'card', card, anchor: e.currentTarget.getBoundingClientRect(), interactive: false }); }}
       onMouseLeave={hidePreview}
       onFocus={e => setPreview({ kind: 'card', card, anchor: e.currentTarget.getBoundingClientRect(), interactive: touchRef.current })}
@@ -886,13 +887,13 @@ export default function PlayboxDetailsPage() {
         setPreview({ kind: 'card', card, anchor: e.currentTarget.getBoundingClientRect(), interactive: true });
       }}
     >
-      <div className={`relative ${CARD_ASPECT} w-full ${CARD_RADIUS} overflow-hidden bg-slate-200 dark:bg-slate-800 shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10 transition-shadow duration-150 group-hover:ring-2 group-hover:ring-copper-500 group-hover:shadow-md`}>
+      <div className={`relative ${CARD_ASPECT} w-full ${CARD_RADIUS} overflow-hidden bg-paper-200 dark:bg-paper-800 shadow-sm ring-1 ring-paper-900/10 dark:ring-white/10 transition-shadow duration-150 group-hover:ring-2 group-hover:ring-sakura-500 group-hover:shadow-md`}>
         <img src={getImageUrl(card)} alt={card.name} loading="lazy" className="w-full h-full object-cover" />
         {rarityBadge(card.rarity)}
       </div>
       <div className="min-w-0 px-0.5">
-        <p className="text-xs font-medium leading-snug text-slate-800 dark:text-slate-200 truncate">{card.name}</p>
-        {caption && <p className="text-xs leading-snug text-slate-500 dark:text-slate-400 truncate">{caption}</p>}
+        <p className="text-xs font-medium leading-snug text-paper-800 dark:text-paper-200 truncate">{card.name}</p>
+        {caption && <p className="text-xs leading-snug text-paper-500 dark:text-paper-400 truncate">{caption}</p>}
       </div>
     </a>
   );
@@ -936,7 +937,7 @@ export default function PlayboxDetailsPage() {
 
   const handleSaveEdit = async () => {
     if (!box) return;
-    const updatedBox = { ...box, name: editFormData.name, setCode: editFormData.setCode, cost: parseFloat(editFormData.cost) || 0, imageUrl: editFormData.imageUrl };
+    const updatedBox = { ...box, name: editFormData.name, setCode: editFormData.setCode, cost: parseFloat(editFormData.cost) || 0, marketPrice: editFormData.marketPrice.trim(), imageUrl: editFormData.imageUrl };
     setBox(updatedBox);
     setBoxInfo({ ...boxInfo, name: editFormData.name, setCode: editFormData.setCode, imageUrl: editFormData.imageUrl });
 
@@ -956,41 +957,40 @@ export default function PlayboxDetailsPage() {
     <main className="flex-1 bg-transparent p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {!isSharedMode && (
-          <Link href="/play-box" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-copper-600 dark:hover:text-copper-400 mb-6 transition-colors">
+          <Link href="/play-box" className="inline-flex items-center gap-2 text-sm text-paper-500 dark:text-paper-400 hover:text-sakura-600 dark:hover:text-sakura-400 mb-6 transition-colors">
             <ArrowLeft className="w-4 h-4" />
-            Back to Inventory
+            Back to Play Box
           </Link>
         )}
         
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 bg-white dark:bg-paper-900 p-6 rounded-2xl border border-paper-200 dark:border-paper-800 shadow-sm relative overflow-hidden">
           
-          {/* Hero Banner Overlay */}
-          {(boxInfo.imageUrl || autoHeroImage) && (
-            <div className="absolute inset-0 z-0">
-              <img src={(boxInfo.imageUrl || autoHeroImage) as string} alt="Banner" className="w-full h-full object-cover opacity-20 dark:opacity-40" />
-              <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-transparent dark:from-slate-900/95 dark:via-slate-900/80 dark:to-transparent"></div>
-            </div>
-          )}
 
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-2">
-              <Package className="w-8 h-8 text-copper-600 dark:text-copper-400" />
-              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">
-                {boxInfo.name}
+              <Package className="w-8 h-8 text-sakura-600 dark:text-sakura-400" />
+              <h1 className="text-3xl md:text-4xl font-brand font-bold text-paper-900 dark:text-paper-50">
+                <span className="washi">{boxInfo.name}</span>
               </h1>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap gap-x-2 gap-y-1 items-center">
-              <span className="bg-copper-100 dark:bg-copper-900/30 text-copper-700 dark:text-copper-300 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider">
+            <p className="text-paper-500 dark:text-paper-400 mt-1 flex flex-wrap gap-x-2 gap-y-1 items-center">
+              <span className="sticker bg-mint text-emerald-950 px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider">
                 Draft Box
               </span>
               • Set: {boxInfo.setCode} • {boxInfo.remaining} / {boxInfo.total} Packs Remaining
             </p>
           </div>
-          <div className="relative z-10 flex flex-wrap gap-2 sm:gap-3">
+          <div className="relative z-10 flex flex-wrap items-center gap-4 md:gap-6">
+          {(boxInfo.imageUrl || autoHeroImage) && (
+            // The set's art, shown whole as a photo taped into the letter (no fading wash)
+            // eslint-disable-next-line @next/next/no-img-element
+            <span className="taped-photo hidden sm:block shrink-0 w-32 lg:w-40"><img src={(boxInfo.imageUrl || autoHeroImage) as string} alt="" className="block w-full aspect-[626/457] object-cover" /></span>
+          )}
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             {!isSharedMode && (
               <button 
                 onClick={handleShare}
-                className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors font-semibold shadow-sm"
+                className="flex items-center gap-2 px-4 py-2.5 bg-paper-100 text-paper-700 dark:bg-paper-800 dark:text-paper-300 rounded-lg hover:bg-paper-200 dark:hover:bg-paper-700 transition-colors font-semibold shadow-sm"
               >
                 {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Share2 className="w-4 h-4" />} 
                 {copied ? "Copied Link!" : "Share Link"}
@@ -999,7 +999,7 @@ export default function PlayboxDetailsPage() {
             {!isSharedMode && isAdmin && (
               <button 
                 onClick={() => setIsEditModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors font-semibold shadow-sm"
+                className="flex items-center gap-2 px-4 py-2.5 bg-paper-100 text-paper-700 dark:bg-paper-800 dark:text-paper-300 rounded-lg hover:bg-paper-200 dark:hover:bg-paper-700 transition-colors font-semibold shadow-sm"
               >
                 <Settings className="w-4 h-4" /> Edit
               </button>
@@ -1021,11 +1021,12 @@ export default function PlayboxDetailsPage() {
               </span>
             )}
           </div>
+          </div>
         </div>
 
         {packToast && (
           <div role="status" aria-live="polite"
-            className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[120] flex items-center gap-4 px-5 py-3 rounded-xl shadow-xl text-sm font-medium ${packToast.error ? "bg-red-600 text-white" : "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"}`}>
+            className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[120] flex items-center gap-4 px-5 py-3 rounded-xl shadow-xl text-sm font-medium ${packToast.error ? "bg-red-600 text-white" : "bg-paper-900 text-white dark:bg-paper-100 dark:text-paper-900"}`}>
             <span>{packToast.text}</span>
             {packToast.undo && (
               <button type="button" onClick={() => changePacks(packToast.undo!)} disabled={isSavingPack}
@@ -1053,27 +1054,27 @@ export default function PlayboxDetailsPage() {
           return (
             <section className={`grid gap-6 items-start mb-12 ${packContents && showMechanics ? 'lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]' : ''}`}>
               {packContents && (
-                <div className="bg-white dark:bg-slate-900 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                  <h2 className="font-bold text-lg text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <Package className="w-5 h-5 text-amber-500" /> Pack Contents
+                <div className="bg-white dark:bg-paper-900 p-5 md:p-6 rounded-2xl border border-paper-200 dark:border-paper-800 shadow-sm">
+                  <h2 className="font-brand font-bold text-lg text-paper-900 dark:text-paper-100 washi-block flex items-center gap-2">
+                    <Package className="w-5 h-5 text-sakura-600 dark:text-sakura-400" /> Pack Contents
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-3 capitalize">
+                  <p className="text-xs text-paper-500 dark:text-paper-400 mt-0.5 mb-3 capitalize">
                     {packContents.booster} booster · {formatCount(packContents.cardsPerPack)} cards
                   </p>
-                  <ul className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                  <ul className="divide-y divide-paper-100 dark:divide-paper-800 text-sm">
                     {packContents.slots.map(sl => (
                       <li key={sl.sheet} className="flex items-baseline justify-between gap-3 py-1.5">
-                        <span className="text-slate-700 dark:text-slate-300 min-w-0">
+                        <span className="text-paper-700 dark:text-paper-300 min-w-0">
                           {sl.label}
-                          <span className="text-xs text-slate-500 dark:text-slate-400"> · {sl.cards} cards{sl.sheets ? ` across ${sl.sheets} sheets` : ''}</span>
+                          <span className="text-xs text-paper-500 dark:text-paper-400"> · {sl.cards} cards{sl.sheets ? ` across ${sl.sheets} sheets` : ''}</span>
                         </span>
-                        <span className="text-right font-medium tabular-nums text-slate-900 dark:text-slate-100 whitespace-nowrap">
+                        <span className="text-right font-medium tabular-nums text-paper-900 dark:text-paper-100 whitespace-nowrap">
                           {sl.chance >= 0.995 ? `× ${formatCount(sl.perPack)}` : formatOdds(sl.chance)}
                         </span>
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-sm text-slate-700 dark:text-slate-300 space-y-1">
+                  <div className="mt-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-sm text-paper-700 dark:text-paper-300 space-y-1">
                     <p>Mythic: {formatOdds(Math.min(packContents.mythicsPerPack, 1))}</p>
                     {packs > 0 && (
                       <p>
@@ -1082,17 +1083,17 @@ export default function PlayboxDetailsPage() {
                       </p>
                     )}
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-3">
+                  <p className="text-xs text-paper-500 dark:text-paper-400 mt-3">
                     Booster data from{' '}
-                    <a href="https://mtgjson.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-copper-600 dark:hover:text-copper-400">MTGJSON</a>
+                    <a href="https://mtgjson.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-sakura-600 dark:hover:text-sakura-400">MTGJSON</a>
                   </p>
                 </div>
               )}
 
               {showMechanics && (
-                <div className="bg-white dark:bg-slate-900 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                  <h2 className="font-bold text-lg text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-1">
-                    <Zap className="w-5 h-5 text-copper-600" /> Set Mechanics
+                <div className="bg-white dark:bg-paper-900 p-5 md:p-6 rounded-2xl border border-paper-200 dark:border-paper-800 shadow-sm">
+                  <h2 className="font-brand font-bold text-lg text-paper-900 dark:text-paper-100 washi-block flex items-center gap-2 mb-1">
+                    <Zap className="w-5 h-5 text-sakura-600 dark:text-sakura-400" /> Set Mechanics
                   </h2>
                   <ul className="grid sm:grid-cols-2 gap-x-8">
                     {mechanicRows.map((mech, i) => {
@@ -1101,9 +1102,9 @@ export default function PlayboxDetailsPage() {
                       return (
                         <React.Fragment key={`${mech.scanned ? 'scan' : 'guide'}-${mech.name}`}>
                           {firstScanned && (
-                            <li className="sm:col-span-2 pt-4 pb-1 text-xs font-semibold text-slate-500 dark:text-slate-400">Also in this set</li>
+                            <li className="sm:col-span-2 pt-4 pb-1 text-xs font-semibold text-paper-500 dark:text-paper-400">Also in this set</li>
                           )}
-                          <li className="border-t border-slate-100 dark:border-slate-800">
+                          <li className="border-t border-paper-100 dark:border-paper-800">
                             <div
                               {...(hasExamples ? {
                                 tabIndex: 0,
@@ -1114,20 +1115,20 @@ export default function PlayboxDetailsPage() {
                                 onBlur: hidePreview,
                                 onClick: (e: React.MouseEvent<HTMLDivElement>) => { if (touchRef.current) showMechanicPreview(e, mech.name, mech.examples, true); },
                               } : {})}
-                              className={`py-3 rounded-md ${hasExamples ? 'cursor-help focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-copper-500' : ''}`}
+                              className={`py-3 rounded-md ${hasExamples ? 'cursor-help focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sakura-500' : ''}`}
                             >
                               <div className="flex items-center justify-between gap-3">
-                                <h3 className="font-semibold text-slate-900 dark:text-slate-100">{mech.name}</h3>
+                                <h3 className="font-semibold text-paper-900 dark:text-paper-100">{mech.name}</h3>
                                 <span className="flex gap-1 shrink-0">
                                   {mech.colors.length > 0
                                     ? mech.colors.map(c => <ManaIcon key={c} symbol={c} size={18} />)
-                                    : <span className="text-xs text-slate-500 dark:text-slate-400">Colorless</span>}
+                                    : <span className="text-xs text-paper-500 dark:text-paper-400">Colorless</span>}
                                 </span>
                               </div>
-                              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mt-1">{mech.desc}</p>
+                              <p className="text-sm text-paper-600 dark:text-paper-400 leading-relaxed mt-1">{mech.desc}</p>
                               {hasExamples && (
-                                <p className="text-xs text-copper-600 dark:text-copper-400 mt-1 flex items-center gap-1">
-                                  <Star className="w-3 h-3" fill="currentColor" /> Top cards: hover or tap
+                                <p className="text-xs text-sakura-600 dark:text-sakura-400 mt-1 flex items-center gap-1">
+                                  Top cards: hover or tap
                                 </p>
                               )}
                             </div>
@@ -1145,14 +1146,14 @@ export default function PlayboxDetailsPage() {
         <section className="mb-12">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-5">
             <div>
-              <h2 className="font-bold text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-copper-600" /> Draft Archetypes &amp; Signposts
+              <h2 className="font-brand font-bold text-xl text-paper-900 dark:text-paper-100 washi-block flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-sakura-600 dark:text-sakura-400" /> Draft Archetypes &amp; Signposts
               </h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">The main draft strategies for this set, with the cards that make each one work.</p>
+              <p className="text-paper-500 dark:text-paper-400 text-sm mt-1">The main draft strategies for this set, with the cards that make each one work.</p>
               {statsSource && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-xs text-paper-500 dark:text-paper-400 mt-1">
                   Tiers and card win rates from{' '}
-                  <a href={statsSource.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-copper-600 dark:hover:text-copper-400">
+                  <a href={statsSource.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-sakura-600 dark:hover:text-sakura-400">
                     {statsSource.name}
                   </a>{' '}
                   ({statsSource.license}) · {statsSource.games.toLocaleString()} Premier Draft games
@@ -1165,19 +1166,19 @@ export default function PlayboxDetailsPage() {
                   type="button"
                   onClick={handleFetchArchetypes}
                   disabled={isFetchingArchetypes}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium bg-paper-100 text-paper-700 hover:bg-paper-200 dark:bg-paper-800 dark:text-paper-300 dark:hover:bg-paper-700 disabled:opacity-50 transition-colors"
                 >
                   {isFetchingArchetypes ? 'Refreshing…' : 'Refresh archetypes'}
                 </button>
-                {fetchMessage && <span className="text-xs text-slate-500 dark:text-slate-400">{fetchMessage}</span>}
+                {fetchMessage && <span className="text-xs text-paper-500 dark:text-paper-400">{fetchMessage}</span>}
               </div>
             )}
           </div>
 
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-              <Loader2 className="w-8 h-8 text-copper-600 animate-spin mb-4" />
-              <p className="text-slate-500 font-medium">Loading the set from Scryfall. This can take a moment.</p>
+            <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-paper-900 rounded-2xl border border-paper-200 dark:border-paper-800 shadow-sm">
+              <Loader2 className="w-8 h-8 text-sakura-600 animate-spin mb-4" />
+              <p className="text-paper-500 dark:text-paper-400 font-medium">Loading the set from Scryfall. This can take a moment.</p>
             </div>
           ) : error ? (
             <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-xl flex items-start gap-3">
@@ -1191,7 +1192,7 @@ export default function PlayboxDetailsPage() {
                 const tier = (archetype as { tier?: string }).tier || getCardQualityTier(topCards);
                 const keyCards = keyCardsFor(topCards);
                 return (
-                  <article key={archetype.name} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 md:p-6">
+                  <article key={archetype.name} className="bg-white dark:bg-paper-900 rounded-2xl border border-paper-200 dark:border-paper-800 shadow-sm p-5 md:p-6">
                     <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
                       <p className="text-xs font-bold uppercase tracking-wider flex flex-wrap items-center gap-1.5">
                         {archetype.colors.map((c, i) => (
@@ -1200,16 +1201,16 @@ export default function PlayboxDetailsPage() {
                               <ManaIcon symbol={COLOR_NAME_TO_SYMBOL[c] || c} size={16} />
                               <span className={getColorStyle(c)}>{c}</span>
                             </span>
-                            {i < archetype.colors.length - 1 && <span className="text-slate-300 dark:text-slate-600">/</span>}
+                            {i < archetype.colors.length - 1 && <span className="text-paper-300 dark:text-paper-600">/</span>}
                           </React.Fragment>
                         ))}
                       </p>
-                      <span className={`text-xs font-bold uppercase px-2 py-0.5 rounded border ${getTierStyle(tier)}`}>
+                      <span className={`sticker text-xs font-bold uppercase px-2 py-0.5 rounded-md ${getTierStyle(tier)}`}>
                         Tier {tier}
                       </span>
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-2">{archetype.name}</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl mt-1">{archetype.desc}</p>
+                    <h3 className="text-xl font-bold text-paper-900 dark:text-paper-100 mt-2">{archetype.name}</h3>
+                    <p className="text-sm text-paper-600 dark:text-paper-400 leading-relaxed max-w-3xl mt-1">{archetype.desc}</p>
                     {keyCards.length > 0 && (
                       <div className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(8.5rem,1fr))] gap-x-3 gap-y-5">
                         {keyCards.map(({ card, role }) => renderCard(card, role))}
@@ -1231,14 +1232,14 @@ export default function PlayboxDetailsPage() {
           return (
             <section>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-5">
-                <h2 className="font-bold text-xl text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <MapIcon className="w-5 h-5 text-emerald-500" /> Mana Fixing
+                <h2 className="font-brand font-bold text-xl text-paper-900 dark:text-paper-100 washi-block flex items-center gap-2">
+                  <MapIcon className="w-5 h-5 text-sakura-600 dark:text-sakura-400" /> Mana Fixing
                 </h2>
-                <span className="text-sm font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">
+                <span className="text-sm font-medium text-paper-500 dark:text-paper-400 bg-paper-100 dark:bg-paper-800 px-2.5 py-0.5 rounded-full">
                   {manaFixing.length} cards
                 </span>
               </div>
-              <div className="bg-white dark:bg-slate-900 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-x-3 gap-y-5">
+              <div className="bg-white dark:bg-paper-900 p-5 md:p-6 rounded-2xl border border-paper-200 dark:border-paper-800 shadow-sm grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-x-3 gap-y-5">
                 {lands.map(c => renderCard(c, 'Land'))}
                 {colorless.map(c => renderCard(c, 'Artifact / colorless'))}
                 {spells.map(c => renderCard(c, 'Spell'))}
@@ -1260,40 +1261,41 @@ export default function PlayboxDetailsPage() {
             const st = cardStatsMap.get(card.name);
             const mana = getManaCost(card);
             return (
-              <div className="flex gap-4 p-4 rounded-xl bg-slate-900 text-slate-50 shadow-2xl ring-1 ring-white/10">
+              <div className="flex gap-4 p-4 rounded-xl bg-paper-900 text-paper-50 shadow-2xl ring-1 ring-white/10">
                 <img src={getImageUrl(card)} alt="" className={`w-28 sm:w-36 shrink-0 self-start ${CARD_ASPECT} h-auto ${CARD_RADIUS}`} />
                 <div className="min-w-0 flex-1 flex flex-col gap-2">
                   <div className="flex items-start justify-between gap-2">
                     <h4 className="font-semibold text-sm leading-snug">{card.name}</h4>
-                    {mana && <span className="font-mono text-xs text-slate-300 whitespace-nowrap">{mana}</span>}
+                    {mana && <span className="font-mono text-xs text-paper-300 whitespace-nowrap">{mana}</span>}
                   </div>
-                  <p className="text-xs text-slate-400 leading-snug">
+                  <p className="text-xs text-paper-300 leading-snug">
                     {card.type_line} · <span className="capitalize">{card.rarity}</span>
                   </p>
-                  <p className="text-xs text-slate-200 whitespace-pre-wrap leading-relaxed border-t border-white/10 pt-2">
+                  <p className="text-xs text-paper-200 whitespace-pre-wrap leading-relaxed border-t border-white/10 pt-2">
                     {getOracleText(card)}
                   </p>
                   {st && (
-                    <p className="text-xs text-slate-100 font-semibold tabular-nums">
+                    <p className="text-xs text-paper-100 font-semibold tabular-nums">
+                      {st.winRate >= 0.58 && <Sparkle className="w-3.5 h-3.5 mr-1 -mt-0.5 align-middle" title="58%+ win rate" />}
                       GIH WR {(st.winRate * 100).toFixed(1)}%
                       {st.iwd != null && <> · IWD {st.iwd >= 0 ? '+' : ''}{(st.iwd * 100).toFixed(1)}pp</>}
                       {st.ata != null && <> · ATA {st.ata.toFixed(1)}</>}
-                      <span className="text-slate-400"> · {st.gihGames.toLocaleString()} games</span>
+                      <span className="text-paper-300"> · {st.gihGames.toLocaleString()} games</span>
                     </p>
                   )}
                   {preview.interactive ? (
                     <a href={scryfallUrl(card)} target="_blank" rel="noopener noreferrer"
-                      className="mt-auto text-xs font-semibold text-copper-300 underline underline-offset-2">Open on Scryfall</a>
+                      className="mt-auto text-xs font-semibold text-sakura-300 underline underline-offset-2">Open on Scryfall</a>
                   ) : (
-                    <p className="mt-auto text-xs text-slate-400">Click to open on Scryfall</p>
+                    <p className="mt-auto text-xs text-paper-300">Click to open on Scryfall</p>
                   )}
                 </div>
               </div>
             );
           })() : (
-            <div className="p-4 rounded-xl bg-slate-900 text-slate-50 shadow-2xl ring-1 ring-white/10">
+            <div className="p-4 rounded-xl bg-paper-900 text-paper-50 shadow-2xl ring-1 ring-white/10">
               <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
-                <Star className="w-4 h-4 text-amber-400" fill="currentColor" /> Top {preview.name} cards
+                Top {preview.name} cards
               </h4>
               <div className="grid grid-cols-3 gap-3">
                 {preview.cards.map(card => (
@@ -1306,50 +1308,50 @@ export default function PlayboxDetailsPage() {
       )}
 
       {isEditModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full border border-slate-200 dark:border-slate-800 shadow-2xl p-6 relative">
+        <div className="fixed inset-0 bg-paper-950/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-paper-900 rounded-2xl max-w-md w-full border border-paper-200 dark:border-paper-800 shadow-2xl p-6 relative">
             <button
               type="button"
               aria-label="Close modal"
               onClick={() => setIsEditModalOpen(false)}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800 rounded-full"
+              className="absolute top-4 right-4 p-2 text-paper-500 dark:text-paper-400 hover:text-paper-600 dark:hover:text-paper-200 bg-paper-100 dark:bg-paper-800 rounded-full"
             >
               <X className="w-5 h-5" />
             </button>
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <Settings className="w-5 h-5 text-copper-600" />
+              <Settings className="w-5 h-5 text-sakura-600" />
               Edit Box Settings
             </h3>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Box Name</label>
+                <label className="block text-sm font-bold text-paper-700 dark:text-paper-300 mb-1">Box Name</label>
                 <input
                   type="text"
                   aria-label="Box Name"
                   value={editFormData.name}
                   onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-copper-500"
+                  className="w-full bg-paper-50 dark:bg-paper-800 border border-paper-200 dark:border-paper-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sakura-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Set Codes (Comma Separated)</label>
+                <label className="block text-sm font-bold text-paper-700 dark:text-paper-300 mb-1">Set Codes (Comma Separated)</label>
                 <input 
                   type="text" 
                   value={editFormData.setCode}
                   onChange={(e) => setEditFormData({...editFormData, setCode: e.target.value})}
                   placeholder="e.g. FIN, FCA"
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-copper-500"
+                  className="w-full bg-paper-50 dark:bg-paper-800 border border-paper-200 dark:border-paper-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sakura-500"
                 />
-                <p className="text-xs text-slate-500 mt-2">
+                <p className="text-xs text-paper-500 dark:text-paper-400 mt-2">
                   You can specify multiple set abbreviations separated by commas (e.g. FIN, FCA) to combine them into one draft environment!
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Custom Hero Image URL</label>
+                <label className="block text-sm font-bold text-paper-700 dark:text-paper-300 mb-1">Custom Hero Image URL</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <ImageIcon className="h-4 w-4 text-slate-400" />
+                    <ImageIcon className="h-4 w-4 text-paper-500 dark:text-paper-400" />
                   </div>
                   <input
                     type="url"
@@ -1357,37 +1359,53 @@ export default function PlayboxDetailsPage() {
                     placeholder="https://... (Leave blank for random Mythic)"
                     value={editFormData.imageUrl}
                     onChange={(e) => setEditFormData({...editFormData, imageUrl: e.target.value})}
-                    className="w-full pl-9 pr-3 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-copper-500"
+                    className="w-full pl-9 pr-3 py-3 border border-paper-200 dark:border-paper-700 rounded-lg bg-paper-50 dark:bg-paper-800 text-paper-900 dark:text-paper-100 focus:outline-none focus:ring-2 focus:ring-sakura-500"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Paid Price ($)</label>
+                <label className="block text-sm font-bold text-paper-700 dark:text-paper-300 mb-1">Paid Price ($)</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-paper-500 dark:text-paper-400">$</span>
                   <input 
                     type="number"
                     aria-label="Paid Price"
                     step="0.01"
                     value={editFormData.cost}
                     onChange={(e) => setEditFormData({...editFormData, cost: e.target.value})}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg pl-8 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-copper-500"
+                    className="w-full bg-paper-50 dark:bg-paper-800 border border-paper-200 dark:border-paper-700 rounded-lg pl-8 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-sakura-500"
                   />
                 </div>
               </div>
+              <div>
+                <label htmlFor="edit-market-price" className="block text-sm font-bold text-paper-700 dark:text-paper-300 mb-1">Market Price, sealed box ($)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-paper-500 dark:text-paper-400">$</span>
+                  <input
+                    id="edit-market-price"
+                    type="number"
+                    step="0.01"
+                    placeholder="e.g. TCGplayer market price"
+                    value={editFormData.marketPrice}
+                    onChange={(e) => setEditFormData({...editFormData, marketPrice: e.target.value})}
+                    className="w-full bg-paper-50 dark:bg-paper-800 border border-paper-200 dark:border-paper-700 rounded-lg pl-8 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-sakura-500"
+                  />
+                </div>
+                <p className="text-xs text-paper-500 dark:text-paper-400 mt-1">Shown to everyone as the box&rsquo;s market price and its draft and sealed cost per person.</p>
+              </div>
 
-              <div className="bg-copper-50 dark:bg-copper-900/20 p-4 rounded-xl border border-copper-100 dark:border-copper-800/30">
+              <div className="bg-sakura-50 dark:bg-sakura-900/20 p-4 rounded-xl border border-sakura-100 dark:border-sakura-800/30">
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Box Paid Price</span>
-                  <span className="font-bold text-slate-900 dark:text-slate-100">${parseFloat(editFormData.cost || '0').toFixed(2)}</span>
+                  <span className="text-sm font-medium text-paper-600 dark:text-paper-400">Box Paid Price</span>
+                  <span className="font-bold text-paper-900 dark:text-paper-100">${parseFloat(editFormData.cost || '0').toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Current Market Value (Opened)</span>
+                  <span className="text-sm font-medium text-paper-600 dark:text-paper-400">Current Market Value (Opened)</span>
                   <span className="font-bold text-emerald-600 dark:text-emerald-400">${calculateMarketValue()}</span>
                 </div>
-                <div className="h-px bg-copper-200 dark:bg-copper-800/50 my-2"></div>
+                <div className="h-px bg-sakura-200 dark:bg-sakura-800/50 my-2"></div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Net Return</span>
+                  <span className="text-sm font-bold text-paper-900 dark:text-paper-100">Net Return</span>
                   <span className={`font-bold ${parseFloat(calculateMarketValue()) - parseFloat(editFormData.cost || '0') >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
                     ${(parseFloat(calculateMarketValue()) - parseFloat(editFormData.cost || '0')).toFixed(2)}
                   </span>
@@ -1398,7 +1416,7 @@ export default function PlayboxDetailsPage() {
             <div className="mt-8 flex gap-3">
               <button 
                 onClick={() => setIsEditModalOpen(false)}
-                className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                className="flex-1 py-3 bg-paper-100 dark:bg-paper-800 text-paper-700 dark:text-paper-300 rounded-xl font-bold hover:bg-paper-200 dark:hover:bg-paper-700 transition-colors"
               >
                 Cancel
               </button>

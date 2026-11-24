@@ -34,7 +34,7 @@ export default function LoginForm() {
         onClick={handleGoogleLogin}
         disabled={isLoading}
         type="button"
-        className="w-full flex justify-center items-center gap-3 py-3 px-4 border border-neutral-700 rounded-lg shadow-sm bg-neutral-800 text-sm font-medium text-white hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full flex justify-center items-center gap-3 py-3 px-4 border border-paper-300 dark:border-paper-700 rounded-lg shadow-sm bg-white dark:bg-paper-800 text-sm font-medium text-paper-900 dark:text-paper-50 hover:bg-paper-50 dark:hover:bg-paper-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sakura-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -46,15 +46,15 @@ export default function LoginForm() {
       </button>
 
       {error && (
-        <p className="text-sm text-red-400 text-center">{error}</p>
+        <p className="text-sm text-red-700 dark:text-red-400 text-center">{error}</p>
       )}
 
       <div className="relative mt-4">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-neutral-800"></div>
+          <div className="w-full border-t border-paper-200 dark:border-paper-800"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-neutral-900 text-neutral-500">
+          <span className="px-2 bg-white dark:bg-paper-900 text-paper-500 dark:text-paper-400">
             Secure login powered by Firebase
           </span>
         </div>
