@@ -95,6 +95,13 @@ const DEFAULT_BOXES: PlayBox[] = [
  * Each product type has a fixed color for its set symbol and packs-left bar, so a box looks
  * the same every time. Copper is the site accent and is kept out of this set.
  */
+/** Packs each player opens: a booster draft is 3 packs, a sealed pool 6. */
+const DRAFT_PACKS = 3;
+const SEALED_PACKS = 6;
+
+/** Play Boosters replaced Draft Boosters in 2024; both are made for drafting. */
+const isDraftable = (type: string) => /draft|play booster/i.test(type);
+
 const typeTheme = (type: string) => {
   const t = type.toLowerCase();
   if (t.includes("collector")) return { icon: "text-amber-600 dark:text-amber-400", progressFill: "bg-amber-500 dark:bg-amber-400" };
@@ -109,7 +116,7 @@ export default function PlayBoxPage() {
   const router = useRouter();
   const [playBoxes, setPlayBoxes] = useState<PlayBox[]>(DEFAULT_BOXES);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newBox, setNewBox] = useState({ name: "", setCode: "", cost: "", marketPrice: "", type: "Draft Booster Box", total: 30, imageUrl: "" });
+  const [newBox, setNewBox] = useState({ name: "", setCode: "", cost: "", marketPrice: "", type: "Play Booster Box", total: 30, imageUrl: "" });
   // Live set list from Scryfall (via /api/sets) — new sets show up here automatically.
   const [knownSets, setKnownSets] = useState<{ code: string; name: string; releasedAt: string; upcoming: boolean }[]>([]);
 
@@ -175,10 +182,10 @@ export default function PlayBoxPage() {
     const boxData = {
       name: newBox.name,
       type: newBox.type,
-      capacity: newBox.type === "Draft Booster Box" ? "Drafts up to 8 players" : "Pack cracking only",
+      capacity: isDraftable(newBox.type) ? "Drafts up to 8 players" : "Pack cracking only",
       remaining: newBox.total,
       total: newBox.total,
-      format: newBox.type.includes("Draft") ? "Draft" : "Sealed",
+      format: isDraftable(newBox.type) ? "Draft" : "Sealed",
       cost: newBox.cost,
       marketPrice: newBox.marketPrice,
       setCode: newBox.setCode.toUpperCase(),
@@ -193,7 +200,7 @@ export default function PlayBoxPage() {
     }
 
     setIsModalOpen(false);
-    setNewBox({ name: "", setCode: "", cost: "", marketPrice: "", type: "Draft Booster Box", total: 30, imageUrl: "" });
+    setNewBox({ name: "", setCode: "", cost: "", marketPrice: "", type: "Play Booster Box", total: 30, imageUrl: "" });
   };
 
   return (
@@ -327,6 +334,7 @@ export default function PlayBoxPage() {
                     onChange={e => setNewBox({...newBox, type: e.target.value})}
                     className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-copper-500"
                   >
+                    <option value="Play Booster Box">Play Booster Box</option>
                     <option value="Draft Booster Box">Draft Booster Box</option>
                     <option value="Set Booster Box">Set Booster Box</option>
                     <option value="Collector Booster Box">Collector Booster Box</option>
@@ -372,8 +380,11 @@ export default function PlayBoxPage() {
               const percentage = Math.round((box.remaining / box.total) * 100);
               // Use cost for price-per-pack calculations (visible to everyone; specific paid price is admin-only)
               const packPrice = box.cost && box.total ? parseFloat(box.cost) / box.total : null;
-              const draftCost = packPrice ? (packPrice * 3).toFixed(2) : null;
-              const sealedCost = packPrice ? (packPrice * 6).toFixed(2) : null;
+              const draftCost = packPrice ? (packPrice * DRAFT_PACKS).toFixed(2) : null;
+              const sealedCost = packPrice ? (packPrice * SEALED_PACKS).toFixed(2) : null;
+              // "≈" when the per-pack price was rounded to the cent for display
+              const packEq = packPrice !== null && Math.abs(packPrice * 100 - Math.round(packPrice * 100)) > 1e-6 ? "≈" : "=";
+              const packText = packPrice !== null ? `$${packPrice.toFixed(2)}` : "";
 
               return (
               <Link href={`/play-box/${box.id}`} key={box.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-[box-shadow,border-color] duration-150 flex flex-col group relative">
@@ -433,6 +444,23 @@ export default function PlayBoxPage() {
                   </div>
 
                   {(draftCost || sealedCost) && (
+                    <div className="relative flex flex-col">
+                    {/* The math behind the per-person costs: over the inventory row on hover or keyboard
+                        focus; inline under the costs on touch screens, which have no hover. */}
+                    <div className="absolute bottom-full inset-x-0 mb-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs leading-relaxed tabular-nums text-slate-600 dark:text-slate-300 shadow-sm opacity-0 pointer-events-none transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 [@media(hover:none)]:static [@media(hover:none)]:order-last [@media(hover:none)]:mb-0 [@media(hover:none)]:mt-3 [@media(hover:none)]:opacity-100 [@media(hover:none)]:shadow-none">
+                      <p>
+                        <span className="font-semibold text-slate-900 dark:text-slate-100">Per pack:</span>{" "}
+                        {isAdmin ? `$${parseFloat(box.cost!).toFixed(2)}` : "box price"} ÷ {box.total} packs {packEq} {packText}
+                      </p>
+                      <p>
+                        <span className="font-semibold text-slate-900 dark:text-slate-100">Draft:</span>{" "}
+                        {DRAFT_PACKS} packs × {packText} = ${draftCost}
+                      </p>
+                      <p>
+                        <span className="font-semibold text-slate-900 dark:text-slate-100">Sealed:</span>{" "}
+                        {SEALED_PACKS} packs × {packText} = ${sealedCost}
+                      </p>
+                    </div>
                     <dl className="grid grid-cols-2 divide-x divide-slate-100 dark:divide-slate-800 border-t border-slate-100 dark:border-slate-800 pt-3 text-xs">
                       {draftCost && (
                         <div className="pr-3">
@@ -447,6 +475,7 @@ export default function PlayBoxPage() {
                         </div>
                       )}
                     </dl>
+                    </div>
                   )}
 
                   {isAdmin && (
