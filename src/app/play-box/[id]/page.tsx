@@ -560,7 +560,9 @@ export default function PlayboxDetailsPage() {
           for (const m of cardText.matchAll(/(?:^|\n)([A-Z][a-z]+)\s+—\s*([^\n]*)/g)) {
              const aw = m[1];
              if (EVERGREEN_KEYWORDS.has(aw) || aw.toLowerCase().includes('cycling') || /^(Choose|Chapter)$/.test(aw)) continue;
-             const effect = m[2].replace(/\s*\(.*?\)\s*/g, ' ').trim().replace(/[,.].*$/, '');
+             // Drop reminder text and a leading mana cost ("{B}, Exile this card…" → "Exile this card…")
+             const effect = m[2].replace(/\s*\(.*?\)\s*/g, ' ').trim()
+               .replace(/^(\{[^}]*\})+\s*[,:]?\s*/, '').replace(/[,.].*$/, '');
              const existing = extractedMechanics.get(aw);
              if (!existing) {
                if (!effect) continue;

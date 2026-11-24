@@ -14,37 +14,46 @@ interface GuideMechanic {
 // Hardcoded set mechanics from official Wizards prerelease guides.
 // Colors indicate which color(s) the mechanic primarily appears in.
 const HARDCODED_MECHANICS: Record<string, GuideMechanic[]> = {
+  // Checked against Scryfall card text (Nov 2026); colors are where the cards actually are.
   TDM: [
-    { name: 'Offspring', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Pay an additional cost when casting a creature to also create a 1/1 token copy of it. Appears across all five colors — every wedge can leverage Offspring for extra bodies and ETB triggers.' },
-    { name: 'Harmonize', colors: ['G', 'W'], desc: 'A returning keyword: put a +1/+1 counter on each creature you control that shares a color with a permanent you control. Rewards multicolor wedge builds for snowballing wide boards.' },
-    { name: 'Forecast', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Activated abilities on cards in your hand that you can use during your upkeep, revealing the card for the effect. Rewards keeping powerful spells in hand rather than casting them immediately.' },
-    { name: 'Wedge Signposts', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'TDM is a three-color wedge set. Each of the five wedges (Abzan, Jeskai, Sultai, Mardu, Temur) has a multicolor uncommon signpost defining its strategy. Draft for your wedge\'s strengths.' },
+    { name: 'Mobilize', colors: ['W', 'B', 'R'], desc: 'Whenever this creature attacks, create X tapped and attacking 1/1 red Warrior tokens, sacrificed at the next end step. The Mardu (R/W/B) aggressive mechanic.' },
+    { name: 'Endure', colors: ['W', 'B', 'G'], desc: 'Endure N: put N +1/+1 counters on it, or create an N/N white Spirit token. Abzan (W/B/G) value that works whether or not the creature survives.' },
+    { name: 'Harmonize', colors: ['G', 'U', 'R'], desc: 'Cast this card from your graveyard for its harmonize cost, tapping one of your creatures to reduce the cost by its power; then it is exiled. The Temur (G/U/R) big-creature payoff.' },
+    { name: 'Flurry', colors: ['U', 'R', 'W'], desc: 'Ability word: triggers when you cast your second spell each turn. Jeskai (U/R/W) spells-matter decks want cheap instants and sorceries.' },
+    { name: 'Renew', colors: ['B', 'G', 'U'], desc: 'Ability word on graveyard abilities: pay the cost and exile the card from your graveyard (sorcery speed) for counters or another bonus. Sultai (B/G/U) graveyard value.' },
+    { name: 'Omen', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Dragons with an instant or sorcery Omen half. Cast the Omen for its effect and the card is shuffled back into your library, or cast the Dragon instead.' },
+    { name: 'Behold', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'To behold a Dragon, choose a Dragon you control or reveal a Dragon card from your hand. Rewards keeping Dragons in your deck.' },
   ],
+  // Checked against Scryfall card text (Nov 2026).
   ECL: [
-    { name: 'Clash', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Each clashing player reveals the top card of their library; the player with the higher mana cost wins the clash and gets a bonus effect. Appears in all colors — high-cost decks clash more reliably.' },
-    { name: 'Changeling', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'This creature is every creature type simultaneously. Changeling creatures count as Merfolk, Faerie, Elf, Goblin, Kithkin, and more — enabling cross-tribal synergies in any deck.' },
-    { name: 'Evoke', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Pay the evoke cost instead of the mana cost to cast the creature for a cheaper ETB effect, then sacrifice it. Appears across all colors in Elemental-themed strategies for efficient one-shot value.' },
-    { name: 'Prowl', colors: ['U', 'B'], desc: 'If you\'ve dealt combat damage with a creature of the right type this turn, you may cast a spell for its prowl cost instead. Primarily Blue/Black — rewards aggressive Faerie and Rogue strategies.' },
-    { name: 'Reinforce', colors: ['W', 'G', 'R'], desc: 'Discard this card and pay the reinforce cost to put +1/+1 counters on a target creature. Creatures discarded for reinforce still provide value — a key enabler in White/Green midrange.' },
+    { name: 'Blight', colors: ['B', 'R'], desc: 'Blight N: put N -1/-1 counters on a creature you control, usually as a cost for a bigger effect. Mostly black and red.' },
+    { name: 'Vivid', colors: ['G', 'U', 'R'], desc: 'Ability word: these effects count the colors among permanents you control. Rewards multicolor decks; most common in green.' },
+    { name: 'Behold', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Choose a creature of the named type you control or reveal one from your hand, sometimes exiling it, for a bonus. Supports the set’s creature-type decks.' },
+    { name: 'Changeling', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'This card is every creature type, so it counts for every tribal payoff and behold cost.' },
+    { name: 'Convoke', colors: ['U', 'W'], desc: 'Your creatures can help cast this spell: each creature tapped pays for {1} or one mana of its color. Mostly blue and white go-wide decks.' },
+    { name: 'Evoke', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Cast the creature for its evoke cost to get its enters effect cheaply; it is sacrificed when it enters. One in each color.' },
   ],
   UNF: [
     { name: 'Stickers', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Stickers are physical stickers placed on cards. Name stickers add words to card names for bonus effects; art stickers change a card\'s art; power/toughness stickers grow creatures; ability stickers grant keywords. You draft a sticker sheet at the start.' },
     { name: 'Attractions', colors: ['U', 'G', 'R'], desc: 'Attraction cards are an Unfinity-specific mini-deck. When you "open an attraction," put the top card of your Attraction deck onto the battlefield. At the start of your first main phase, roll a die — if the result matches a lit number on one of your Attractions, it triggers its ability.' },
     { name: 'Roll to Visit', colors: ['U', 'G', 'R'], desc: 'A subset of cards that let you roll a die and visit your Attractions based on the result. Higher-variance decks benefit most from multiple Attractions in play simultaneously.' },
   ],
+  // Checked against Scryfall card text (Nov 2026).
   TLA: [
-    { name: 'Waterbend', colors: ['U', 'B'], desc: 'A cycle of activated abilities that trigger value when used — card draw, removal, or other effects. Waterbend cards are the backbone of the Blue-Black archetype and appear across all water-aligned strategies.' },
-    { name: 'Earthbend', colors: ['R', 'G', 'B'], desc: 'Earthbending animates lands into creatures (often until end of turn) or places +1/+1 counters on your creatures. Central to Red-Green ramp and Black-Green counters archetypes.' },
-    { name: 'Ally', colors: ['G', 'W', 'R'], desc: 'Ally is a creature subtype. When an Ally enters, other Allies — and Ally-payoff permanents — trigger bonus effects. Core to the Green-White and Red-White go-wide strategies.' },
-    { name: 'Lessons', colors: ['U', 'R', 'G'], desc: 'Lesson spells interact with the graveyard — some gain bonus effects when cast from there, others recur themselves. Key engine in Blue-Red (Combat Lessons) and Green-Blue (Ramp & Lessons).' },
-    { name: 'Investigate', colors: ['W', 'U'], desc: 'Creates a Clue artifact token. Sacrifice the Clue and pay {2} to draw a card. Fuels the Blue-Black "draw two" engine and synergizes with the White-Blue flyers archetype.' },
+    { name: 'Waterbend', colors: ['U'], desc: 'While paying a waterbend cost, you can tap your artifacts and creatures to help; each one pays for {1}. Mostly blue.' },
+    { name: 'Earthbend', colors: ['G'], desc: 'Target land you control becomes a 0/0 haste creature with +1/+1 counters; when it dies or is exiled, it returns tapped. Mostly green.' },
+    { name: 'Firebending', colors: ['R', 'B'], desc: 'Firebending N: whenever this creature attacks, add N {R}, which lasts until end of combat. Red, with some black.' },
+    { name: 'Airbend', colors: ['W'], desc: 'Exile the target; its owner may cast it from exile for {2} instead of its mana cost. White tempo.' },
+    { name: 'Lessons', colors: ['U', 'G', 'R'], desc: 'Lesson instants and sorceries, with payoffs that care about Lessons you cast or have in your graveyard.' },
+    { name: 'Ally', colors: ['W', 'U', 'G', 'R'], desc: 'Creature type with many payoffs when an Ally enters. The white go-wide decks lean on it most.' },
   ],
+  // Checked against Scryfall card text (Nov 2026).
   FIN: [
-    { name: 'Job Select', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Job Select appears on permanents across all five colors. Each card with Job Select lets you choose one of several modes — each representing a classic Final Fantasy job class (Black Mage, White Mage, Monk, etc.) — giving it flexibility based on your board state.' },
-    { name: 'Limit Break', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Limit Break cards are double-faced permanents that transform into a more powerful form after meeting a condition, referencing the Limit Break mechanic from the Final Fantasy video games. Appears across all colors.' },
-    { name: 'Town', colors: [], desc: 'Towns are a new dual land subtype. Each Town enters tapped unless you control a basic land of the right type, then produces two colors of mana and often has a bonus enters ability. They function as the set\'s primary mana fixing.' },
-    { name: 'Sagas', colors: [], desc: 'Enchantments with lore counters that trigger on your upkeep. Each chapter has an effect; when the final chapter resolves, the Saga is sacrificed. Sagas appear across all colors in FIN.' },
-    { name: 'Equipment', colors: ['W', 'R'], desc: 'Equipment is a returning artifact subtype — attach to a creature for combat bonuses, and it stays on the battlefield when the creature dies. Primarily found in White and Red, supporting the R/W Equipment Aggro archetype.' },
+    { name: 'Job Select', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'When this Equipment enters, create a 1/1 colorless Hero creature token, then attach the Equipment to it. On Equipment in every color.' },
+    { name: 'Tiered', colors: ['W', 'U', 'B', 'R', 'G'], desc: 'Choose one additional cost: each tier of the spell (Fire, Fira, Firaga…) costs more for a bigger effect.' },
+    { name: 'Town', colors: [], desc: 'Towns are a land subtype and the set’s main mana fixing; many also have a useful ability.' },
+    { name: 'Sagas', colors: ['W', 'R', 'G'], desc: 'Sagas trigger a chapter each turn; Summon creatures are Saga creatures that attack while their chapters play out.' },
+    { name: 'Equipment', colors: ['W', 'R'], desc: 'Equipment stays on the battlefield when the creature dies and can be moved again. Supports the R/W Equipment Aggro deck.' },
   ],
   // Secrets of Strixhaven — Wizards mechanics article; college colors inferred from the guide.
   SOS: [
