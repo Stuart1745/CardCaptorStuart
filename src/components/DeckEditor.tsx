@@ -40,6 +40,10 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
   const [decklist, setDecklist] = useState(deck?.decklistText ?? "");
   const [bracket, setBracket] = useState<string>(deck?.bracket ? String(deck.bracket) : "");
   const [podsText, setPodsText] = useState((deck?.pods ?? []).join(", "));
+  const [isPrecon, setIsPrecon] = useState(!!deck?.precon);
+  const [preconName, setPreconName] = useState(deck?.precon ?? "");
+  const [description, setDescription] = useState(deck?.description ?? "");
+  const [playGuide, setPlayGuide] = useState(deck?.playGuide ?? "");
   const [importUrl, setImportUrl] = useState("");
   const [importNote, setImportNote] = useState<{ text: string; tone: "info" | "error" } | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -99,7 +103,9 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
       if (lines.length > 0) {
         setBusy(`Looking up ${lines.length} cards on Scryfall…`);
         const r = await resolveDecklist(lines, commanderName);
-        cards = r.cards;
+        // Keep the key-card marks from the previous version of the list
+        const keyNames = new Set((deck?.cards ?? []).filter(c => c.key).map(c => c.name.toLowerCase()));
+        cards = r.cards.map(c => (keyNames.has(c.name.toLowerCase()) ? { ...c, key: true } : c));
         colors = r.colors;
         thumbnail = r.thumbnail ?? thumbnail;
         commanderName = r.commander ?? commanderName;
@@ -133,6 +139,9 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
         ...(link.trim() ? { link: link.trim() } : {}),
         ...(isCommanderFormat && bracket ? { bracket: Number(bracket) } : {}),
         ...(currentPods.length ? { pods: currentPods } : {}),
+        ...(isPrecon ? { precon: preconName.trim() || "Precon" } : {}),
+        ...(description.trim() ? { description: description.trim() } : {}),
+        ...(playGuide.trim() ? { playGuide: playGuide.trim() } : {}),
       };
       // Firestore rejects undefined fields; drop the id (it's the document key).
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -249,6 +258,32 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
                   </div>
                 )}
               </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+              <label className="flex items-center gap-2 text-sm font-semibold text-paper-700 dark:text-paper-300 sm:pb-2.5">
+                <input type="checkbox" checked={isPrecon} onChange={e => setIsPrecon(e.target.checked)} className="w-4 h-4 rounded" />
+                Precon (a preconstructed deck)
+              </label>
+              {isPrecon && (
+                <div className="sm:col-span-2">
+                  <label htmlFor="deck-precon" className={labelCls}>Precon name <span className="font-normal text-paper-500 dark:text-paper-400">(product and set)</span></label>
+                  <input id="deck-precon" type="text" value={preconName} onChange={e => setPreconName(e.target.value)}
+                    placeholder="e.g. Revival Trance (FINAL FANTASY VI)" className={inputCls} />
+                </div>
+              )}
+            </div>
+            <div>
+              <label htmlFor="deck-description" className={labelCls}>Description <span className="font-normal text-paper-500 dark:text-paper-400">(optional; shown on the Deck Hub and the deck page)</span></label>
+              <textarea id="deck-description" value={description} onChange={e => setDescription(e.target.value)} rows={3}
+                placeholder="What the deck does, in a sentence or two." className={inputCls} />
+            </div>
+            <div>
+              <label htmlFor="deck-guide" className={labelCls}>Play guide <span className="font-normal text-paper-500 dark:text-paper-400">(optional)</span></label>
+              <textarea id="deck-guide" value={playGuide} onChange={e => setPlayGuide(e.target.value)} rows={7}
+                placeholder={`How to pilot it: early turns, what to protect, how it wins.
+
+- Start a line with a dash for a bullet`} className={inputCls} />
+              <p className="text-xs text-paper-500 dark:text-paper-400 mt-1.5">A blank line starts a new paragraph; lines starting with &ldquo;- &rdquo; become bullets.</p>
             </div>
             <div>
               <label htmlFor="deck-list" className={labelCls}>Decklist <span className="font-normal text-paper-500 dark:text-paper-400">(paste from Moxfield, Archidekt or Arena: one card per line)</span></label>

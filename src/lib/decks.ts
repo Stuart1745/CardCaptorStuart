@@ -14,6 +14,8 @@ export interface DeckCardEntry {
   scryfallUri?: string;
   /** On Wizards' Commander Game Changers list (from Scryfall) */
   gameChanger?: boolean;
+  /** Marked by the owner as one of the deck's key cards */
+  key?: boolean;
 }
 
 export interface Deck {
@@ -32,6 +34,12 @@ export interface Deck {
   bracket?: number;
   /** Pods / battle boxes this deck belongs to (decks that play well together) */
   pods?: string[];
+  /** Official preconstructed product name, e.g. "Revival Trance (FINAL FANTASY VI)"; set = it's a precon */
+  precon?: string;
+  /** A short description of the deck (plain text) */
+  description?: string;
+  /** How to play it: paragraphs split by blank lines; lines starting "- " are bullets */
+  playGuide?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -307,5 +315,24 @@ export function parsePods(text: string): string[] {
     seen.add(name.toLowerCase());
     out.push(name);
   }
+  return out;
+}
+
+/** Plain text -> blocks: paragraphs split by blank lines; runs of "- " lines become a bullet list. */
+export function textBlocks(text: string): ({ kind: "p"; text: string } | { kind: "ul"; items: string[] })[] {
+  type Block = { kind: "p"; text: string } | { kind: "ul"; items: string[] };
+  const out: Block[] = [];
+  let para: string[] = [];
+  let list: string[] = [];
+  const flushPara = () => { if (para.length) { out.push({ kind: "p", text: para.join(" ") }); para = []; } };
+  const flushList = () => { if (list.length) { out.push({ kind: "ul", items: list }); list = []; } };
+  for (const raw of text.split(String.fromCharCode(10))) {
+    const line = raw.trim();
+    if (!line) { flushPara(); flushList(); continue; }
+    const m = line.match(/^[-*•][ ]+(.*)$/);
+    if (m) { flushPara(); list.push(m[1]); } else { flushList(); para.push(line); }
+  }
+  flushPara();
+  flushList();
   return out;
 }

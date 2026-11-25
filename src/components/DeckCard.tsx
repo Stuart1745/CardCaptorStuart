@@ -40,13 +40,24 @@ export function DeckCard({ deck }: { deck: Deck }) {
 
         <div className="p-4 flex flex-col gap-3 flex-1">
           <div className="flex items-center justify-between">
-            <span className="sticker text-xs font-semibold uppercase tracking-wider text-emerald-950 bg-mint px-2 py-1 rounded-md">
-              {deck.format}{size > 0 ? ` · ${size}` : ""}
-            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="sticker text-xs font-semibold uppercase tracking-wider text-emerald-950 bg-mint px-2 py-1 rounded-md">
+                {deck.format}{size > 0 ? ` · ${size}` : ""}
+              </span>
+              {deck.precon && (
+                <span title={`Preconstructed: ${deck.precon}`} className="sticker text-xs font-semibold uppercase tracking-wider text-sky-950 bg-sky-200 px-2 py-1 rounded-md">
+                  Precon
+                </span>
+              )}
+            </div>
             <div className="flex gap-1">
               {deck.colors.map(c => <ManaIcon key={c} symbol={c} size={18} />)}
             </div>
           </div>
+
+          {deck.description && (
+            <p className="text-sm text-paper-600 dark:text-paper-300 line-clamp-2 -mt-0.5">{deck.description}</p>
+          )}
 
           {deck.pods && deck.pods.length > 0 && (
             <div className="flex flex-wrap gap-1.5 -mt-1">

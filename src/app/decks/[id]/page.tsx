@@ -3,14 +3,14 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { deleteDoc, doc, getDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowLeft, Edit3, ExternalLink, Loader2, Share2, Trash2, X } from "lucide-react";
+import { ArrowLeft, Edit3, ExternalLink, Loader2, Share2, Star, Trash2, X } from "lucide-react";
 import { DeckEditor } from "@/components/DeckEditor";
 import { useAuth } from "@/components/AuthProvider";
 import { db } from "@/lib/firebase";
 import { isAdminUser } from "@/lib/admin";
-import { DEFAULT_DECKS, type Deck, deckSize, groupDeck, linkLabel, deckBracket, gameChangersIn } from "@/lib/decks";
+import { DEFAULT_DECKS, type Deck, type DeckCardEntry, deckSize, groupDeck, linkLabel, deckBracket, gameChangersIn, textBlocks } from "@/lib/decks";
 import { ManaIcon } from "@/components/ManaIcon";
 
 
@@ -28,6 +28,7 @@ export default function DeckDetailsPage() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [keyError, setKeyError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -51,6 +52,27 @@ export default function DeckDetailsPage() {
       router.push("/decks");
     } catch {
       setDeleteError("Deleting was refused. Make sure you're signed in with the admin account.");
+    }
+  };
+
+  /** Admin: mark or unmark a key card (saved straight to the deck). */
+  const toggleKey = async (card: DeckCardEntry) => {
+    if (!db || !deck) return;
+    setKeyError(null);
+    const before = deck.cards;
+    const cards = deck.cards.map(c => {
+      if (c.board !== card.board || c.name !== card.name) return c;
+      if (!c.key) return { ...c, key: true };
+      const copy = { ...c };
+      delete copy.key;
+      return copy;
+    });
+    setDeck({ ...deck, cards });
+    try {
+      await updateDoc(doc(db, "decks", deck.id), { cards });
+    } catch {
+      setDeck({ ...deck, cards: before });
+      setKeyError("Couldn't save the key card. Make sure you're signed in with the admin account.");
     }
   };
 
@@ -79,6 +101,34 @@ export default function DeckDetailsPage() {
   const total = deckSize(deck.cards ?? []);
   const bracket = deckBracket(deck);
   const gameChangers = gameChangersIn(deck.cards ?? []);
+  const keyCards = (deck.cards ?? []).filter(c => c.key);
+  const guide = deck.playGuide ? textBlocks(deck.playGuide) : [];
+
+  const renderCard = (card: DeckCardEntry, where: string) => (
+    <div key={`${where}-${card.board}-${card.name}`} className="flex flex-col gap-1.5 min-w-0">
+      <a href={card.scryfallUri ?? `https://scryfall.com/search?q=!"${encodeURIComponent(card.name)}"`}
+        target="_blank" rel="noopener noreferrer" className="group flex flex-col gap-1.5 min-w-0">
+        <div className="relative aspect-[488/680] rounded-[4.5%/3.2%] overflow-hidden shadow-sm ring-1 ring-paper-900/10 dark:ring-white/10 group-hover:ring-2 group-hover:ring-sakura-500 transition-shadow duration-150 bg-paper-200 dark:bg-paper-800">
+          {card.image && <img src={card.image} alt={card.name} loading="lazy" className="w-full h-full object-cover" />}
+          {card.qty > 1 && (
+            <span className="absolute top-1.5 right-1.5 text-xs font-bold px-1.5 py-0.5 rounded-md bg-paper-900/85 text-white">×{card.qty}</span>
+          )}
+          {card.key && (
+            <span className="sticker absolute bottom-1.5 left-1.5 text-xs font-bold px-1.5 py-0.5 rounded-md bg-butter text-amber-950">Key</span>
+          )}
+        </div>
+        <p className="text-xs font-medium text-paper-700 dark:text-paper-300 truncate">{card.name}</p>
+      </a>
+      {isAdmin && (
+        <button type="button" onClick={() => toggleKey(card)} aria-pressed={!!card.key}
+          className={`self-start flex items-center gap-1 text-xs font-medium rounded-md px-1.5 py-0.5 -ml-1.5 transition-colors ${card.key
+            ? "text-sakura-700 dark:text-sakura-300 hover:bg-sakura-50 dark:hover:bg-sakura-900/30"
+            : "text-paper-500 dark:text-paper-400 hover:text-sakura-700 dark:hover:text-sakura-300 hover:bg-paper-100 dark:hover:bg-paper-800"}`}>
+          <Star className="w-3.5 h-3.5" fill={card.key ? "currentColor" : "none"} /> {card.key ? "Key card" : "Mark as key"}
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <main className="flex-1 bg-transparent p-4 md:p-8">
@@ -108,8 +158,11 @@ export default function DeckDetailsPage() {
                   {deck.colors.map(c => <ManaIcon key={c} symbol={c} size={18} />)}
                 </span>
               </p>
-              {(bracket || (deck.pods && deck.pods.length > 0)) && (
+              {(bracket || deck.precon || (deck.pods && deck.pods.length > 0)) && (
                 <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                  {deck.precon && (
+                    <span className="sticker text-xs font-bold px-2 py-1 rounded-md bg-sky-200 text-sky-950">Precon · {deck.precon}</span>
+                  )}
                   {bracket && (
                     <span title={bracket.detail} className={`sticker text-xs font-bold px-2 py-1 rounded-md ${bracket.estimated
                       ? "border border-dashed border-paper-400 text-paper-700 dark:text-paper-300"
@@ -155,6 +208,30 @@ export default function DeckDetailsPage() {
           </div>
         </div>
 
+        {(deck.description || guide.length > 0) && (
+          <div className="grid gap-6 mb-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-start">
+            {deck.description && (
+              <section className="bg-white dark:bg-paper-900 rounded-2xl p-5 md:p-6 border border-paper-200 dark:border-paper-800 shadow-sm">
+                <h2 className="font-brand font-bold text-lg text-paper-900 dark:text-paper-100 washi-block mb-3">About this deck</h2>
+                <p className="text-paper-700 dark:text-paper-300 leading-relaxed max-w-prose whitespace-pre-line">{deck.description}</p>
+              </section>
+            )}
+            {guide.length > 0 && (
+              <section className="bg-white dark:bg-paper-900 rounded-2xl p-5 md:p-6 border border-paper-200 dark:border-paper-800 shadow-sm">
+                <h2 className="font-brand font-bold text-lg text-paper-900 dark:text-paper-100 washi-block mb-3">How to play it</h2>
+                <div className="space-y-3 text-paper-700 dark:text-paper-300 leading-relaxed max-w-prose">
+                  {guide.map((b, i) => b.kind === "p"
+                    ? <p key={i}>{b.text}</p>
+                    : <ul key={i} className="list-disc pl-5 space-y-1">{b.items.map((it, j) => <li key={j}>{it}</li>)}</ul>)}
+                </div>
+              </section>
+            )}
+          </div>
+        )}
+        {isAdmin && !deck.description && !deck.playGuide && (
+          <p className="mb-8 text-sm text-paper-500 dark:text-paper-400">No description or play guide yet. Add them with Edit Deck.</p>
+        )}
+
         {confirmDelete && (
           <div role="alert" className="mb-8 p-4 rounded-xl border border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-900/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <p className="text-red-800 dark:text-red-300">Delete <strong>{deck.name}</strong>? This can&apos;t be undone.{deleteError && <span className="block text-sm mt-1">{deleteError}</span>}</p>
@@ -176,24 +253,24 @@ export default function DeckDetailsPage() {
           </div>
         ) : (
           <div className="bg-white dark:bg-paper-900 rounded-2xl p-5 md:p-6 border border-paper-200 dark:border-paper-800 shadow-sm space-y-10">
+            {keyError && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{keyError}</p>}
+            {keyCards.length > 0 && (
+              <section>
+                <h2 className="text-lg font-brand font-bold text-paper-900 dark:text-paper-100 pb-2 mb-4 border-b border-paper-100 dark:border-paper-800">
+                  Key cards <span className="text-paper-500 dark:text-paper-400 font-normal">({keyCards.length})</span>
+                </h2>
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(8.5rem,1fr))] gap-x-3 gap-y-5">
+                  {keyCards.map(card => renderCard(card, "key"))}
+                </div>
+              </section>
+            )}
             {groups.map(g => (
               <section key={g.label}>
                 <h2 className="text-lg font-brand font-bold text-paper-900 dark:text-paper-100 pb-2 mb-4 border-b border-paper-100 dark:border-paper-800">
                   {g.label} <span className="text-paper-500 dark:text-paper-400 font-normal">({g.count})</span>
                 </h2>
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(8.5rem,1fr))] gap-x-3 gap-y-5">
-                  {g.cards.map(card => (
-                    <a key={`${card.board}-${card.name}`} href={card.scryfallUri ?? `https://scryfall.com/search?q=!"${encodeURIComponent(card.name)}"`}
-                      target="_blank" rel="noopener noreferrer" className="group flex flex-col gap-1.5 min-w-0">
-                      <div className="relative aspect-[488/680] rounded-[4.5%/3.2%] overflow-hidden shadow-sm ring-1 ring-paper-900/10 dark:ring-white/10 group-hover:ring-2 group-hover:ring-sakura-500 transition-shadow duration-150 bg-paper-200 dark:bg-paper-800">
-                        {card.image && <img src={card.image} alt={card.name} loading="lazy" className="w-full h-full object-cover" />}
-                        {card.qty > 1 && (
-                          <span className="absolute top-1.5 right-1.5 text-xs font-bold px-1.5 py-0.5 rounded-md bg-paper-900/85 text-white">×{card.qty}</span>
-                        )}
-                      </div>
-                      <p className="text-xs font-medium text-paper-700 dark:text-paper-300 truncate">{card.name}</p>
-                    </a>
-                  ))}
+                  {g.cards.map(card => renderCard(card, g.label))}
                 </div>
               </section>
             ))}
