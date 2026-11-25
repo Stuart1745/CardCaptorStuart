@@ -34,7 +34,7 @@ export function LoginButton() {
 
   if (loading) {
     return (
-      <div className="h-10 px-4 rounded-lg bg-paper-100 dark:bg-paper-800 animate-pulse w-32"></div>
+      <div className="h-10 px-4 rounded-lg bg-paper-100 dark:bg-paper-800 animate-pulse w-10 sm:w-32 md:w-10 lg:w-32"></div>
     );
   }
 
@@ -51,7 +51,7 @@ export function LoginButton() {
           className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium text-paper-700 dark:text-paper-200 bg-white dark:bg-paper-800 border border-paper-300 dark:border-paper-700 rounded-lg hover:bg-paper-50 dark:hover:bg-paper-700 transition-colors"
         >
           <LogOut className="w-4 h-4" />
-          <span className="hidden sm:inline">Sign Out</span>
+          <span className="hidden sm:inline md:hidden lg:inline">Sign Out</span>
         </button>
       </div>
     );
@@ -64,7 +64,7 @@ export function LoginButton() {
       className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium text-on-accent bg-accent hover:bg-accent-hover rounded-lg transition-colors shadow-sm"
     >
       <LogIn className="w-4 h-4" />
-      <span className="hidden sm:inline">Sign in with Google</span>
+      <span className="hidden sm:inline md:hidden lg:inline">Sign in with Google</span>
     </button>
   );
 }

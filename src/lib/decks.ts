@@ -63,16 +63,16 @@ export const DECK_FORMATS = ["Commander", "Brawl", "Standard", "Pioneer", "Moder
 
 // The original hard-coded Deck Hub decks, seeded into Firestore on the first admin visit.
 export const DEFAULT_DECKS: Deck[] = [
-  { id: "fin-ffvi", name: "Revival Trance", precon: "Revival Trance (FINAL FANTASY VI)", format: "Commander", commander: "Celes, Rune Knight",
+  { id: "fin-ffvi", name: "Revival Trance", precon: "Revival Trance (FINAL FANTASY VI)", pods: ["Final Fantasy Precons"], format: "Commander", commander: "Celes, Rune Knight",
     thumbnail: "https://cards.scryfall.io/art_crop/front/3/0/30584c53-533b-4dc7-b07c-8600164a99b3.jpg?1752052917",
     link: "https://edhrec.com/route/?cc=Celes%2C+Rune+Knight", colors: ["W", "B", "R"], cards: [] },
-  { id: "fin-ffvii", name: "Limit Break", precon: "Limit Break (FINAL FANTASY VII)", format: "Commander", commander: "Cloud, Ex-SOLDIER",
+  { id: "fin-ffvii", name: "Limit Break", precon: "Limit Break (FINAL FANTASY VII)", pods: ["Final Fantasy Precons"], format: "Commander", commander: "Cloud, Ex-SOLDIER",
     thumbnail: "https://cards.scryfall.io/art_crop/front/0/7/07b4e4f8-6a31-4533-be51-668ce3ddc84f.jpg?1752052926",
     link: "https://edhrec.com/route/?cc=Cloud%2C+Ex-SOLDIER", colors: ["G", "R", "W"], cards: [] },
-  { id: "fin-ffxiv", name: "Scions & Spellcraft", precon: "Scions & Spellcraft (FINAL FANTASY XIV)", format: "Commander", commander: "G'raha Tia, Scion Reborn",
+  { id: "fin-ffxiv", name: "Scions & Spellcraft", precon: "Scions & Spellcraft (FINAL FANTASY XIV)", pods: ["Final Fantasy Precons"], format: "Commander", commander: "G'raha Tia, Scion Reborn",
     thumbnail: "https://cards.scryfall.io/art_crop/front/f/9/f90eb8ef-ad70-4d6c-9958-e6153f8599bc.jpg?1752052927",
     link: "https://edhrec.com/route/?cc=G%27raha+Tia%2C+Scion+Reborn", colors: ["W", "U", "B"], cards: [] },
-  { id: "fin-ffx", name: "Counter Blitz", precon: "Counter Blitz (FINAL FANTASY X)", format: "Commander", commander: "Tidus, Yuna's Guardian",
+  { id: "fin-ffx", name: "Counter Blitz", precon: "Counter Blitz (FINAL FANTASY X)", pods: ["Final Fantasy Precons"], format: "Commander", commander: "Tidus, Yuna's Guardian",
     thumbnail: "https://cards.scryfall.io/art_crop/front/2/c/2cfd4494-346c-4cbc-8072-e267254cefcc.jpg?1752052930",
     link: "https://edhrec.com/route/?cc=Tidus%2C+Yuna%27s+Guardian", colors: ["G", "U", "W"], cards: [] },
   { id: "eoc-worldshaper", name: "World Shaper", precon: "World Shaper (Edge of Eternities Commander)", format: "Commander", commander: "Hearthhull, the Worldseed",

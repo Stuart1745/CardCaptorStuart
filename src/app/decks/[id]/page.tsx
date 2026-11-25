@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowLeft, Edit3, ExternalLink, Loader2, Share2, Star, Trash2, X } from "lucide-react";
+import { ArrowLeft, Edit3, ExternalLink, Loader2, Share2, Star, Trash2, Users, X } from "lucide-react";
 import { DeckEditor } from "@/components/DeckEditor";
 import { useAuth } from "@/components/AuthProvider";
 import { db } from "@/lib/firebase";
@@ -193,7 +193,7 @@ export default function DeckDetailsPage() {
                     </span>
                   )}
                   {deck.pods?.map(p => (
-                    <Link key={p} href="/decks" className="text-xs font-medium px-2 py-1 rounded-full bg-sakura-50 dark:bg-sakura-900/30 text-sakura-700 dark:text-sakura-300 border border-sakura-100 dark:border-sakura-800/50">{p}</Link>
+                    <Link key={p} href={`/decks?pod=${encodeURIComponent(p)}`} title={`All decks in ${p}`} className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-sakura-50 dark:bg-sakura-900/30 text-sakura-800 dark:text-sakura-200 border border-sakura-200 dark:border-sakura-800/60 py-1 hover:bg-sakura-100 dark:hover:bg-sakura-900/50 transition-colors"><Users className="w-3 h-3" aria-hidden /> {p}</Link>
                   ))}
                 </div>
               )}

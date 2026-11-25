@@ -2,12 +2,13 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { QrCode, ExternalLink, X } from "lucide-react";
+import { QrCode, ExternalLink, X, Users } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { type Deck, linkLabel, deckSize, deckBracket } from "@/lib/decks";
 import { ManaIcon } from "@/components/ManaIcon";
 
-export function DeckCard({ deck }: { deck: Deck }) {
+/** onPodSelect: tapping a pod tag filters the hub to that pod. */
+export function DeckCard({ deck, onPodSelect }: { deck: Deck; onPodSelect?: (pod: string) => void }) {
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   // QR points at this app's deck page (it has the full list); falls back to the external link.
   const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/decks/${deck.id}` : (deck.link ?? "");
@@ -61,8 +62,13 @@ export function DeckCard({ deck }: { deck: Deck }) {
 
           {deck.pods && deck.pods.length > 0 && (
             <div className="flex flex-wrap gap-1.5 -mt-1">
-              {deck.pods.map(p => (
-                <span key={p} className="text-xs font-medium px-2 py-0.5 rounded-full bg-paper-100 dark:bg-paper-800 text-paper-700 dark:text-paper-300 border border-paper-200 dark:border-paper-700">{p}</span>
+              {deck.pods.map(p => onPodSelect ? (
+                <button key={p} type="button" onClick={() => onPodSelect(p)} title={`Show only ${p}`}
+                  className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-sakura-50 dark:bg-sakura-900/30 text-sakura-800 dark:text-sakura-200 border border-sakura-200 dark:border-sakura-800/60 hover:bg-sakura-100 dark:hover:bg-sakura-900/50 transition-colors">
+                  <Users className="w-3 h-3" aria-hidden /> {p}
+                </button>
+              ) : (
+                <span key={p} className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-sakura-50 dark:bg-sakura-900/30 text-sakura-800 dark:text-sakura-200 border border-sakura-200 dark:border-sakura-800/60"><Users className="w-3 h-3" aria-hidden /> {p}</span>
               ))}
             </div>
           )}

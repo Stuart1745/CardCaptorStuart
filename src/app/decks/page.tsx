@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { collection, doc, getDocs, writeBatch } from "firebase/firestore";
-import { Plus } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import { DeckCard } from "@/components/DeckCard";
 import { DeckEditor } from "@/components/DeckEditor";
 import { useAuth } from "@/components/AuthProvider";
@@ -18,6 +18,12 @@ export default function DecksPage() {
   const [decks, setDecks] = useState<Deck[]>(DEFAULT_DECKS);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [pod, setPod] = useState<string | null>(null);
+  // A pod tag on a deck page links here as /decks?pod=Name
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search).get("pod");
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- read once from the URL after hydration
+    if (p) setPod(p);
+  }, []);
   const allPods = [...new Set(decks.flatMap(d => d.pods ?? []))].sort((a, b) => a.localeCompare(b));
   const shown = pod ? decks.filter(d => d.pods?.includes(pod)) : decks;
 
@@ -69,7 +75,7 @@ export default function DecksPage() {
 
         {allPods.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 mb-6" role="group" aria-label="Filter by pod">
-            <span className="text-sm font-semibold text-paper-600 dark:text-paper-400 mr-1">Pods:</span>
+            <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-paper-600 dark:text-paper-400 mr-1"><Users className="w-4 h-4" aria-hidden /> Pods:</span>
             {[null, ...allPods].map(p => {
               const active = pod === p;
               const count = p ? decks.filter(d => d.pods?.includes(p)).length : decks.length;
@@ -87,7 +93,7 @@ export default function DecksPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {shown.map(deck => (
-            <DeckCard key={deck.id} deck={deck} />
+            <DeckCard key={deck.id} deck={deck} onPodSelect={p => { setPod(p); window.scrollTo({ top: 0, behavior: "smooth" }); }} />
           ))}
         </div>
       </div>

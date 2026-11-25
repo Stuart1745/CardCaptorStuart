@@ -21,39 +21,36 @@ export function Navigation() {
   ].filter(link => !link.requiresAdmin || isAdmin);
 
   return (
-    <nav className="letterhead sticky top-0 z-50">
+    // Phones: two rows (logo and account on top, page links below) that scroll away with the
+    // page; from md: one sticky row.
+    <nav className="letterhead relative md:sticky md:top-0 z-50">
       <div className="max-w-[84rem] mx-auto px-4 md:px-8">
-        <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
-          <div className="flex items-center gap-2 sm:gap-6 min-w-0">
-            <Link href="/" aria-label="Cardcaptor Stuart home" className="flex items-center gap-2 shrink-0 font-brand font-bold text-xl text-pink-700 dark:text-pink-400">
-              {/* Phones and tablets: the winged-S emblem (plus the name from md); laptops: the banner as a sticker */}
-              <img src="/logo.png" alt="" width={32} height={32} className="w-8 h-8 object-contain lg:hidden" />
-              <span className="hidden md:inline lg:hidden">Cardcaptor Stuart</span>
-              <Image src="/brand/banner.png" alt="" width={1336} height={200} priority className="hidden lg:block h-10 w-auto sticker rounded-md" />
-            </Link>
-            <div className="flex items-center gap-0.5 sm:gap-1 min-w-0">
-              {links.map((link) => {
-                const Icon = link.icon;
-                const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
-                return (
-                  <Link
-                    key={link.href}
-                    aria-current={isActive ? "page" : undefined}
-                    href={link.href}
-                    className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
-                      isActive
-                        ? "gel-underline text-paper-900 dark:text-paper-50"
-                        : "text-paper-600 dark:text-paper-300 hover:bg-paper-100 dark:hover:bg-paper-900 hover:text-paper-900 dark:hover:text-paper-50"
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    {link.label}
-                  </Link>
-                );
-              })}
-            </div>
+        <div className="flex flex-wrap md:flex-nowrap items-center justify-between gap-x-2 md:gap-x-6 pt-2.5 md:pt-0 md:h-16">
+          <Link href="/" aria-label="Cardcaptor Stuart home" className="order-1 shrink-0 rounded-md">
+            <Image src="/brand/banner.png" alt="" width={1336} height={200} priority className="h-8 md:h-9 lg:h-10 w-auto sticker rounded-md" />
+          </Link>
+          <div className="order-3 md:order-2 w-full md:w-auto md:flex-1 flex items-center gap-0.5 sm:gap-1 -mx-2 md:mx-0 py-1.5 md:py-0 min-w-0 overflow-x-auto">
+            {links.map((link) => {
+              const Icon = link.icon;
+              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+              return (
+                <Link
+                  key={link.href}
+                  aria-current={isActive ? "page" : undefined}
+                  href={link.href}
+                  className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
+                    isActive
+                      ? "gel-underline text-paper-900 dark:text-paper-50"
+                      : "text-paper-600 dark:text-paper-300 hover:bg-paper-100 dark:hover:bg-paper-900 hover:text-paper-900 dark:hover:text-paper-50"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+          <div className="order-2 md:order-3 flex items-center gap-2 sm:gap-4 shrink-0">
             <LoginButton />
             <ThemeToggle />
           </div>
