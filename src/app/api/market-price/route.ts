@@ -73,6 +73,7 @@ function kindsFor(type: string): string[] {
   if (t.includes("collector")) return ["Collector Booster"];
   if (t.includes("set booster")) return ["Set Booster"];
   if (t.includes("jumpstart")) return ["Jumpstart Booster"];
+  if (t.includes("beginner")) return ["Beginner"];
   if (t.includes("draft booster")) return ["Draft Booster", "Play Booster"];
   return ["Play Booster", "Draft Booster"];
 }

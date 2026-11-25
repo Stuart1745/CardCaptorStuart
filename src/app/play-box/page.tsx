@@ -96,6 +96,15 @@ const DEFAULT_BOXES: PlayBox[] = [
 const DRAFT_PACKS = 3;
 const SEALED_PACKS = 6;
 
+/** Jumpstart-style boxes (a Jumpstart cube, a Beginner Box): each player shuffles two 20-card packs together. */
+const JUMPSTART_PACKS = 2;
+const isJumpstartStyle = (type: string) => /jumpstart|beginner/i.test(type);
+
+/** The per-person costs a box card shows: draft and sealed, or one Jumpstart deck. */
+const costColumns = (type: string) => isJumpstartStyle(type)
+  ? [{ label: "Deck / person", head: `Deck ×${JUMPSTART_PACKS}`, packs: JUMPSTART_PACKS }]
+  : [{ label: "Draft / person", head: `Draft ×${DRAFT_PACKS}`, packs: DRAFT_PACKS }, { label: "Sealed / person", head: `Sealed ×${SEALED_PACKS}`, packs: SEALED_PACKS }];
+
 /** Play Boosters replaced Draft Boosters in 2024; both are made for drafting. */
 const isDraftable = (type: string) => /draft|play booster/i.test(type);
 
@@ -107,7 +116,7 @@ const typeTheme = (type: string) => {
   const t = type.toLowerCase();
   if (t.includes("collector")) return { sticker: "bg-butter text-amber-950", icon: "text-amber-700 dark:text-amber-300", progressFill: "bg-amber-300" };
   if (t.includes("set booster")) return { sticker: "bg-sky-200 text-sky-950", icon: "text-sky-700 dark:text-sky-300", progressFill: "bg-sky-300" };
-  if (t.includes("cube") || t.includes("jumpstart")) return { sticker: "bg-orange-200 text-orange-950", icon: "text-orange-700 dark:text-orange-300", progressFill: "bg-orange-300" };
+  if (t.includes("cube") || t.includes("jumpstart") || t.includes("beginner")) return { sticker: "bg-orange-200 text-orange-950", icon: "text-orange-700 dark:text-orange-300", progressFill: "bg-orange-300" };
   return { sticker: "bg-mint text-emerald-950", icon: "text-emerald-700 dark:text-emerald-300", progressFill: "bg-emerald-300" };
 };
 
@@ -206,10 +215,12 @@ export default function PlayBoxPage() {
     const boxData = {
       name: newBox.name,
       type: newBox.type,
-      capacity: isDraftable(newBox.type) ? "Drafts up to 8 players" : "Pack cracking only",
+      capacity: isJumpstartStyle(newBox.type)
+        ? `Up to ${Math.max(2, Math.floor(newBox.total / JUMPSTART_PACKS))} players, ${JUMPSTART_PACKS} packs each`
+        : isDraftable(newBox.type) ? "Drafts up to 8 players" : "Pack cracking only",
       remaining: newBox.total,
       total: newBox.total,
-      format: isDraftable(newBox.type) ? "Draft" : "Sealed",
+      format: isJumpstartStyle(newBox.type) ? "Jumpstart" : isDraftable(newBox.type) ? "Draft" : "Sealed",
       cost: newBox.cost,
       marketPrice: newBox.marketPrice,
       setCode: newBox.setCode.toUpperCase(),
@@ -363,6 +374,7 @@ export default function PlayBoxPage() {
                     <option value="Set Booster Box">Set Booster Box</option>
                     <option value="Collector Booster Box">Collector Booster Box</option>
                     <option value="Jumpstart Cube">Jumpstart Cube</option>
+                    <option value="Beginner Box">Beginner Box</option>
                   </select>
                 </div>
                 <div>
@@ -413,6 +425,7 @@ export default function PlayBoxPage() {
               const live = livePrices[box.id];
               const marketText = live ? live.marketPrice.toFixed(2) : box.marketPrice;
               const marketPack = perPack(marketText);
+              const cols = costColumns(box.type);
               const priceRows = [
                 paidPack !== null && { key: "paid", label: "Paid", pack: paidPack, box: isAdmin ? money(parseFloat(box.cost!)) : "box price" },
                 marketPack !== null && { key: "market", label: "Market", pack: marketPack, box: money(parseFloat(marketText!)) },
@@ -493,8 +506,7 @@ export default function PlayBoxPage() {
                             <th scope="col" className="font-medium pb-0.5 pr-2"></th>
                             <th scope="col" className="font-medium pb-0.5 pr-2">Box ÷ packs</th>
                             <th scope="col" className="font-medium pb-0.5 pr-2">Per pack</th>
-                            <th scope="col" className="font-medium pb-0.5 pr-2">Draft ×{DRAFT_PACKS}</th>
-                            <th scope="col" className="font-medium pb-0.5 pr-2">Sealed ×{SEALED_PACKS}</th>
+                            {cols.map(c => <th key={c.head} scope="col" className="font-medium pb-0.5 pr-2">{c.head}</th>)}
                           </tr>
                         </thead>
                         <tbody>
@@ -503,8 +515,7 @@ export default function PlayBoxPage() {
                               <th scope="row" className="font-semibold text-paper-900 dark:text-paper-100 pr-2">{r.label}</th>
                               <td className="pr-2">{r.box} ÷ {box.total}</td>
                               <td className="pr-2">{approx(r.pack)} {money(r.pack)}</td>
-                              <td className="pr-2">{money(r.pack * DRAFT_PACKS)}</td>
-                              <td>{money(r.pack * SEALED_PACKS)}</td>
+                              {cols.map(c => <td key={c.head} className="pr-2">{money(r.pack * c.packs)}</td>)}
                             </tr>
                           ))}
                         </tbody>
@@ -512,8 +523,8 @@ export default function PlayBoxPage() {
                       {live && <p className="mt-1.5 text-paper-500 dark:text-paper-400">Market is TCGplayer&rsquo;s market price, refreshed daily.</p>}
                     </div>
                     <dl className="grid grid-cols-2 divide-x divide-paper-100 dark:divide-paper-800 border-t border-paper-100 dark:border-paper-800 pt-3 text-xs">
-                      {[{ label: "Draft / person", packs: DRAFT_PACKS, pad: "pr-3" }, { label: "Sealed / person", packs: SEALED_PACKS, pad: "pl-3" }].map(col => (
-                        <div key={col.label} className={col.pad}>
+                      {cols.map((col, i) => (
+                        <div key={col.label} className={i === 0 ? "pr-3" : "pl-3"}>
                           <dt className="text-paper-500 dark:text-paper-400">{col.label}</dt>
                           {priceRows.map(r => (
                             <dd key={r.key} className="mt-0.5 tabular-nums">
