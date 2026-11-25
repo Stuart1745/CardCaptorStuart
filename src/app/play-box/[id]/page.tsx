@@ -10,6 +10,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ManaIcon } from "@/components/ManaIcon";
 import { Sparkle } from "@/components/Sparkle";
 import { FloatingPreview } from "@/components/FloatingPreview";
+import { isReusableBox } from "@/lib/boxTypes";
 import { ArrowLeft, Package, Loader2, AlertCircle, BookOpen, Map as MapIcon, Star, Zap, Share2, Check, Settings, X, Image as ImageIcon } from "lucide-react";
 
 const COLOR_NAME_TO_SYMBOL: Record<string, string> = { White: 'W', Blue: 'U', Black: 'B', Red: 'R', Green: 'G' };
@@ -940,7 +941,7 @@ export default function PlayboxDetailsPage() {
               <span className="sticker bg-mint text-emerald-950 px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider">
                 {boxInfo.type || "Play Booster Box"}
               </span>
-              • Set: {boxInfo.setCode} • {boxInfo.remaining} / {boxInfo.total} Packs Remaining
+              • Set: {boxInfo.setCode} • {isReusableBox(boxInfo.type) ? `${boxInfo.total} packs, reusable` : `${boxInfo.remaining} / ${boxInfo.total} Packs Remaining`}
             </p>
           </div>
           <div className="relative z-10 flex flex-wrap items-center gap-4 md:gap-6">
@@ -967,7 +968,7 @@ export default function PlayboxDetailsPage() {
                 <Settings className="w-4 h-4" /> Edit
               </button>
             )}
-            {!isSharedMode && isAdmin && (
+            {!isSharedMode && isAdmin && !isReusableBox(boxInfo.type) && (
               <button 
                 type="button"
                 onClick={() => changePacks(-1)}

@@ -9,6 +9,7 @@ import { isAdminUser } from "@/lib/admin";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, addDoc, doc, writeBatch } from "firebase/firestore";
 import type { MarketPrice } from "@/app/api/market-price/route";
+import { JUMPSTART_PACKS, isReusableBox } from "@/lib/boxTypes";
 
 
 interface PlayBox {
@@ -96,14 +97,12 @@ const DEFAULT_BOXES: PlayBox[] = [
 const DRAFT_PACKS = 3;
 const SEALED_PACKS = 6;
 
-/** Jumpstart-style boxes (a Jumpstart cube, a Beginner Box): each player shuffles two 20-card packs together. */
-const JUMPSTART_PACKS = 2;
+/** The per-person costs a sealed box shows. Reusable boxes (cubes) have none. */
+const COST_COLUMNS = [
+  { label: "Draft / person", head: `Draft ×${DRAFT_PACKS}`, packs: DRAFT_PACKS },
+  { label: "Sealed / person", head: `Sealed ×${SEALED_PACKS}`, packs: SEALED_PACKS },
+];
 const isJumpstartStyle = (type: string) => /jumpstart|beginner/i.test(type);
-
-/** The per-person costs a box card shows: draft and sealed, or one Jumpstart deck. */
-const costColumns = (type: string) => isJumpstartStyle(type)
-  ? [{ label: "Deck / person", head: `Deck ×${JUMPSTART_PACKS}`, packs: JUMPSTART_PACKS }]
-  : [{ label: "Draft / person", head: `Draft ×${DRAFT_PACKS}`, packs: DRAFT_PACKS }, { label: "Sealed / person", head: `Sealed ×${SEALED_PACKS}`, packs: SEALED_PACKS }];
 
 /** Play Boosters replaced Draft Boosters in 2024; both are made for drafting. */
 const isDraftable = (type: string) => /draft|play booster/i.test(type);
@@ -425,8 +424,9 @@ export default function PlayBoxPage() {
               const live = livePrices[box.id];
               const marketText = live ? live.marketPrice.toFixed(2) : box.marketPrice;
               const marketPack = perPack(marketText);
-              const cols = costColumns(box.type);
-              const priceRows = [
+              const cols = COST_COLUMNS;
+              const reusable = isReusableBox(box.type);
+              const priceRows = reusable ? [] : [
                 paidPack !== null && { key: "paid", label: "Paid", pack: paidPack, box: isAdmin ? money(parseFloat(box.cost!)) : "box price" },
                 marketPack !== null && { key: "market", label: "Market", pack: marketPack, box: money(parseFloat(marketText!)) },
               ].filter(Boolean) as { key: string; label: string; pack: number; box: string }[];
@@ -484,6 +484,11 @@ export default function PlayBoxPage() {
                     ) : null}
                   </div>
 
+                  {reusable ? (
+                  <p className="text-xs font-medium text-paper-600 dark:text-paper-400 mb-1">
+                    Reusable · {box.total} packs{box.capacity ? ` · ${box.capacity}` : ""}
+                  </p>
+                  ) : (
                   <div className="mb-4">
                     <div className="flex justify-between text-xs font-medium mb-1.5">
                       <span className="text-paper-600 dark:text-paper-400">Inventory</span>
@@ -493,6 +498,7 @@ export default function PlayBoxPage() {
                       <div className={`h-2 rounded-full ${theme.progressFill}`} style={{ width: `${percentage}%` }}></div>
                     </div>
                   </div>
+                  )}
 
                   {priceRows.length > 0 && (
                     <div className="relative flex flex-col">
