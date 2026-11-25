@@ -128,6 +128,8 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
           .map(n => n.toLowerCase()));
         const isKey = (n: string) => keyNames.has(n.toLowerCase()) || keyNames.has(n.split(" // ")[0].toLowerCase());
         cards = r.cards.map(c => (isKey(c.name) ? { ...c, key: true } : c));
+        // Commander has no sideboard: a pasted Sideboard/Maybeboard section is left out
+        if (isCommanderFormat) cards = cards.filter(c => c.board !== "sideboard");
         colors = r.colors;
         thumbnail = r.thumbnail ?? thumbnail;
         commanderName = r.commander ?? commanderName;
