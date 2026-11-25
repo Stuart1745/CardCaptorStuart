@@ -8,7 +8,7 @@ The masters are Stuart's Gemini-generated images (2026-11-24), downsized:
 Run from the repo root:  python scripts/make_brand.py
 Writes: src/app/icon.png (512), src/app/apple-icon.png (180), src/app/favicon.ico (16/32/48),
 public/logo.png (64), public/brand/banner.png (nav sticker), public/brand/stacked.jpg (sign-in),
-src/app/opengraph-image.jpg (1200x630 link preview).
+src/app/opengraph-image.jpg (1200x630 link preview), public/icons/ (web app icons: 192, 512, maskable 512).
 """
 from pathlib import Path
 from PIL import Image, ImageDraw
@@ -35,6 +35,18 @@ def main():
     rounded(full.resize((512, 512), Image.LANCZOS), 0.22).save(ROOT / "src/app/icon.png", optimize=True)
     full.resize((180, 180), Image.LANCZOS).save(ROOT / "src/app/apple-icon.png", optimize=True)  # iOS rounds it
     rounded(full.resize((128, 128), Image.LANCZOS), 0.22).resize((64, 64), Image.LANCZOS).save(ROOT / "public/logo.png", optimize=True)
+    # Home-screen app icons (web app manifest). "any": the full emblem, square (the OS rounds it);
+    # "maskable": the emblem at 78% on its own navy, so Android's circle/squircle masks keep it whole.
+    icons = ROOT / "public/icons"
+    icons.mkdir(parents=True, exist_ok=True)
+    for size in (192, 512):
+        full.resize((size, size), Image.LANCZOS).save(icons / f"icon-{size}.png", optimize=True)
+    navy = emblem.getpixel((4, 4))
+    mask_bg = Image.new("RGB", (512, 512), navy)
+    inner = full.resize((400, 400), Image.LANCZOS)
+    mask_bg.paste(inner, (56, 56))
+    mask_bg.save(icons / "icon-maskable-512.png", optimize=True)
+
     # Favicon: tighter on the S and star so it still reads at 16 px
     tight = emblem.crop((int(s * 0.14), int(s * 0.11), int(s * 0.85), int(s * 0.82)))
     rounded(tight.resize((256, 256), Image.LANCZOS), 0.22).save(ROOT / "src/app/favicon.ico", sizes=[(16, 16), (32, 32), (48, 48)])
