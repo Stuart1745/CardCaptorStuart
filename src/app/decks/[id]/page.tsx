@@ -10,8 +10,12 @@ import { DeckEditor } from "@/components/DeckEditor";
 import { useAuth } from "@/components/AuthProvider";
 import { db } from "@/lib/firebase";
 import { isAdminUser } from "@/lib/admin";
-import { DEFAULT_DECKS, type Deck, type DeckCardEntry, deckSize, groupDeck, linkLabel, deckBracket, gameChangersIn, textBlocks, preconLabel } from "@/lib/decks";
+import { DEFAULT_DECKS, type Deck, type DeckCardEntry, deckSize, groupDeck, linkLabel, deckBracket, gameChangersIn, textBlocks, preconLabel, bracketReasons } from "@/lib/decks";
 import { ManaIcon } from "@/components/ManaIcon";
+import { FloatingPreview } from "@/components/FloatingPreview";
+
+/** Scryfall's bigger scan for the hover preview ("normal" is 488px wide, "large" 672px). */
+const largeImage = (url: string) => url.replace("/normal/", "/large/");
 
 
 export default function DeckDetailsPage() {
@@ -29,6 +33,19 @@ export default function DeckDetailsPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [keyError, setKeyError] = useState<string | null>(null);
+  /** Hover preview of a card (mouse and keyboard focus only; touch taps go straight to Scryfall) */
+  const [preview, setPreview] = useState<{ card: DeckCardEntry; anchor: DOMRect } | null>(null);
+  const showPreview = (card: DeckCardEntry, el: HTMLElement, viaFocus = false) => {
+    if (!card.image) return;
+    if (!viaFocus && typeof window !== "undefined" && !window.matchMedia("(hover: hover)").matches) return;
+    setPreview({ card, anchor: el.getBoundingClientRect() });
+  };
+  const hidePreview = () => setPreview(null);
+  useEffect(() => {
+    if (!preview) return;
+    window.addEventListener("scroll", hidePreview, { passive: true, once: true });
+    return () => window.removeEventListener("scroll", hidePreview);
+  }, [preview]);
 
   useEffect(() => {
     (async () => {
@@ -107,7 +124,9 @@ export default function DeckDetailsPage() {
   const renderCard = (card: DeckCardEntry, where: string) => (
     <div key={`${where}-${card.board}-${card.name}`} className="flex flex-col gap-1.5 min-w-0">
       <a href={card.scryfallUri ?? `https://scryfall.com/search?q=!"${encodeURIComponent(card.name)}"`}
-        target="_blank" rel="noopener noreferrer" className="group flex flex-col gap-1.5 min-w-0">
+        target="_blank" rel="noopener noreferrer" className="group flex flex-col gap-1.5 min-w-0"
+        onMouseEnter={e => showPreview(card, e.currentTarget.firstElementChild as HTMLElement)} onMouseLeave={hidePreview}
+        onFocus={e => showPreview(card, e.currentTarget.firstElementChild as HTMLElement, true)} onBlur={hidePreview}>
         <div className="relative aspect-[488/680] rounded-[4.5%/3.2%] overflow-hidden shadow-sm ring-1 ring-paper-900/10 dark:ring-white/10 group-hover:ring-2 group-hover:ring-sakura-500 transition-shadow duration-150 bg-paper-200 dark:bg-paper-800">
           {card.image && <img src={card.image} alt={card.name} loading="lazy" className="w-full h-full object-cover" />}
           {card.qty > 1 && (
@@ -139,10 +158,13 @@ export default function DeckDetailsPage() {
         </Link>
 
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-          <div className="flex items-center gap-5 sm:gap-6 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8 min-w-0">
             {commanderCard ? (
               <a href={commanderCard.scryfallUri ?? "#"} target="_blank" rel="noopener noreferrer"
-                className="w-28 sm:w-36 shrink-0 aspect-[488/680] rounded-[4.5%/3.2%] overflow-hidden shadow-lg ring-1 ring-paper-900/10 dark:ring-white/10 bg-paper-200 dark:bg-paper-800">
+                aria-label={`${commanderCard.name} on Scryfall`}
+                onMouseEnter={e => showPreview(commanderCard, e.currentTarget)} onMouseLeave={hidePreview}
+                onFocus={e => showPreview(commanderCard, e.currentTarget, true)} onBlur={hidePreview}
+                className="w-36 sm:w-48 lg:w-56 shrink-0 aspect-[488/680] rounded-[4.5%/3.2%] overflow-hidden shadow-lg ring-1 ring-paper-900/10 dark:ring-white/10 bg-paper-200 dark:bg-paper-800 hover:ring-2 hover:ring-sakura-500 transition-shadow duration-150">
                 <img src={commanderCard.image} alt={commanderCard.name} className="w-full h-full object-cover" />
               </a>
             ) : (
@@ -175,7 +197,13 @@ export default function DeckDetailsPage() {
                   ))}
                 </div>
               )}
-              {bracket && gameChangers.length > 0 && (
+              {bracket && !deck.bracket && deck.bracketEstimate ? (
+                <div className="text-xs text-paper-500 dark:text-paper-400 mt-2 space-y-0.5 max-w-prose">
+                  {bracketReasons(deck.bracketEstimate).map(r => <p key={r}>{r}</p>)}
+                  {bracketReasons(deck.bracketEstimate).length === 0 && <p>No Game Changers, two-card combos, extra turns or mass land denial.</p>}
+                  <p>Checked with <a href="https://commanderspellbook.com" target="_blank" rel="noopener noreferrer" className="underline decoration-dotted underline-offset-2 hover:text-sakura-700 dark:hover:text-sakura-300">Commander Spellbook</a>.</p>
+                </div>
+              ) : bracket && gameChangers.length > 0 && (
                 <p className="text-xs text-paper-500 dark:text-paper-400 mt-2">
                   Game Changers ({gameChangers.length}): {gameChangers.join(", ")}
                 </p>
@@ -302,6 +330,11 @@ export default function DeckDetailsPage() {
           onClose={() => setIsEditorOpen(false)}
           onSaved={saved => { setDeck(saved); setIsEditorOpen(false); }}
         />
+      )}
+      {preview?.card.image && (
+        <FloatingPreview anchor={preview.anchor} maxWidth={336} interactive={false} side="right">
+          <img src={largeImage(preview.card.image)} alt="" className="w-full rounded-[4.5%/3.2%] shadow-2xl ring-1 ring-black/10" />
+        </FloatingPreview>
       )}
     </main>
   );

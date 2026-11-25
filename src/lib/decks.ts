@@ -30,8 +30,10 @@ export interface Deck {
   cards: DeckCardEntry[];
   /** The decklist exactly as pasted, so Edit shows it back */
   decklistText?: string;
-  /** Commander bracket 1-5 set by hand or imported; unset = estimated from Game Changers */
+  /** Commander bracket 1-5 set by hand or imported; unset = estimated */
   bracket?: number;
+  /** Commander Spellbook's bracket check, refreshed whenever the decklist is saved */
+  bracketEstimate?: BracketEstimate;
   /** Pods / battle boxes this deck belongs to (decks that play well together) */
   pods?: string[];
   /** Official preconstructed product name, e.g. "Revival Trance (FINAL FANTASY VI)"; set = it's a precon */
@@ -42,6 +44,19 @@ export interface Deck {
   playGuide?: string;
   createdAt?: string;
   updatedAt?: string;
+}
+
+/** Commander Spellbook's bracket estimate for a deck (https://commanderspellbook.com). */
+export interface BracketEstimate {
+  /** Exhibition, Core, Oddball, Powerful, Spicy, Ruthless, Banned */
+  tag: "E" | "C" | "O" | "P" | "S" | "R" | "B";
+  gameChangers: string[];
+  massLandDenial: string[];
+  extraTurns: string[];
+  banned: string[];
+  /** Combos that matter (infinite or game-winning); twoCard = needs only two cards */
+  combos: { cards: string[]; twoCard: boolean; id?: string }[];
+  checkedAt: string;
 }
 
 export const DECK_FORMATS = ["Commander", "Brawl", "Standard", "Pioneer", "Modern", "Legacy", "Pauper", "Limited", "Other"];
@@ -339,21 +354,69 @@ export const gameChangersIn = (cards: DeckCardEntry[]) =>
   cards.filter(c => c.gameChanger && c.board !== "sideboard").map(c => c.name);
 
 /**
- * The bracket to show for a Commander deck: the one set by hand (or imported), else an
- * estimate from Game Changers alone, which only sets a floor: none = 1-2, one to three = 3,
- * four or more = 4. Extra turns, mass land denial and two-card combos can push it higher.
+ * The bracket to show for a Commander deck, best evidence first:
+ * 1. set by hand (or imported from Archidekt);
+ * 2. Commander Spellbook's estimate (Game Changers, mass land denial, extra turns, combos),
+ *    mapped to Wizards' brackets: Ruthless 4, Spicy/Powerful 3, Oddball/Core 2, and a deck
+ *    with nothing flagged is 2 if it is a precon (a store-bought deck is not a deliberately
+ *    weak Exhibition deck), else "1-2";
+ * 3. Game Changers alone: none = 1-2 (2 for a precon), one to three = 3, four or more = 4.
  */
 export function deckBracket(deck: Deck): { value: number; label: string; estimated: boolean; detail: string } | null {
   if (!isCommanderDeck(deck)) return null;
   if (deck.bracket && BRACKETS[deck.bracket]) {
     return { value: deck.bracket, label: `Bracket ${deck.bracket}`, estimated: false, detail: `Bracket ${deck.bracket}: ${BRACKETS[deck.bracket]}` };
   }
+  const est = deck.bracketEstimate;
+  if (est) {
+    const reasons = bracketReasons(est);
+    const why = reasons.length ? reasons.join("; ") : "No Game Changers, combos, extra turns or mass land denial found";
+    const src = "Estimated with Commander Spellbook";
+    switch (est.tag) {
+      case "B": return { value: 4, label: "Banned card", estimated: true, detail: `${src}. It has a card banned in Commander: ${est.banned.join(", ")}.` };
+      case "R": return { value: 4, label: "Bracket 4", estimated: true, detail: `${src}: ${why}.` };
+      case "S": return { value: 3, label: "Bracket 3", estimated: true, detail: `${src}: ${why}. Could be 4 if the combo is the plan.` };
+      case "P": return { value: 3, label: "Bracket 3", estimated: true, detail: `${src}: ${why}.` };
+      case "O": return { value: 2, label: "Bracket 2", estimated: true, detail: `${src}: ${why}. Could be 3.` };
+      case "C": return { value: 2, label: "Bracket 2", estimated: true, detail: `${src}: ${why}.` };
+      default: return deck.precon
+        ? { value: 2, label: "Bracket 2", estimated: true, detail: `${src}: ${why}. Precons land in Core (2) unless something pushes them up.` }
+        : { value: 2, label: "Bracket 1-2", estimated: true, detail: `${src}: ${why}. 1 if it is built to be casual, else 2.` };
+    }
+  }
   if (!deck.cards?.length) return null;
   const gc = gameChangersIn(deck.cards).length;
   const value = gc >= 4 ? 4 : gc >= 1 ? 3 : 2;
-  const label = gc === 0 ? "Bracket 1-2" : `Bracket ${value}`;
+  const label = gc === 0 && !deck.precon ? "Bracket 1-2" : `Bracket ${value}`;
   const count = gc === 1 ? "1 Game Changer" : `${gc} Game Changers`;
   return { value, label, estimated: true, detail: `Estimated from ${count}. Set the bracket on the deck to override.` };
+}
+
+/** What pushed a deck's bracket up, as short phrases. */
+export function bracketReasons(est: BracketEstimate): string[] {
+  const out: string[] = [];
+  if (est.gameChangers.length) out.push(`Game Changer${est.gameChangers.length === 1 ? "" : "s"}: ${est.gameChangers.join(", ")}`);
+  const two = est.combos.filter(c => c.twoCard);
+  if (two.length) out.push(`Two-card combo${two.length === 1 ? "" : "s"}: ${two.map(c => c.cards.join(" + ")).join("; ")}`);
+  if (est.extraTurns.length) out.push(`Extra turns: ${est.extraTurns.join(", ")}`);
+  if (est.massLandDenial.length) out.push(`Mass land denial: ${est.massLandDenial.join(", ")}`);
+  return out;
+}
+
+/** Ask the server (Commander Spellbook) for a bracket estimate; null if it can't be reached. */
+export async function requestBracketEstimate(cards: DeckCardEntry[]): Promise<BracketEstimate | null> {
+  const pick = (board: Board) => cards.filter(c => c.board === board).map(c => ({ card: c.name, quantity: c.qty }));
+  try {
+    const res = await fetch("/api/estimate-bracket", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ commanders: pick("commander"), main: pick("main") }),
+    });
+    if (!res.ok) return null;
+    return await res.json() as BracketEstimate;
+  } catch {
+    return null;
+  }
 }
 
 /** "Pod A, pod a, Battle Box" -> ["Pod A", "Battle Box"] */

@@ -6,7 +6,7 @@ import { Loader2, X, AlertCircle, Download, Info } from "lucide-react";
 import { db } from "@/lib/firebase";
 import {
   DECK_FORMATS, BRACKETS, type Deck, parseDecklist, resolveDecklist, fetchCardByName, coverArtFor, colorIdentityOf, slugify,
-  parsePods,
+  parsePods, requestBracketEstimate,
 } from "@/lib/decks";
 
 const PLACEHOLDER = `Commander
@@ -144,6 +144,16 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
         }
       }
 
+      // Bracket check (Commander Spellbook). Re-run when the list changed or was never checked;
+      // if Spellbook can't be reached, drop a stale estimate rather than keep one for old cards.
+      let bracketEstimate = deck?.bracketEstimate;
+      const listChanged = decklist !== (deck?.decklistText ?? "");
+      if (isCommanderFormat && cards.length && (listChanged || !bracketEstimate)) {
+        setBusy("Checking the bracket with Commander Spellbook…");
+        bracketEstimate = (await requestBracketEstimate(cards)) ?? undefined;
+      }
+      if (!isCommanderFormat || !cards.length) bracketEstimate = undefined;
+
       setBusy("Saving…");
       const now = new Date().toISOString();
       const id = deck?.id ?? newDeckId(name);
@@ -160,6 +170,7 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
         ...(commanderName ? { commander: commanderName } : {}),
         ...(link.trim() ? { link: link.trim() } : {}),
         ...(isCommanderFormat && bracket ? { bracket: Number(bracket) } : {}),
+        ...(bracketEstimate ? { bracketEstimate } : {}),
         ...(currentPods.length ? { pods: currentPods } : {}),
         ...(isPrecon ? { precon: preconName.trim() || "Precon" } : {}),
         ...(description.trim() ? { description: description.trim() } : {}),
@@ -260,7 +271,7 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
                 <div>
                   <label htmlFor="deck-bracket" className={labelCls}>Bracket</label>
                   <select id="deck-bracket" value={bracket} onChange={e => setBracket(e.target.value)} className={inputCls}>
-                    <option value="">Estimate from Game Changers</option>
+                    <option value="">Estimate (Commander Spellbook)</option>
                     {Object.entries(BRACKETS).map(([n, label]) => <option key={n} value={n}>{n}: {label}</option>)}
                   </select>
                 </div>

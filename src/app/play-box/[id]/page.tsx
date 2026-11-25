@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { db } from "@/lib/firebase";
@@ -9,6 +9,7 @@ import { isAdminUser } from "@/lib/admin";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ManaIcon } from "@/components/ManaIcon";
 import { Sparkle } from "@/components/Sparkle";
+import { FloatingPreview } from "@/components/FloatingPreview";
 import { ArrowLeft, Package, Loader2, AlertCircle, BookOpen, Map as MapIcon, Star, Zap, Share2, Check, Settings, X, Image as ImageIcon } from "lucide-react";
 
 const COLOR_NAME_TO_SYMBOL: Record<string, string> = { White: 'W', Blue: 'U', Black: 'B', Red: 'R', Green: 'G' };
@@ -26,44 +27,6 @@ const rarityBadge = (rarity?: string) => {
   if (r === 'uncommon') return <span className={`${base} bg-paper-300 text-paper-900`}>U</span>;
   return <span className={`${base} bg-paper-600 text-white`}>C</span>;
 };
-
-/**
- * A hover/tap preview rendered with position: fixed, so no panel or grid can clip it. It is
- * measured after render and placed above the anchor if it fits under the sticky nav, else
- * below, else pinned under the nav; horizontally it is clamped inside the viewport.
- */
-function FloatingPreview({ anchor, maxWidth, interactive, children }: {
-  anchor: DOMRect;
-  maxWidth: number;
-  interactive: boolean;
-  children: React.ReactNode;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const m = 8;
-    const vw = document.documentElement.clientWidth;
-    const vh = window.innerHeight;
-    const navBottom = Math.max(0, document.querySelector('nav')?.getBoundingClientRect().bottom ?? 0) + m;
-    const w = el.offsetWidth;
-    const h = el.offsetHeight;
-    const left = Math.min(Math.max(m, anchor.left + anchor.width / 2 - w / 2), vw - w - m);
-    const top = anchor.top - h - m >= navBottom ? anchor.top - h - m
-      : anchor.bottom + m + h <= vh - m ? anchor.bottom + m
-      : Math.max(navBottom, vh - h - m);
-    el.style.left = `${Math.round(left)}px`;
-    el.style.top = `${Math.round(top)}px`;
-    el.style.visibility = 'visible';
-  }, [anchor]);
-  return (
-    <div ref={ref} role="tooltip" data-floating-preview
-      style={{ position: 'fixed', top: 0, left: 0, visibility: 'hidden', width: `min(${maxWidth}px, calc(100vw - 16px))` }}
-      className={`z-[150] ${interactive ? '' : 'pointer-events-none'}`}>
-      {children}
-    </div>
-  );
-}
 
 interface PlayBox {
   id: string;
