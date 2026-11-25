@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 import { LoginButton } from "./LoginButton";
@@ -25,8 +26,10 @@ export function Navigation() {
         <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
           <div className="flex items-center gap-2 sm:gap-6 min-w-0">
             <Link href="/" aria-label="Cardcaptor Stuart home" className="flex items-center gap-2 shrink-0 font-brand font-bold text-xl text-pink-700 dark:text-pink-400">
-              <img src="/logo.png" alt="" width={32} height={32} className="w-8 h-8 object-contain" />
-              <span className="hidden md:inline">Cardcaptor Stuart</span>
+              {/* Phones and tablets: the winged-S emblem (plus the name from md); laptops: the banner as a sticker */}
+              <img src="/logo.png" alt="" width={32} height={32} className="w-8 h-8 object-contain lg:hidden" />
+              <span className="hidden md:inline lg:hidden">Cardcaptor Stuart</span>
+              <Image src="/brand/banner.png" alt="" width={1336} height={200} priority className="hidden lg:block h-10 w-auto sticker rounded-md" />
             </Link>
             <div className="flex items-center gap-0.5 sm:gap-1 min-w-0">
               {links.map((link) => {

@@ -8,6 +8,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { isAdminUser } from "@/lib/admin";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, addDoc, doc, writeBatch } from "firebase/firestore";
+import type { MarketPrice } from "@/app/api/market-price/route";
 
 
 interface PlayBox {
@@ -37,7 +38,7 @@ const DEFAULT_BOXES: PlayBox[] = [
   {
     id: "2",
     name: "Avatar",
-    type: "Draft Environment",
+    type: "Play Booster Box",
     capacity: "Drafts up to 8 players",
     remaining: 30,
     total: 30,
@@ -48,8 +49,8 @@ const DEFAULT_BOXES: PlayBox[] = [
   {
     id: "3",
     name: "Tarkir Dragonstorm",
-    type: "Draft Booster Box",
-    capacity: "Pack cracking only",
+    type: "Play Booster Box",
+    capacity: "Drafts up to 8 players",
     remaining: 30,
     total: 30,
     format: "Draft",
@@ -59,7 +60,7 @@ const DEFAULT_BOXES: PlayBox[] = [
   {
     id: "4",
     name: "Lorwyn Eclipsed",
-    type: "Draft Environment",
+    type: "Play Booster Box",
     capacity: "Drafts up to 8 players",
     remaining: 36,
     total: 36,
@@ -81,7 +82,7 @@ const DEFAULT_BOXES: PlayBox[] = [
   {
     id: "6",
     name: "Final Fantasy",
-    type: "Draft Environment",
+    type: "Play Booster Box",
     capacity: "Drafts up to 8 players",
     remaining: 30,
     total: 30,
@@ -120,6 +121,25 @@ export default function PlayBoxPage() {
   const router = useRouter();
   const [playBoxes, setPlayBoxes] = useState<PlayBox[]>(DEFAULT_BOXES);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // Live TCGplayer market price per box id (null = no price found; falls back to a hand-entered one)
+  const [livePrices, setLivePrices] = useState<Record<string, MarketPrice | null>>({});
+
+  useEffect(() => {
+    const wanted = playBoxes.filter(b => b.setCode && !(b.id in livePrices));
+    if (!wanted.length) return;
+    let cancelled = false;
+    Promise.all(wanted.map(async b => {
+      try {
+        const res = await fetch(`/api/market-price?set=${encodeURIComponent(b.setCode!)}&type=${encodeURIComponent(b.type)}`);
+        return [b.id, res.ok ? ((await res.json()) as MarketPrice) : null] as const;
+      } catch {
+        return [b.id, null] as const;
+      }
+    })).then(entries => {
+      if (!cancelled) setLivePrices(prev => ({ ...prev, ...Object.fromEntries(entries) }));
+    });
+    return () => { cancelled = true; };
+  }, [playBoxes, livePrices]);
   const [newBox, setNewBox] = useState({ name: "", setCode: "", cost: "", marketPrice: "", type: "Play Booster Box", total: 30, imageUrl: "" });
   // Live set list from Scryfall (via /api/sets) — new sets show up here automatically.
   const [knownSets, setKnownSets] = useState<{ code: string; name: string; releasedAt: string; upcoming: boolean }[]>([]);
@@ -389,10 +409,13 @@ export default function PlayBoxPage() {
                 return box.total && v > 0 ? v / box.total : null;
               };
               const paidPack = perPack(box.cost);
-              const marketPack = perPack(box.marketPrice);
+              // Market: today's TCGplayer price when found, else the price entered by hand
+              const live = livePrices[box.id];
+              const marketText = live ? live.marketPrice.toFixed(2) : box.marketPrice;
+              const marketPack = perPack(marketText);
               const priceRows = [
                 paidPack !== null && { key: "paid", label: "Paid", pack: paidPack, box: isAdmin ? money(parseFloat(box.cost!)) : "box price" },
-                marketPack !== null && { key: "market", label: "Market", pack: marketPack, box: money(parseFloat(box.marketPrice!)) },
+                marketPack !== null && { key: "market", label: "Market", pack: marketPack, box: money(parseFloat(marketText!)) },
               ].filter(Boolean) as { key: string; label: string; pack: number; box: string }[];
 
               return (
@@ -431,7 +454,7 @@ export default function PlayBoxPage() {
                         </p>
                       </div>
                     </div>
-                    {(isAdmin && box.cost) || box.marketPrice ? (
+                    {(isAdmin && box.cost) || marketText ? (
                       // Price stickers: paid (admin only) and current market
                       <div className="shrink-0 flex flex-col items-end gap-1.5">
                         {isAdmin && box.cost && (
@@ -439,9 +462,9 @@ export default function PlayBoxPage() {
                             {money(parseFloat(box.cost))} paid
                           </span>
                         )}
-                        {box.marketPrice && (
-                          <span title="Current market price for the box" className="sticker text-xs font-bold tabular-nums bg-white dark:bg-paper-100 text-paper-900 px-2 py-0.5 rounded-md">
-                            {money(parseFloat(box.marketPrice))} market
+                        {marketText && (
+                          <span title={live ? `TCGplayer market price today: ${live.productName}` : "Market price entered by hand"} className="sticker text-xs font-bold tabular-nums bg-white dark:bg-paper-100 text-paper-900 px-2 py-0.5 rounded-md">
+                            {money(parseFloat(marketText))} market
                           </span>
                         )}
                       </div>
@@ -486,6 +509,7 @@ export default function PlayBoxPage() {
                           ))}
                         </tbody>
                       </table>
+                      {live && <p className="mt-1.5 text-paper-500 dark:text-paper-400">Market is TCGplayer&rsquo;s market price, refreshed daily.</p>}
                     </div>
                     <dl className="grid grid-cols-2 divide-x divide-paper-100 dark:divide-paper-800 border-t border-paper-100 dark:border-paper-800 pt-3 text-xs">
                       {[{ label: "Draft / person", packs: DRAFT_PACKS, pad: "pr-3" }, { label: "Sealed / person", packs: SEALED_PACKS, pad: "pl-3" }].map(col => (

@@ -20,10 +20,10 @@ export default function LoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="" width={48} height={48} className="w-12 h-12 rounded-xl shadow-lg" />
+          <img src="/brand/stacked.jpg" alt="Cardcaptor Stuart" width={1200} height={670} className="sticker w-full max-w-sm h-auto rounded-2xl" />
         </div>
-        <h2 className="mt-6 text-center text-3xl font-bold text-paper-900 dark:text-paper-50 tracking-tight">
-          Welcome to <span className="font-brand text-pink-700 dark:text-pink-400">Cardcaptor Stuart</span>
+        <h2 className="mt-6 text-center text-2xl font-bold text-paper-900 dark:text-paper-50 tracking-tight">
+          Welcome<span className="sr-only"> to Cardcaptor Stuart</span>
         </h2>
         <p className="mt-2 text-center text-sm text-paper-500 dark:text-paper-400">
           Sign in to view and manage your collection

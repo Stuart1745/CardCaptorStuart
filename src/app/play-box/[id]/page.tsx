@@ -315,7 +315,7 @@ export default function PlayboxDetailsPage() {
   const params = useParams();
   const id = params?.id as string;
   
-  const [boxInfo, setBoxInfo] = useState<{ name: string, setCode: string, remaining: number, total: number, imageUrl?: string }>({ name: "Loading...", setCode: "NEO", remaining: 0, total: 0 });
+  const [boxInfo, setBoxInfo] = useState<{ name: string, setCode: string, remaining: number, total: number, imageUrl?: string, type?: string }>({ name: "Loading...", setCode: "NEO", remaining: 0, total: 0 });
   const [box, setBox] = useState<PlayBox | null>(null);
   const [cards, setCards] = useState<ScryfallCard[]>([]);
   const [loading, setLoading] = useState(true);
@@ -975,7 +975,7 @@ export default function PlayboxDetailsPage() {
             </div>
             <p className="text-paper-500 dark:text-paper-400 mt-1 flex flex-wrap gap-x-2 gap-y-1 items-center">
               <span className="sticker bg-mint text-emerald-950 px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider">
-                Draft Box
+                {boxInfo.type || "Play Booster Box"}
               </span>
               • Set: {boxInfo.setCode} • {boxInfo.remaining} / {boxInfo.total} Packs Remaining
             </p>
@@ -1391,7 +1391,7 @@ export default function PlayboxDetailsPage() {
                     className="w-full bg-paper-50 dark:bg-paper-800 border border-paper-200 dark:border-paper-700 rounded-lg pl-8 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-sakura-500"
                   />
                 </div>
-                <p className="text-xs text-paper-500 dark:text-paper-400 mt-1">Shown to everyone as the box&rsquo;s market price and its draft and sealed cost per person.</p>
+                <p className="text-xs text-paper-500 dark:text-paper-400 mt-1">Only used when TCGplayer has no market price for this box; the Play Box page looks the price up daily.</p>
               </div>
 
               <div className="bg-sakura-50 dark:bg-sakura-900/20 p-4 rounded-xl border border-sakura-100 dark:border-sakura-800/30">
