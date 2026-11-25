@@ -10,7 +10,7 @@ import { DeckEditor } from "@/components/DeckEditor";
 import { useAuth } from "@/components/AuthProvider";
 import { db } from "@/lib/firebase";
 import { isAdminUser } from "@/lib/admin";
-import { DEFAULT_DECKS, type Deck, type DeckCardEntry, deckSize, groupDeck, linkLabel, deckBracket, gameChangersIn, textBlocks } from "@/lib/decks";
+import { DEFAULT_DECKS, type Deck, type DeckCardEntry, deckSize, groupDeck, linkLabel, deckBracket, gameChangersIn, textBlocks, preconLabel } from "@/lib/decks";
 import { ManaIcon } from "@/components/ManaIcon";
 
 
@@ -161,7 +161,7 @@ export default function DeckDetailsPage() {
               {(bracket || deck.precon || (deck.pods && deck.pods.length > 0)) && (
                 <div className="flex flex-wrap items-center gap-1.5 mt-2">
                   {deck.precon && (
-                    <span className="sticker text-xs font-bold px-2 py-1 rounded-md bg-sky-200 text-sky-950">Precon · {deck.precon}</span>
+                    <span className="sticker text-xs font-bold px-2 py-1 rounded-md bg-sky-200 text-sky-950">Precon · {preconLabel(deck)}</span>
                   )}
                   {bracket && (
                     <span title={bracket.detail} className={`sticker text-xs font-bold px-2 py-1 rounded-md ${bracket.estimated

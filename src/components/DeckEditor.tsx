@@ -45,6 +45,8 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
   const [description, setDescription] = useState(deck?.description ?? "");
   const [playGuide, setPlayGuide] = useState(deck?.playGuide ?? "");
   const [importUrl, setImportUrl] = useState("");
+  /** Key cards named by the last import, marked on save */
+  const [importedKeys, setImportedKeys] = useState<string[]>([]);
   const [importNote, setImportNote] = useState<{ text: string; tone: "info" | "error" } | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -54,29 +56,47 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
   const currentPods = parsePods(podsText);
   const podSuggestions = allPods.filter(p => !currentPods.some(c => c.toLowerCase() === p.toLowerCase()));
 
-  /** Fill the form from an Archidekt link; a Moxfield link fills the Link field and explains Export. */
+  /** Fill the form from an Archidekt link (cards, description, key cards); a Moxfield link fills Link and explains Export. */
   const importFromLink = async () => {
     const url = importUrl.trim();
     if (!url) return;
     setImportNote(null);
-    if (/moxfield\.com/i.test(url)) {
+    if (/moxfield[.]com/i.test(url)) {
       setLink(url.startsWith("http") ? url : `https://${url}`);
-      setImportNote({ tone: "info", text: "Moxfield doesn’t let other sites read its decks. On the Moxfield deck, choose Export, copy the list and paste it into Decklist below. The Link field is filled in." });
+      setImportNote({ tone: "info", text: "Moxfield doesn’t let other sites read its decks. On the Moxfield deck, choose Export and copy the list with its tags, then paste it into Decklist below: cards tagged Key or Win Con become key cards. Copy its description into Description. The Link field is filled in." });
+      setImportUrl("");
       return;
     }
     setBusy("Importing from Archidekt…");
     try {
       const res = await fetch(`/api/import-deck?url=${encodeURIComponent(url)}`);
       const data = await res.json();
-      if (!res.ok) { setImportNote({ tone: "error", text: data.error ?? `Import failed (HTTP ${res.status}).` }); return; }
+      if (!res.ok) {
+        setImportNote({ tone: "error", text: data.error ?? `Import failed (HTTP ${res.status}).` });
+        return;
+      }
+      const site = "Archidekt";
       if (!deck || !name.trim()) setName(data.name ?? name);
       if (data.format) setFormat(data.format);
       if (data.commander) setCommander(data.commander);
       if (data.bracket) setBracket(String(data.bracket));
       setLink(data.link);
       setDecklist(data.decklistText);
+      const keys: string[] = Array.isArray(data.keyCards) ? data.keyCards : [];
+      setImportedKeys(keys);
+      const keptDescription = !!data.description && !!description.trim() && description.trim() !== data.description;
+      if (data.description && !description.trim()) setDescription(data.description);
       setImportUrl("");
-      setImportNote({ tone: "info", text: `Imported ${data.name}${data.bracket ? ` (Bracket ${data.bracket} on Archidekt)` : ""}. Check it over, then ${deck ? "save" : "create the deck"}.` });
+      const extras = [
+        data.description && !keptDescription ? "its description" : "",
+        keys.length ? `${keys.length} key card${keys.length === 1 ? "" : "s"}` : "",
+      ].filter(Boolean).join(" and ");
+      setImportNote({
+        tone: "info",
+        text: `Imported ${data.name}${extras ? ` with ${extras}` : ""}${data.bracket ? ` (Bracket ${data.bracket} on ${site})` : ""}.`
+          + (keptDescription ? ` Your description was kept; ${site}'s was not copied over.` : "")
+          + ` Check it over, then ${deck ? "save" : "create the deck"}.`,
+      });
     } catch {
       setImportNote({ tone: "error", text: "Couldn’t reach the import service. Try again, or paste the list." });
     } finally {
@@ -103,9 +123,11 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
       if (lines.length > 0) {
         setBusy(`Looking up ${lines.length} cards on Scryfall…`);
         const r = await resolveDecklist(lines, commanderName);
-        // Keep the key-card marks from the previous version of the list
-        const keyNames = new Set((deck?.cards ?? []).filter(c => c.key).map(c => c.name.toLowerCase()));
-        cards = r.cards.map(c => (keyNames.has(c.name.toLowerCase()) ? { ...c, key: true } : c));
+        // Keep the key-card marks from the previous version of the list, plus any the import named
+        const keyNames = new Set([...(deck?.cards ?? []).filter(c => c.key).map(c => c.name), ...importedKeys]
+          .map(n => n.toLowerCase()));
+        const isKey = (n: string) => keyNames.has(n.toLowerCase()) || keyNames.has(n.split(" // ")[0].toLowerCase());
+        cards = r.cards.map(c => (isKey(c.name) ? { ...c, key: true } : c));
         colors = r.colors;
         thumbnail = r.thumbnail ?? thumbnail;
         commanderName = r.commander ?? commanderName;
@@ -190,7 +212,7 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
         ) : (
           <form onSubmit={save} className="p-6 flex flex-col gap-4 overflow-y-auto">
             <div>
-              <label htmlFor="deck-import" className={labelCls}>Import from a link <span className="font-normal text-paper-500 dark:text-paper-400">(Archidekt; a Moxfield link fills the Link field)</span></label>
+              <label htmlFor="deck-import" className={labelCls}>Import from a link <span className="font-normal text-paper-500 dark:text-paper-400">(Archidekt brings the cards, description and key cards; for Moxfield, paste its Export)</span></label>
               <div className="flex gap-2">
                 <input id="deck-import" type="url" value={importUrl} onChange={e => setImportUrl(e.target.value)}
                   onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); importFromLink(); } }}
@@ -291,7 +313,7 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
                 placeholder={PLACEHOLDER} spellCheck={false}
                 className={`${inputCls} font-mono text-sm leading-relaxed`} />
               <p className="text-xs text-paper-500 dark:text-paper-400 mt-1.5">
-                From Moxfield: open the deck, choose <strong>Export</strong>, copy the list, and paste it here. Section headers like <code>Commander</code>, <code>Deck</code> and <code>Sideboard</code> are understood, as is Moxfield&apos;s <code>*CMDR*</code> marker. Art and colors come from the commander.
+                From Moxfield: open the deck, choose <strong>Export</strong>, copy the list, and paste it here. Cards tagged <code>#Key</code> or <code>#Win Con</code> (or in an Archidekt <code>[Key Cards]</code> category) become key cards. Section headers like <code>Commander</code>, <code>Deck</code> and <code>Sideboard</code> are understood, as is Moxfield&apos;s <code>*CMDR*</code> marker. Art and colors come from the commander.
               </p>
             </div>
 
