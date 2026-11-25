@@ -13,6 +13,7 @@ import { isAdminUser } from "@/lib/admin";
 import { DEFAULT_DECKS, type Deck, type DeckCardEntry, deckSize, groupDeck, linkLabel, deckBracket, gameChangersIn, textBlocks, preconLabel, bracketReasons } from "@/lib/decks";
 import { ManaIcon } from "@/components/ManaIcon";
 import { FloatingPreview } from "@/components/FloatingPreview";
+import { RichText } from "@/components/RichText";
 
 /** Scryfall's bigger scan for the hover preview ("normal" is 488px wide, "large" 672px). */
 const largeImage = (url: string) => url.replace("/normal/", "/large/");
@@ -256,8 +257,21 @@ export default function DeckDetailsPage() {
             )}
           </div>
         )}
-        {isAdmin && !deck.description && !deck.playGuide && (
-          <p className="mb-8 text-sm text-paper-500 dark:text-paper-400">No description or play guide yet. Add them with Edit Deck.</p>
+        {deck.primer && (
+          <details className="group/primer mb-8 bg-white dark:bg-paper-900 rounded-2xl border border-paper-200 dark:border-paper-800 shadow-sm">
+            <summary className="cursor-pointer list-none p-5 md:p-6 flex items-center justify-between gap-3 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sakura-500">
+              <span className="font-brand font-bold text-lg text-paper-900 dark:text-paper-100 washi-block">Primer</span>
+              <span className="text-sm font-medium text-sakura-700 dark:text-sakura-300">
+                <span className="group-open/primer:hidden">Read the primer</span><span className="hidden group-open/primer:inline">Hide</span>
+              </span>
+            </summary>
+            <div className="px-5 md:px-6 pb-6 max-w-prose">
+              <RichText text={deck.primer} />
+            </div>
+          </details>
+        )}
+        {isAdmin && !deck.description && !deck.playGuide && !deck.primer && (
+          <p className="mb-8 text-sm text-paper-500 dark:text-paper-400">No description, play guide or primer yet. Add them with Edit Deck.</p>
         )}
 
         {confirmDelete && (

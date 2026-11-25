@@ -44,6 +44,7 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
   const [preconName, setPreconName] = useState(deck?.precon ?? "");
   const [description, setDescription] = useState(deck?.description ?? "");
   const [playGuide, setPlayGuide] = useState(deck?.playGuide ?? "");
+  const [primer, setPrimer] = useState(deck?.primer ?? "");
   const [importUrl, setImportUrl] = useState("");
   /** Key cards named by the last import, marked on save */
   const [importedKeys, setImportedKeys] = useState<string[]>([]);
@@ -86,9 +87,11 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
       setImportedKeys(keys);
       const keptDescription = !!data.description && !!description.trim() && description.trim() !== data.description;
       if (data.description && !description.trim()) setDescription(data.description);
+      if (data.primer && !primer.trim()) setPrimer(data.primer);
       setImportUrl("");
       const extras = [
         data.description && !keptDescription ? "its description" : "",
+        data.primer && !primer.trim() ? "its primer" : "",
         keys.length ? `${keys.length} key card${keys.length === 1 ? "" : "s"}` : "",
       ].filter(Boolean).join(" and ");
       setImportNote({
@@ -177,6 +180,7 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
         ...(isPrecon ? { precon: preconName.trim() || "Precon" } : {}),
         ...(description.trim() ? { description: description.trim() } : {}),
         ...(playGuide.trim() ? { playGuide: playGuide.trim() } : {}),
+        ...(primer.trim() ? { primer: primer.trim() } : {}),
       };
       // Firestore rejects undefined fields; drop the id (it's the document key).
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -319,6 +323,16 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
 
 - Start a line with a dash for a bullet`} className={inputCls} />
               <p className="text-xs text-paper-500 dark:text-paper-400 mt-1.5">A blank line starts a new paragraph; lines starting with &ldquo;- &rdquo; become bullets.</p>
+            </div>
+            <div>
+              <label htmlFor="deck-primer" className={labelCls}>Primer <span className="font-normal text-paper-500 dark:text-paper-400">(optional; the long write-up)</span></label>
+              <textarea id="deck-primer" value={primer} onChange={e => setPrimer(e.target.value)} rows={8}
+                placeholder={`## Game plan
+
+Paste a Moxfield or Archidekt primer here. [[Card Name]] links to the card.`} className={`${inputCls} text-sm`} />
+              <p className="text-xs text-paper-500 dark:text-paper-400 mt-1.5">
+                From Moxfield: open the deck&apos;s <strong>Primer</strong> tab, choose Edit, copy the text and paste it here. Headings (<code>#</code>), lists, <code>**bold**</code>, <code>*italic*</code> and links work.
+              </p>
             </div>
             <div>
               <label htmlFor="deck-list" className={labelCls}>Decklist <span className="font-normal text-paper-500 dark:text-paper-400">(paste from Moxfield, Archidekt or Arena: one card per line)</span></label>

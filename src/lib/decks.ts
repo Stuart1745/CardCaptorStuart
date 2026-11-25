@@ -42,6 +42,8 @@ export interface Deck {
   description?: string;
   /** How to play it: paragraphs split by blank lines; lines starting "- " are bullets */
   playGuide?: string;
+  /** Long-form primer (Markdown subset, as Moxfield and Archidekt primers are written) */
+  primer?: string;
   createdAt?: string;
   updatedAt?: string;
 }

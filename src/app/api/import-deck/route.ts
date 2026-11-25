@@ -28,6 +28,7 @@ interface ArchidektDeck {
   deckFormat?: number;
   edhBracket?: number | null;
   description?: string | null;
+  hasPrimer?: boolean;
   categories?: { name: string; includedInDeck?: boolean; isPremier?: boolean }[];
   cards?: ArchidektCard[];
 }
@@ -40,6 +41,8 @@ export interface ImportedDeck {
   bracket?: number;
   commander?: string;
   description?: string;
+  /** Long-form primer (Archidekt keeps it in the description; long ones come here) */
+  primer?: string;
   /** Card names the author marked as key (by a "Key"/"Win Con" category, label or tag) */
   keyCards?: string[];
   decklistText: string;
@@ -121,7 +124,15 @@ async function fromArchidekt(id: string) {
   if (!boards.commander.length && !boards.main.length) return fail(422, 'That Archidekt deck has no cards yet.');
 
   const format = boards.commander.length ? 'Commander' : ARCHIDEKT_FORMATS[deck.deckFormat ?? 0];
-  const description = archidektDescription(deck.description);
+  // Archidekt has one rich-text box. A primer-length one goes to Primer, and its first
+  // paragraph (cut to a couple of sentences) becomes the short description.
+  const text = archidektDescription(deck.description);
+  const isPrimer = !!text && (deck.hasPrimer || text.length > 600);
+  const primer = isPrimer ? text : undefined;
+  const firstPara = text?.split(NL + NL)[0].split(NL).filter(l => !l.trim().startsWith("#")).join(" ").trim();
+  const description = isPrimer
+    ? (firstPara && firstPara.length > 280 ? `${firstPara.slice(0, 277).trimEnd()}…` : firstPara) || undefined
+    : text;
   const bracket = validBracket(deck.edhBracket);
   return respond({
     source: 'archidekt',
@@ -130,6 +141,7 @@ async function fromArchidekt(id: string) {
     ...(bracket ? { bracket } : {}),
     ...(commander ? { commander } : {}),
     ...(description ? { description } : {}),
+    ...(primer ? { primer } : {}),
     ...(keyCards.length ? { keyCards } : {}),
     decklistText: toText(boards),
     link: `https://archidekt.com/decks/${id}`,
