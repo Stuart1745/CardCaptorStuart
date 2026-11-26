@@ -12,11 +12,11 @@ import { FloatingPreview } from "@/components/FloatingPreview";
 interface JCard { n: string; t: string; c: number; r: string; kw?: string[] }
 interface JVariant { v: number; note?: string; cards: [string, number][] }
 interface JTheme {
-  name: string; colors: string[]; description: string; plan: string;
-  pairsWith: string[]; standouts: string[]; keywords: string[]; learn?: boolean; variants: JVariant[];
+  id: string; name: string; source?: string; colors: string[]; description: string; plan: string;
+  pairsWith: { id: string; name: string }[]; standouts: string[]; keywords: string[]; learn?: boolean; variants: JVariant[];
 }
 export interface JumpstartData {
-  product: string; set: string; kind: "jumpstart" | "beginner";
+  product: string; kind: "jumpstart" | "beginner";
   glossary: Record<string, string>; cards: Record<string, JCard>; themes: JTheme[];
 }
 
@@ -32,7 +32,7 @@ export function jumpstartProduct(type?: string, setCode?: string): string | null
 const image = (id: string, size: "normal" | "large" = "normal") => `https://cards.scryfall.io/${size}/front/${id[0]}/${id[1]}/${id}.jpg`;
 const scryfall = (name: string) => `https://scryfall.com/search?q=${encodeURIComponent(`!"${name}"`)}`;
 const COLOR_NAMES: Record<string, string> = { W: "White", U: "Blue", B: "Black", R: "Red", G: "Green" };
-const anchorId = (theme: string) => `theme-${theme.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+const anchorId = (id: string) => `theme-${id}`;
 
 const TYPE_ORDER: [string, (t: string) => boolean][] = [
   ["Creatures", t => t.includes("Creature")],
@@ -60,7 +60,7 @@ export function JumpstartGuide({ product }: { product: string }) {
         if (cancelled) return;
         setData(d);
         // Beginner Box: the two learn-to-play decks start open
-        if (d.kind === "beginner") setOpen(new Set(d.themes.filter(t => t.learn).map(t => t.name)));
+        if (d.kind === "beginner") setOpen(new Set(d.themes.filter(t => t.learn).map(t => t.id)));
       })
       .catch(() => { if (!cancelled) setFailed(true); });
     return () => { cancelled = true; };
@@ -80,32 +80,34 @@ export function JumpstartGuide({ product }: { product: string }) {
 
   const beginner = data.kind === "beginner";
   const learn = beginner ? themes.filter(t => t.learn) : [];
-  const rest = beginner ? themes.filter(t => !t.learn) : themes;
-  const pairings = (data.themes.length * (data.themes.length - 1)) / 2;
+  const rest = themes.filter(t => !t.learn && !t.source);
+  const fromBox = themes.filter(t => t.source);
+  const sources = [...new Set(data.themes.map(t => t.source).filter(Boolean))] as string[];
+  const ownThemes = data.themes.filter(t => !t.source).length;
   const hover = (src: string, el: HTMLElement) => {
     if (!window.matchMedia("(hover: hover)").matches) return;
     setPreview({ src, anchor: el.getBoundingClientRect() });
   };
-  const toggle = (name: string) => setOpen(prev => {
+  const toggle = (id: string) => setOpen(prev => {
     const next = new Set(prev);
-    if (next.has(name)) next.delete(name); else next.add(name);
+    if (next.has(id)) next.delete(id); else next.add(id);
     return next;
   });
-  const jumpTo = (name: string) => {
+  const jumpTo = (id: string) => {
     setColor(null);
-    setOpen(prev => new Set(prev).add(name));
-    requestAnimationFrame(() => document.getElementById(anchorId(name))?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    setOpen(prev => new Set(prev).add(id));
+    requestAnimationFrame(() => document.getElementById(anchorId(id))?.scrollIntoView({ behavior: "smooth", block: "start" }));
   };
 
   const renderTheme = (t: JTheme, big = false) => {
-    const isOpen = open.has(t.name);
-    const vIndex = Math.min(variantOf[t.name] ?? 0, t.variants.length - 1);
+    const isOpen = open.has(t.id);
+    const vIndex = Math.min(variantOf[t.id] ?? 0, t.variants.length - 1);
     const v = t.variants[vIndex];
     const cardsOf = (v?.cards ?? []).map(([id, n]) => ({ id, n, card: data.cards[id] })).filter(x => x.card);
     const standoutIds = t.standouts.map(name => cardsOf.find(x => x.card.n === name)?.id
       ?? t.variants.flatMap(vv => vv.cards).find(([id]) => data.cards[id]?.n === name)?.[0]).filter(Boolean) as string[];
     return (
-      <article key={t.name} id={anchorId(t.name)}
+      <article key={t.id} id={anchorId(t.id)}
         className={`scroll-mt-24 bg-white dark:bg-paper-900 rounded-2xl border border-paper-200 dark:border-paper-800 shadow-sm ${isOpen || big ? "md:col-span-2" : ""}`}>
         <div className="p-5 md:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -116,6 +118,7 @@ export function JumpstartGuide({ product }: { product: string }) {
                   {t.colors.map(c => <ManaIcon key={c} symbol={c} size={18} />)}
                 </span>
                 {t.learn && <span className="sticker text-xs font-bold px-2 py-0.5 rounded-md bg-butter text-amber-950">Learn to play</span>}
+                {t.source && <span className="sticker text-xs font-bold px-2 py-0.5 rounded-md bg-orange-200 text-orange-950">From the {t.source}</span>}
               </h3>
               {t.variants.length > 1 && <p className="text-xs text-paper-500 dark:text-paper-400 mt-0.5">{t.variants.length} versions of this pack</p>}
             </div>
@@ -141,14 +144,14 @@ export function JumpstartGuide({ product }: { product: string }) {
             <p className="mt-3 text-sm text-paper-600 dark:text-paper-300 flex flex-wrap items-center gap-1.5">
               <Shuffle className="w-3.5 h-3.5" aria-hidden /> Pairs well with
               {t.pairsWith.map((p, i) => (
-                <React.Fragment key={p}>
-                  <button type="button" onClick={() => jumpTo(p)} className="font-semibold text-sakura-700 dark:text-sakura-300 hover:underline underline-offset-2">{p}</button>
+                <React.Fragment key={p.id}>
+                  <button type="button" onClick={() => jumpTo(p.id)} className="font-semibold text-sakura-700 dark:text-sakura-300 hover:underline underline-offset-2">{p.name}</button>
                   {i < t.pairsWith.length - 1 ? "·" : ""}
                 </React.Fragment>
               ))}
             </p>
           )}
-          <button type="button" onClick={() => toggle(t.name)} aria-expanded={isOpen}
+          <button type="button" onClick={() => toggle(t.id)} aria-expanded={isOpen}
             className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-lg bg-paper-100 dark:bg-paper-800 text-paper-800 dark:text-paper-100 hover:bg-paper-200 dark:hover:bg-paper-700">
             <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""}`} aria-hidden />
             {isOpen ? "Hide the cards" : `See the ${v?.cards.reduce((n, [, q]) => n + q, 0) ?? 20} cards`}
@@ -160,7 +163,7 @@ export function JumpstartGuide({ product }: { product: string }) {
             {t.variants.length > 1 && (
               <div className="flex flex-wrap items-center gap-2" role="group" aria-label={`${t.name} versions`}>
                 {t.variants.map((vv, i) => (
-                  <button key={vv.v} type="button" aria-pressed={i === vIndex} onClick={() => setVariantOf(prev => ({ ...prev, [t.name]: i }))}
+                  <button key={vv.v} type="button" aria-pressed={i === vIndex} onClick={() => setVariantOf(prev => ({ ...prev, [t.id]: i }))}
                     className={`text-sm px-3 py-1 rounded-full border font-medium ${i === vIndex
                       ? "gel-circle bg-transparent border-transparent text-sakura-700 dark:text-sakura-300"
                       : "bg-white dark:bg-paper-900 border-paper-200 dark:border-paper-700 text-paper-700 dark:text-paper-300 hover:bg-paper-50 dark:hover:bg-paper-800"}`}>
@@ -218,19 +221,19 @@ export function JumpstartGuide({ product }: { product: string }) {
         <div className="text-paper-700 dark:text-paper-200 leading-relaxed space-y-2 max-w-3xl">
           {beginner ? (
             <>
-              <p>The box holds ten themed 20-card packs. For your first game, play the two <strong>learn-to-play decks</strong>, Cats and Vampires, against each other: each comes ready to go, and the guide in the box walks you through the first five turns.</p>
-              <p>After that, any two packs shuffle together into a 40-card deck. That&apos;s {pairings} different pairings from the ten packs, and nothing gets used up.</p>
+              <p>Two ready-to-play decks for learning Magic: <strong>Cats</strong> and <strong>Vampires</strong>. Sit across from each other and play one against the other; the guide in the box walks you through the first five turns, and each deck below shows what it teaches.</p>
+              <p>Nothing to open or build, and nothing gets used up. When you&apos;re ready for more, the other packs from this box are in the Jumpstart cube.</p>
             </>
           ) : (
             <>
               <p>Every pack is a 20-card theme. Each player picks two packs, shuffles them together into a 40-card deck, and plays. No deckbuilding, nothing to open: after the game the packs go back in the box.</p>
-              <p>There are {data.themes.length} themes, most with a few versions. Mixing two colors works fine; matching plans (say, two token packs) makes a stronger deck.</p>
+              <p>There are {ownThemes} Foundations Jumpstart themes, most with a few versions{sources.length ? <>, plus {data.themes.length - ownThemes} packs from the {sources.join(" and ")}</> : null}. Mixing two colors works fine; matching plans (say, two token packs) makes a stronger deck.</p>
             </>
           )}
         </div>
       </section>
 
-      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter packs by color">
+      {!beginner && <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter packs by color">
         <span className="text-sm font-semibold text-paper-600 dark:text-paper-400 mr-1">Color:</span>
         {[null, "W", "U", "B", "R", "G"].map(c => (
           <button key={c ?? "all"} type="button" aria-pressed={color === c} onClick={() => setColor(c)} title={c ? COLOR_NAMES[c] : "All colors"}
@@ -241,7 +244,7 @@ export function JumpstartGuide({ product }: { product: string }) {
             <span className="text-paper-500">{c ? data.themes.filter(t => t.colors.includes(c)).length : data.themes.length}</span>
           </button>
         ))}
-      </div>
+      </div>}
 
       {learn.length > 0 && (
         <section>
@@ -250,12 +253,24 @@ export function JumpstartGuide({ product }: { product: string }) {
         </section>
       )}
 
-      <section>
-        <h2 className="font-brand font-bold text-xl text-paper-900 dark:text-paper-100 washi-block mb-4">
-          {beginner ? "The other packs" : "The theme packs"} <span className="font-sans font-normal text-base text-paper-500 dark:text-paper-400">({rest.length})</span>
-        </h2>
-        <div className="grid gap-5 md:grid-cols-2">{rest.map(t => renderTheme(t))}</div>
-      </section>
+      {rest.length > 0 && (
+        <section>
+          <h2 className="font-brand font-bold text-xl text-paper-900 dark:text-paper-100 washi-block mb-4">
+            {beginner ? "The other packs" : "The theme packs"} <span className="font-sans font-normal text-base text-paper-500 dark:text-paper-400">({rest.length})</span>
+          </h2>
+          <div className="grid gap-5 md:grid-cols-2">{rest.map(t => renderTheme(t))}</div>
+        </section>
+      )}
+
+      {fromBox.length > 0 && (
+        <section>
+          <h2 className="font-brand font-bold text-xl text-paper-900 dark:text-paper-100 washi-block mb-1">
+            From the {sources.join(" and ")} <span className="font-sans font-normal text-base text-paper-500 dark:text-paper-400">({fromBox.length})</span>
+          </h2>
+          <p className="text-sm text-paper-500 dark:text-paper-400 mb-4">Also in this cube. They mix with any pack above.</p>
+          <div className="grid gap-5 md:grid-cols-2">{fromBox.map(t => renderTheme(t))}</div>
+        </section>
+      )}
 
       {preview && (
         <FloatingPreview anchor={preview.anchor} maxWidth={300} interactive={false} side="right">
