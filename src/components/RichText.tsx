@@ -4,6 +4,8 @@ import React from "react";
 // # headings, paragraphs, - / * / • bullets, 1. numbered lists, --- rules, **bold**, *italic*,
 // [[Card Name]] (links to Scryfall) and [label](https://link). Everything renders as React
 // elements; raw HTML in the text is shown as text, never injected.
+// The page can pass `cardLink` to render card links its own way (hover previews) and
+// `autoLink` (card names) so plain mentions of the deck's cards become links too.
 
 type Block =
   | { kind: "h"; level: number; text: string }
@@ -57,23 +59,62 @@ export function richBlocks(text: string): Block[] {
 }
 
 const scryfall = (name: string) => `https://scryfall.com/search?q=${encodeURIComponent(`!"${name}"`)}`;
-const linkCls = "text-sakura-700 dark:text-sakura-300 underline decoration-dotted underline-offset-2 hover:decoration-solid";
+export const linkCls = "text-sakura-700 dark:text-sakura-300 underline decoration-dotted underline-offset-2 hover:decoration-solid";
+
+export interface RichOptions {
+  /** Render a card link (name = the card, label = what to show) */
+  cardLink?: (name: string, label: React.ReactNode, key: string) => React.ReactNode;
+  /** Card names to link wherever they appear in plain text, longest match first */
+  autoLink?: string[];
+}
+
+const defaultCardLink = (name: string, label: React.ReactNode, key: string) => (
+  <a key={key} href={scryfall(name)} target="_blank" rel="noopener noreferrer" className={linkCls}>{label}</a>
+);
+
+const isWordChar = (ch: string | undefined) => !!ch && /[A-Za-z0-9]/.test(ch);
+
+/** Split plain text around mentions of the given card names. */
+function linkify(text: string, opts: RichOptions, keyPrefix: string): React.ReactNode[] {
+  const names = opts.autoLink;
+  if (!names?.length || !text) return text ? [text] : [];
+  const link = opts.cardLink ?? defaultCardLink;
+  const out: React.ReactNode[] = [];
+  let buf = "";
+  let i = 0;
+  let k = 0;
+  while (i < text.length) {
+    const hit = isWordChar(text[i - 1]) ? undefined
+      : names.find(n => text.startsWith(n, i) && !isWordChar(text[i + n.length]));
+    if (hit) {
+      if (buf) { out.push(buf); buf = ""; }
+      out.push(link(hit, hit, `${keyPrefix}-a${k++}`));
+      i += hit.length;
+      continue;
+    }
+    buf += text[i];
+    i++;
+  }
+  if (buf) out.push(buf);
+  return out;
+}
 
 /** Inline formatting, scanned by hand so nothing in the text can become markup by accident. */
-export function inline(text: string, keyPrefix = "i"): React.ReactNode[] {
+export function inline(text: string, keyPrefix = "i", opts: RichOptions = {}): React.ReactNode[] {
   const out: React.ReactNode[] = [];
   let buf = "";
   let i = 0;
   let k = 0;
   const key = () => `${keyPrefix}-${k++}`;
-  const flush = () => { if (buf) { out.push(buf); buf = ""; } };
+  const flush = () => { if (buf) { out.push(...linkify(buf, opts, key())); buf = ""; } };
+  const link = opts.cardLink ?? defaultCardLink;
   while (i < text.length) {
     if (text.startsWith("[[", i)) {
       const j = text.indexOf("]]", i + 2);
       if (j > i + 2) {
         flush();
         const name = text.slice(i + 2, j).split("|")[0].trim();
-        out.push(<a key={key()} href={scryfall(name)} target="_blank" rel="noopener noreferrer" className={linkCls}>{name}</a>);
+        out.push(link(name, name, key()));
         i = j + 2;
         continue;
       }
@@ -86,9 +127,9 @@ export function inline(text: string, keyPrefix = "i"): React.ReactNode[] {
         const url = text.slice(mid + 2, end).trim();
         flush();
         if (/^https?:[/][/]/i.test(url)) {
-          out.push(<a key={key()} href={url} target="_blank" rel="noopener noreferrer" className={linkCls}>{inline(label, key())}</a>);
+          out.push(<a key={key()} href={url} target="_blank" rel="noopener noreferrer" className={linkCls}>{inline(label, key(), { ...opts, autoLink: undefined })}</a>);
         } else {
-          out.push(...inline(label, key()));
+          out.push(...inline(label, key(), opts));
         }
         i = end + 1;
         continue;
@@ -98,7 +139,7 @@ export function inline(text: string, keyPrefix = "i"): React.ReactNode[] {
       const j = text.indexOf("**", i + 2);
       if (j > i + 2) {
         flush();
-        out.push(<strong key={key()} className="font-semibold text-paper-900 dark:text-paper-50">{inline(text.slice(i + 2, j), key())}</strong>);
+        out.push(<strong key={key()} className="font-semibold text-paper-900 dark:text-paper-50">{inline(text.slice(i + 2, j), key(), opts)}</strong>);
         i = j + 2;
         continue;
       }
@@ -107,7 +148,7 @@ export function inline(text: string, keyPrefix = "i"): React.ReactNode[] {
       const j = text.indexOf("*", i + 1);
       if (j > i + 1 && text[j - 1] !== " ") {
         flush();
-        out.push(<em key={key()}>{inline(text.slice(i + 1, j), key())}</em>);
+        out.push(<em key={key()}>{inline(text.slice(i + 1, j), key(), opts)}</em>);
         i = j + 1;
         continue;
       }
@@ -125,22 +166,23 @@ const HEADING_CLS: Record<number, string> = {
   3: "font-semibold text-base text-paper-900 dark:text-paper-100 mt-4 first:mt-0",
 };
 
-/** Render primer text. */
-export function RichText({ text }: { text: string }) {
+/** Render primer, play-guide or description text. */
+export function RichText({ text, cardLink, autoLink }: { text: string } & RichOptions) {
+  const opts: RichOptions = { cardLink, autoLink };
   const blocks = richBlocks(text);
   return (
     <div className="space-y-3 text-paper-700 dark:text-paper-300 leading-relaxed">
       {blocks.map((b, n) => {
         if (b.kind === "h") {
           const Tag = (b.level <= 1 ? "h3" : b.level === 2 ? "h4" : "h5") as "h3" | "h4" | "h5";
-          return <Tag key={n} className={HEADING_CLS[Math.min(b.level, 3)]}>{inline(b.text, `h${n}`)}</Tag>;
+          return <Tag key={n} className={HEADING_CLS[Math.min(b.level, 3)]}>{inline(b.text, `h${n}`, opts)}</Tag>;
         }
         if (b.kind === "hr") return <hr key={n} className="border-paper-200 dark:border-paper-700 my-4" />;
-        if (b.kind === "p") return <p key={n}>{inline(b.text, `p${n}`)}</p>;
+        if (b.kind === "p") return <p key={n}>{inline(b.text, `p${n}`, opts)}</p>;
         const List = b.kind === "ul" ? "ul" : "ol";
         return (
           <List key={n} className={`${b.kind === "ul" ? "list-disc" : "list-decimal"} pl-5 space-y-1`}>
-            {b.items.map((it, j) => <li key={j}>{inline(it, `l${n}-${j}`)}</li>)}
+            {b.items.map((it, j) => <li key={j}>{inline(it, `l${n}-${j}`, opts)}</li>)}
           </List>
         );
       })}

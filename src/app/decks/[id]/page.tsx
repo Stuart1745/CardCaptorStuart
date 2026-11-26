@@ -10,13 +10,17 @@ import { DeckEditor } from "@/components/DeckEditor";
 import { useAuth } from "@/components/AuthProvider";
 import { db } from "@/lib/firebase";
 import { isAdminUser } from "@/lib/admin";
-import { DEFAULT_DECKS, type Deck, type DeckCardEntry, deckSize, groupDeck, linkLabel, deckBracket, gameChangersIn, textBlocks, preconLabel, bracketReasons, groupDeckByRole, hasRoles } from "@/lib/decks";
+import { DEFAULT_DECKS, type Deck, type DeckCardEntry, deckSize, groupDeck, linkLabel, deckBracket, gameChangersIn, preconLabel, bracketReasons, groupDeckByRole, hasRoles } from "@/lib/decks";
 import { ManaIcon } from "@/components/ManaIcon";
 import { FloatingPreview } from "@/components/FloatingPreview";
-import { RichText } from "@/components/RichText";
+import { RichText, linkCls } from "@/components/RichText";
 
 /** Scryfall's bigger scan for the hover preview ("normal" is 488px wide, "large" 672px). */
 const largeImage = (url: string) => url.replace("/normal/", "/large/");
+/** Any card's image by name, for cards mentioned in text that aren't in the deck. */
+const namedImage = (name: string) => `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(name)}&format=image&version=large`;
+const scryfallSearch = (name: string) => `https://scryfall.com/search?q=${encodeURIComponent(`!"${name}"`)}`;
+const sectionId = (label: string) => `cards-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 
 
 export default function DeckDetailsPage() {
@@ -36,13 +40,27 @@ export default function DeckDetailsPage() {
   const [keyError, setKeyError] = useState<string | null>(null);
   /** List view: by role (like Moxfield/Archidekt categories) or by card type. null = default. */
   const [groupBy, setGroupBy] = useState<"role" | "type" | null>(null);
+  /** Guide panel tab */
+  const [guideTab, setGuideTab] = useState<"guide" | "primer">("guide");
   /** Hover preview of a card (mouse and keyboard focus only; touch taps go straight to Scryfall) */
-  const [preview, setPreview] = useState<{ card: DeckCardEntry; anchor: DOMRect } | null>(null);
-  const showPreview = (card: DeckCardEntry, el: HTMLElement, viaFocus = false) => {
-    if (!card.image) return;
+  const [preview, setPreview] = useState<{ image: string; anchor: DOMRect; side: "right" | "above" } | null>(null);
+  const showImage = (image: string | undefined, el: HTMLElement, viaFocus = false, side: "right" | "above" = "right") => {
+    if (!image) return;
     if (!viaFocus && typeof window !== "undefined" && !window.matchMedia("(hover: hover)").matches) return;
-    setPreview({ card, anchor: el.getBoundingClientRect() });
+    setPreview({ image, anchor: el.getBoundingClientRect(), side });
   };
+  const showPreview = (card: DeckCardEntry, el: HTMLElement, viaFocus = false) =>
+    showImage(card.image ? largeImage(card.image) : undefined, el, viaFocus);
+
+  // Always open a deck at the top: the list loads after the page appears, so a scroll position
+  // the browser restores (refresh, revisit) would otherwise land partway down.
+  useEffect(() => {
+    const h = window.history;
+    const before = h.scrollRestoration;
+    h.scrollRestoration = "manual";
+    window.scrollTo(0, 0);
+    return () => { h.scrollRestoration = before; };
+  }, [id]);
   const hidePreview = () => setPreview(null);
   useEffect(() => {
     if (!preview) return;
@@ -120,11 +138,40 @@ export default function DeckDetailsPage() {
   const roleView = (groupBy ?? (hasRoles(deck.cards ?? []) ? "role" : "type")) === "role";
   const groups = (roleView ? groupDeckByRole(deck.cards ?? []) : groupDeck(deck.cards ?? []))
     .filter(g => !(commanderCard && g.label.startsWith("Commander") && g.cards.length === 1));
+  // At a glance: one line per section of the list below (jump links) and a nonland mana curve
+  const glance = groups.filter(g => !g.label.startsWith("Commander") && !g.label.startsWith("Sideboard"));
+  const curve = Array.from({ length: 8 }, () => 0);
+  for (const c of (deck.cards ?? []).filter(c => c.board === "main" && !c.type.includes("Land"))) curve[Math.min(7, Math.floor(c.cmc))] += c.qty;
   const total = deckSize(deck.cards ?? []);
   const bracket = deckBracket(deck);
   const gameChangers = gameChangersIn(deck.cards ?? []);
   const keyCards = (deck.cards ?? []).filter(c => c.key);
-  const guide = deck.playGuide ? textBlocks(deck.playGuide) : [];
+  // Card names in the description, guide and primer link to the card (with a hover image).
+  const byName = new Map<string, DeckCardEntry>();
+  for (const c of deck.cards ?? []) {
+    byName.set(c.name, c);
+    if (c.name.includes(" // ")) byName.set(c.name.split(" // ")[0], c);
+  }
+  for (const c of (deck.cards ?? []).filter(c => c.board === "commander")) {
+    const short = c.name.split(" // ")[0].split(",")[0].trim();   // "Celes, Rune Knight" -> "Celes"
+    if (short.length >= 4 && !byName.has(short)) byName.set(short, c);
+  }
+  const autoLink = [...byName.keys()].sort((a, b) => b.length - a.length);
+  const cardLink = (name: string, label: React.ReactNode, key: string) => {
+    const card = byName.get(name);
+    const image = card?.image ? largeImage(card.image) : namedImage(name);
+    return (
+      <a key={key} href={card?.scryfallUri ?? scryfallSearch(card?.name ?? name)} target="_blank" rel="noopener noreferrer" className={linkCls}
+        onMouseEnter={e => showImage(image, e.currentTarget, false, "above")} onMouseLeave={hidePreview}
+        onFocus={e => showImage(image, e.currentTarget, true, "above")} onBlur={hidePreview}>
+        {label}
+      </a>
+    );
+  };
+  const hasGuide = !!deck.playGuide?.trim();
+  const hasPrimer = !!deck.primer?.trim();
+  const tab = hasGuide && hasPrimer ? guideTab : hasPrimer ? "primer" : "guide";
+  const primerMinutes = hasPrimer ? Math.max(1, Math.round(deck.primer!.split(" ").length / 220)) : 0;
 
   const renderCard = (card: DeckCardEntry, where: string) => (
     <div key={`${where}-${card.board}-${card.name}`} className="flex flex-col gap-1.5 min-w-0">
@@ -209,6 +256,11 @@ export default function DeckDetailsPage() {
                   ))}
                 </div>
               )}
+              {deck.description && (
+                <div className="mt-3 max-w-2xl text-paper-700 dark:text-paper-200 leading-relaxed">
+                  <RichText text={deck.description} cardLink={cardLink} autoLink={autoLink} />
+                </div>
+              )}
               {bracket && !deck.bracket && deck.bracketEstimate ? (
                 <div className="text-xs text-paper-500 dark:text-paper-400 mt-2 space-y-0.5 max-w-prose">
                   {bracketReasons(deck.bracketEstimate).map(r => <p key={r}>{r}</p>)}
@@ -248,38 +300,73 @@ export default function DeckDetailsPage() {
           </div>
         </div>
 
-        {(deck.description || guide.length > 0) && (
-          <div className="grid gap-6 mb-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-start">
-            {deck.description && (
-              <section className="bg-white dark:bg-paper-900 rounded-2xl p-5 md:p-6 border border-paper-200 dark:border-paper-800 shadow-sm">
-                <h2 className="font-brand font-bold text-lg text-paper-900 dark:text-paper-100 washi-block mb-3">About this deck</h2>
-                <p className="text-paper-700 dark:text-paper-300 leading-relaxed max-w-prose whitespace-pre-line">{deck.description}</p>
-              </section>
-            )}
-            {guide.length > 0 && (
-              <section className="bg-white dark:bg-paper-900 rounded-2xl p-5 md:p-6 border border-paper-200 dark:border-paper-800 shadow-sm">
-                <h2 className="font-brand font-bold text-lg text-paper-900 dark:text-paper-100 washi-block mb-3">How to play it</h2>
-                <div className="space-y-3 text-paper-700 dark:text-paper-300 leading-relaxed max-w-prose">
-                  {guide.map((b, i) => b.kind === "p"
-                    ? <p key={i}>{b.text}</p>
-                    : <ul key={i} className="list-disc pl-5 space-y-1">{b.items.map((it, j) => <li key={j}>{it}</li>)}</ul>)}
+        {(hasGuide || hasPrimer || glance.length > 0) && (
+          <div className="grid gap-6 mb-8 lg:grid-cols-[minmax(0,1fr)_17rem] items-start">
+            {hasGuide || hasPrimer ? (
+              <section className="bg-white dark:bg-paper-900 rounded-2xl border border-paper-200 dark:border-paper-800 shadow-sm min-w-0">
+                <div role="tablist" aria-label="Deck guide" className="flex flex-wrap items-end gap-1 px-3 md:px-4 pt-3 border-b border-paper-100 dark:border-paper-800">
+                  {hasGuide && (
+                    <button type="button" role="tab" id="tab-guide" aria-controls="panel-guide" aria-selected={tab === "guide"} onClick={() => setGuideTab("guide")}
+                      className={`px-3 py-2 -mb-px border-b-2 font-brand font-bold text-base transition-colors ${tab === "guide"
+                        ? "border-sakura-500 text-paper-900 dark:text-paper-50"
+                        : "border-transparent text-paper-500 dark:text-paper-400 hover:text-paper-900 dark:hover:text-paper-100"}`}>
+                      How to play
+                    </button>
+                  )}
+                  {hasPrimer && (
+                    <button type="button" role="tab" id="tab-primer" aria-controls="panel-primer" aria-selected={tab === "primer"} onClick={() => setGuideTab("primer")}
+                      className={`px-3 py-2 -mb-px border-b-2 font-brand font-bold text-base transition-colors ${tab === "primer"
+                        ? "border-sakura-500 text-paper-900 dark:text-paper-50"
+                        : "border-transparent text-paper-500 dark:text-paper-400 hover:text-paper-900 dark:hover:text-paper-100"}`}>
+                      Full primer <span className="font-sans font-normal text-xs text-paper-500 dark:text-paper-400">· {primerMinutes} min read</span>
+                    </button>
+                  )}
+                </div>
+                <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="p-5 md:p-6">
+                  <div className="max-w-prose">
+                    <RichText text={tab === "primer" ? deck.primer! : deck.playGuide!} cardLink={cardLink} autoLink={autoLink} />
+                  </div>
+                  {tab === "guide" && hasPrimer && (
+                    <button type="button" onClick={() => setGuideTab("primer")}
+                      className="mt-5 text-sm font-semibold text-sakura-700 dark:text-sakura-300 hover:underline underline-offset-2">
+                      Read the full primer ({primerMinutes} min) →
+                    </button>
+                  )}
                 </div>
               </section>
+            ) : <div className="hidden lg:block" />}
+            {glance.length > 0 && (
+              <aside className="bg-white dark:bg-paper-900 rounded-2xl border border-paper-200 dark:border-paper-800 shadow-sm p-5 lg:sticky lg:top-20">
+                <h2 className="font-brand font-bold text-lg text-paper-900 dark:text-paper-100 mb-3">At a glance</h2>
+                <ul className="space-y-0.5 text-sm">
+                  {glance.map(g => (
+                    <li key={g.label}>
+                      <a href={`#${sectionId(g.label)}`} className="flex items-center justify-between gap-3 rounded-md px-2 py-1 -mx-2 hover:bg-paper-50 dark:hover:bg-paper-800 text-paper-700 dark:text-paper-200">
+                        <span className="truncate">{g.label}</span>
+                        <span className="tabular-nums text-paper-500 dark:text-paper-400">{g.count}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+                {curve.some(n => n > 0) && (
+                  <div className="mt-4 pt-4 border-t border-paper-100 dark:border-paper-800">
+                    <p className="text-xs font-semibold text-paper-600 dark:text-paper-400 mb-2">Mana curve (nonland)</p>
+                    <div className="flex items-end gap-1 h-16" aria-hidden>
+                      {curve.map((n, i) => (
+                        <div key={i} className="flex-1 flex flex-col justify-end h-full" title={`${n} at ${i === 7 ? "7+" : i}`}>
+                          <div className="w-full rounded-t bg-sakura-300 dark:bg-sakura-700" style={{ height: `${(n / Math.max(...curve)) * 100}%`, minHeight: n ? 2 : 0 }} />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-1 mt-1 text-[11px] text-paper-500 dark:text-paper-400 tabular-nums" aria-hidden>
+                      {curve.map((_, i) => <span key={i} className="flex-1 text-center">{i === 7 ? "7+" : i}</span>)}
+                    </div>
+                    <p className="sr-only">Mana curve: {curve.map((n, i) => `${n} at ${i === 7 ? "7 or more" : i}`).join(", ")}</p>
+                  </div>
+                )}
+              </aside>
             )}
           </div>
-        )}
-        {deck.primer && (
-          <details className="group/primer mb-8 bg-white dark:bg-paper-900 rounded-2xl border border-paper-200 dark:border-paper-800 shadow-sm">
-            <summary className="cursor-pointer list-none p-5 md:p-6 flex items-center justify-between gap-3 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sakura-500">
-              <span className="font-brand font-bold text-lg text-paper-900 dark:text-paper-100 washi-block">Primer</span>
-              <span className="text-sm font-medium text-sakura-700 dark:text-sakura-300">
-                <span className="group-open/primer:hidden">Read the primer</span><span className="hidden group-open/primer:inline">Hide</span>
-              </span>
-            </summary>
-            <div className="px-5 md:px-6 pb-6 max-w-prose">
-              <RichText text={deck.primer} />
-            </div>
-          </details>
         )}
         {isAdmin && !deck.description && !deck.playGuide && !deck.primer && (
           <p className="mb-8 text-sm text-paper-500 dark:text-paper-400">No description, play guide or primer yet. Add them with Edit Deck.</p>
@@ -307,7 +394,7 @@ export default function DeckDetailsPage() {
         ) : (
           <div className="bg-white dark:bg-paper-900 rounded-2xl p-5 md:p-6 border border-paper-200 dark:border-paper-800 shadow-sm space-y-10">
             {(deck.cards ?? []).some(c => c.tags?.length) && (
-              <div className="flex flex-wrap items-center justify-between gap-3 -mb-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-paper-100 dark:border-paper-800">
                 <p className="text-sm text-paper-500 dark:text-paper-400">
                   {roleView ? "Grouped by what each card does in the deck." : "Grouped by card type."}
                 </p>
@@ -338,7 +425,7 @@ export default function DeckDetailsPage() {
               </section>
             )}
             {groups.map(g => (
-              <section key={g.label}>
+              <section key={g.label} id={sectionId(g.label)} className="scroll-mt-24">
                 <h2 className="text-lg font-brand font-bold text-paper-900 dark:text-paper-100 pb-2 mb-4 border-b border-paper-100 dark:border-paper-800">
                   {g.label} <span className="text-paper-500 dark:text-paper-400 font-normal">({g.count})</span>
                 </h2>
@@ -376,9 +463,9 @@ export default function DeckDetailsPage() {
           onSaved={saved => { setDeck(saved); setIsEditorOpen(false); }}
         />
       )}
-      {preview?.card.image && (
-        <FloatingPreview anchor={preview.anchor} maxWidth={336} interactive={false} side="right">
-          <img src={largeImage(preview.card.image)} alt="" className="w-full rounded-[4.5%/3.2%] shadow-2xl ring-1 ring-black/10" />
+      {preview && (
+        <FloatingPreview anchor={preview.anchor} maxWidth={preview.side === "right" ? 336 : 280} interactive={false} side={preview.side}>
+          <img src={preview.image} alt="" className="w-full rounded-[4.5%/3.2%] shadow-2xl ring-1 ring-black/10" />
         </FloatingPreview>
       )}
     </main>
