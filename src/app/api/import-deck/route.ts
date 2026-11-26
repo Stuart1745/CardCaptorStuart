@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { KEY_TAG } from '@/lib/decks';
+import { KEY_TAG, NOT_A_ROLE } from '@/lib/decks';
 
 // Import a deck from an Archidekt link and return it as decklist text the Deck Editor already
 // understands, plus the deck's description and the cards its author marked as key. Archidekt's
@@ -116,7 +116,10 @@ async function fromArchidekt(id: string) {
     const board = cats.includes('Commander') ? 'commander'
       : cats.length && included.get(cats[0]) === false ? 'sideboard' : 'main';
     if (board === 'commander' && !commander) commander = name;
-    boards[board].push(line(c.quantity, name, c.card.edition?.editioncode, c.card.collectorNumber));
+    // Custom categories (Ramp, Sacrifice Outlet…) ride along as [roles] for the decklist parser
+    const roles = cats.filter(t => included.get(t) !== false && !NOT_A_ROLE.has(t.toLowerCase()) && !KEY_TAG.test(t))
+      .map(t => t.split(',').join(' ').split('[').join('').split(']').join('').trim()).filter(Boolean);
+    boards[board].push(line(c.quantity, name, c.card.edition?.editioncode, c.card.collectorNumber) + (board !== 'sideboard' && roles.length ? ` [${roles.join(',')}]` : ''));
     // Archidekt labels look like "Key Card,#ff0000"; the part before the comma is the name.
     const label = (c.label ?? '').split(',')[0];
     if (board !== 'sideboard' && [...cats, label].some(t => t && KEY_TAG.test(t))) keyCards.push(name);

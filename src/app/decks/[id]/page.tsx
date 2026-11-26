@@ -10,7 +10,7 @@ import { DeckEditor } from "@/components/DeckEditor";
 import { useAuth } from "@/components/AuthProvider";
 import { db } from "@/lib/firebase";
 import { isAdminUser } from "@/lib/admin";
-import { DEFAULT_DECKS, type Deck, type DeckCardEntry, deckSize, groupDeck, linkLabel, deckBracket, gameChangersIn, textBlocks, preconLabel, bracketReasons } from "@/lib/decks";
+import { DEFAULT_DECKS, type Deck, type DeckCardEntry, deckSize, groupDeck, linkLabel, deckBracket, gameChangersIn, textBlocks, preconLabel, bracketReasons, groupDeckByRole, hasRoles } from "@/lib/decks";
 import { ManaIcon } from "@/components/ManaIcon";
 import { FloatingPreview } from "@/components/FloatingPreview";
 import { RichText } from "@/components/RichText";
@@ -34,6 +34,8 @@ export default function DeckDetailsPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [keyError, setKeyError] = useState<string | null>(null);
+  /** List view: by role (like Moxfield/Archidekt categories) or by card type. null = default. */
+  const [groupBy, setGroupBy] = useState<"role" | "type" | null>(null);
   /** Hover preview of a card (mouse and keyboard focus only; touch taps go straight to Scryfall) */
   const [preview, setPreview] = useState<{ card: DeckCardEntry; anchor: DOMRect } | null>(null);
   const showPreview = (card: DeckCardEntry, el: HTMLElement, viaFocus = false) => {
@@ -115,7 +117,9 @@ export default function DeckDetailsPage() {
 
   const commanderCard = (deck.cards ?? []).find(c => c.board === "commander" && c.image);
   // The commander's card goes in the header, so leave it out of the list below.
-  const groups = groupDeck(deck.cards ?? []).filter(g => !(commanderCard && g.label.startsWith("Commander") && g.cards.length === 1));
+  const roleView = (groupBy ?? (hasRoles(deck.cards ?? []) ? "role" : "type")) === "role";
+  const groups = (roleView ? groupDeckByRole(deck.cards ?? []) : groupDeck(deck.cards ?? []))
+    .filter(g => !(commanderCard && g.label.startsWith("Commander") && g.cards.length === 1));
   const total = deckSize(deck.cards ?? []);
   const bracket = deckBracket(deck);
   const gameChangers = gameChangersIn(deck.cards ?? []);
@@ -138,6 +142,13 @@ export default function DeckDetailsPage() {
           )}
         </div>
         <p className="text-xs font-medium text-paper-700 dark:text-paper-300 truncate">{card.name}</p>
+        {(() => {
+          // In the category view the section is the primary role, so show only the others
+          const extra = (card.tags ?? []).filter((t, i) => !(roleView && i === 0 && where === t));
+          return extra.length > 0 && (
+            <p title={card.tags!.join(", ")} className="-mt-1 text-[11px] leading-tight text-paper-500 dark:text-paper-400 truncate">{extra.join(" · ")}</p>
+          );
+        })()}
       </a>
       {isAdmin && (
         <button type="button" onClick={() => toggleKey(card)} aria-pressed={!!card.key}
@@ -295,6 +306,26 @@ export default function DeckDetailsPage() {
           </div>
         ) : (
           <div className="bg-white dark:bg-paper-900 rounded-2xl p-5 md:p-6 border border-paper-200 dark:border-paper-800 shadow-sm space-y-10">
+            {(deck.cards ?? []).some(c => c.tags?.length) && (
+              <div className="flex flex-wrap items-center justify-between gap-3 -mb-4">
+                <p className="text-sm text-paper-500 dark:text-paper-400">
+                  {roleView ? "Grouped by what each card does in the deck." : "Grouped by card type."}
+                </p>
+                <div role="group" aria-label="Group cards by" className="inline-flex rounded-lg border border-paper-200 dark:border-paper-700 p-0.5 bg-paper-50 dark:bg-paper-800">
+                  {([["role", "Category"], ["type", "Type"]] as const).map(([v, label]) => {
+                    const active = (v === "role") === roleView;
+                    return (
+                      <button key={v} type="button" aria-pressed={active} onClick={() => setGroupBy(v)}
+                        className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${active
+                          ? "bg-white dark:bg-paper-900 text-paper-900 dark:text-paper-50 shadow-sm"
+                          : "text-paper-600 dark:text-paper-300 hover:text-paper-900 dark:hover:text-paper-50"}`}>
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
             {keyError && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{keyError}</p>}
             {keyCards.length > 0 && (
               <section>

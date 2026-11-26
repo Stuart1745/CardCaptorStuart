@@ -131,6 +131,14 @@ export function DeckEditor({ deck, allPods = [], onClose, onSaved }: {
           .map(n => n.toLowerCase()));
         const isKey = (n: string) => keyNames.has(n.toLowerCase()) || keyNames.has(n.split(" // ")[0].toLowerCase());
         cards = r.cards.map(c => (isKey(c.name) ? { ...c, key: true } : c));
+        // Role tags: from the paste first, else kept from the deck's last version, else read from
+        // the card's rules text, so every card lands in a category.
+        const prevTags = new Map((deck?.cards ?? []).filter(c => c.tags?.length).map(c => [c.name.toLowerCase(), c.tags!]));
+        cards = cards.map(c => {
+          if (c.tags?.length || c.board === "commander") return c;
+          const tags = prevTags.get(c.name.toLowerCase()) ?? r.autoTags[c.name];
+          return tags?.length ? { ...c, tags } : c;
+        });
         // Commander has no sideboard: a pasted Sideboard/Maybeboard section is left out
         if (isCommanderFormat) cards = cards.filter(c => c.board !== "sideboard");
         colors = r.colors;

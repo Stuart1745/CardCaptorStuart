@@ -1,4 +1,5 @@
 // Deck Hub data model, decklist parsing and Scryfall lookups.
+import { autoRoles } from "./cardRoles";
 // Decks live in Firestore `decks/{id}` (public read, admin write — see firestore.rules).
 
 export type Board = "commander" | "main" | "sideboard";
@@ -16,6 +17,9 @@ export interface DeckCardEntry {
   gameChanger?: boolean;
   /** Marked by the owner as one of the deck's key cards */
   key?: boolean;
+  /** What the card does in the deck's strategy (Moxfield tags / Archidekt categories).
+   *  The first is its primary role, which the category view groups by. */
+  tags?: string[];
 }
 
 export interface Deck {
@@ -90,7 +94,13 @@ export interface ParsedLine {
   number?: string;
   /** Tagged as a key card in the pasted export (Moxfield #tag, Archidekt [category] or ^label^) */
   key?: boolean;
+  /** Role tags from the pasted export: Moxfield #tags and Archidekt custom [categories] */
+  tags?: string[];
 }
+
+/** Archidekt's built-in categories are card types or boards, not roles. */
+export const NOT_A_ROLE = new Set(["commander", "creature", "instant", "sorcery", "artifact", "enchantment", "planeswalker", "land",
+  "battle", "maybeboard", "sideboard", "considering", "companion", "token", "tokens", "card", "upgrade", "cuts"]);
 
 /** A deck-site tag, category or label that marks a key card: "Key", "Key Cards", "Win Con", "Wincons"… */
 export const KEY_TAG = /(^|[^a-z])key([^a-z]|$)|win ?cons?([^a-z]|$)|win conditions?/i;
@@ -152,6 +162,7 @@ export function parseDecklist(text: string): ParsedLine[] {
     const lineBoard: Board = markers.includes("*CMDR*") || cats.some(c => c.name.toLowerCase() === "commander") ? "commander"
       : cats.length && cats[0].noDeck ? "sideboard" : board;
     const key = [...tags, ...cats.map(c => c.name)].some(t => KEY_TAG.test(t));
+    const roles = [...new Set([...tags, ...cats.map(c => c.name)].filter(t => t && !KEY_TAG.test(t) && !NOT_A_ROLE.has(t.toLowerCase())))];
     out.push({
       qty: m[1] ? parseInt(m[1], 10) : 1,
       name: m[2].trim(),
@@ -159,6 +170,7 @@ export function parseDecklist(text: string): ParsedLine[] {
       set: m[3]?.toLowerCase(),
       number: m[4],
       ...(key && lineBoard !== "sideboard" ? { key: true } : {}),
+      ...(roles.length ? { tags: roles } : {}),
     });
   }
   return out;
@@ -167,13 +179,14 @@ export function parseDecklist(text: string): ParsedLine[] {
 interface ScryfallCard {
   name: string;
   type_line?: string;
+  oracle_text?: string;
   cmc?: number;
   colors?: string[];
   color_identity?: string[];
   scryfall_uri?: string;
   game_changer?: boolean;
   image_uris?: { normal?: string; art_crop?: string };
-  card_faces?: { name: string; type_line?: string; colors?: string[]; image_uris?: { normal?: string; art_crop?: string } }[];
+  card_faces?: { name: string; type_line?: string; oracle_text?: string; colors?: string[]; image_uris?: { normal?: string; art_crop?: string } }[];
 }
 
 const SCRYFALL_HEADERS = { Accept: "application/json", "Content-Type": "application/json" };
@@ -189,6 +202,8 @@ const sameName = (card: ScryfallCard, name: string) => {
 export interface ResolveResult {
   cards: DeckCardEntry[];
   notFound: string[];
+  /** Roles read from each card's rules text, for cards that end up with no tag of their own */
+  autoTags: Record<string, string[]>;
   colors: string[];
   thumbnail?: string;
   commander?: string;
@@ -241,7 +256,12 @@ export async function resolveDecklist(lines: ParsedLine[], coverName?: string): 
     const board: Board = isCommander ? "commander" : line.board;
     const key = `${board}|${card.name}`;
     const prev = merged.get(key);
-    if (prev) { prev.qty += line.qty; if (line.key) prev.key = true; continue; }
+    if (prev) {
+      prev.qty += line.qty;
+      if (line.key) prev.key = true;
+      if (line.tags?.length) prev.tags = [...new Set([...(prev.tags ?? []), ...line.tags])];
+      continue;
+    }
     merged.set(key, {
       qty: line.qty,
       name: card.name,
@@ -252,9 +272,16 @@ export async function resolveDecklist(lines: ParsedLine[], coverName?: string): 
       scryfallUri: card.scryfall_uri?.split("?")[0],
       ...(card.game_changer ? { gameChanger: true } : {}),
       ...(line.key ? { key: true } : {}),
+      ...(line.tags?.length ? { tags: line.tags } : {}),
     });
   }
   const cards = [...merged.values()];
+  const autoTags: Record<string, string[]> = {};
+  for (const { card } of found) {
+    if (autoTags[card.name]) continue;
+    const text = card.oracle_text ?? (card.card_faces ?? []).map(f => f.oracle_text ?? "").join(" // ");
+    autoTags[card.name] = autoRoles(card.type_line ?? card.card_faces?.[0]?.type_line, text);
+  }
 
   const commanders = found.filter(f => cards.some(c => c.board === "commander" && c.name === f.card.name)).map(f => f.card);
   const colorSource = commanders.length ? commanders.flatMap(c => c.color_identity ?? [])
@@ -268,6 +295,7 @@ export async function resolveDecklist(lines: ParsedLine[], coverName?: string): 
   return {
     cards,
     notFound,
+    autoTags,
     colors: colors.length || !coverCard ? colors : ["W", "U", "B", "R", "G"].filter(c => (coverCard!.color_identity ?? []).includes(c)),
     thumbnail: coverCard ? frontImage(coverCard, "art_crop") : undefined,
     commander: commanders[0]?.name ?? (coverName ? coverCard?.name : undefined),
@@ -314,6 +342,35 @@ export function groupDeck(cards: DeckCardEntry[]): { label: string; cards: DeckC
   }
   const side = cards.filter(c => c.board === "sideboard");
   if (side.length) groups.push({ label: "Sideboard / Maybeboard", cards: side, count: side.reduce((n, c) => n + c.qty, 0) });
+  return groups;
+}
+
+/** True when enough of the deck carries role tags for the category view to be useful. */
+export function hasRoles(cards: DeckCardEntry[]): boolean {
+  const main = cards.filter(c => c.board === "main");
+  return main.length > 0 && main.filter(c => c.tags?.length).length >= main.length / 2;
+}
+
+/**
+ * Group by role, like a Moxfield or Archidekt category view: each card under its primary
+ * (first) tag. Biggest categories first; Land and untagged cards last.
+ */
+export function groupDeckByRole(cards: DeckCardEntry[]): { label: string; cards: DeckCardEntry[]; count: number }[] {
+  const groups: { label: string; cards: DeckCardEntry[]; count: number }[] = [];
+  const commander = cards.filter(c => c.board === "commander");
+  if (commander.length) groups.push({ label: commander.length > 1 ? "Commanders" : "Commander", cards: commander, count: commander.reduce((n, c) => n + c.qty, 0) });
+  const byRole = new Map<string, DeckCardEntry[]>();
+  for (const c of cards.filter(c => c.board === "main")) {
+    const role = c.tags?.[0] ?? (/Land/.test(c.type) ? "Land" : "Other");
+    byRole.set(role, [...(byRole.get(role) ?? []), c]);
+  }
+  const last = (r: string) => (r === "Other" ? 2 : r === "Land" ? 1 : 0);
+  const size = (list: DeckCardEntry[]) => list.reduce((n, c) => n + c.qty, 0);
+  [...byRole.entries()]
+    .sort(([a, x], [b, y]) => last(a) - last(b) || size(y) - size(x) || a.localeCompare(b))
+    .forEach(([label, list]) => groups.push({ label, cards: list.sort((a, b) => a.cmc - b.cmc || a.name.localeCompare(b.name)), count: size(list) }));
+  const side = cards.filter(c => c.board === "sideboard");
+  if (side.length) groups.push({ label: "Sideboard / Maybeboard", cards: side, count: size(side) });
   return groups;
 }
 
