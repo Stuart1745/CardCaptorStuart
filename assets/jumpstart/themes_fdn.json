@@ -1,0 +1,72 @@
+{
+  "Cats": {
+    "description": "A white pack of brave cat warriors. It fills the board with cheap creatures early, then backs them up with flying, life gain, and simple ways to stop the opponent's best creature.",
+    "plan": "This is one of the two learn-to-play decks, and your first game against Vampires teaches the basics of combat: attack early with small cats like Savannah Lions and Leonin Vanguard, learn that a vigilance creature such as Prideful Parent can attack and still block, and see flying (Leonin Skyhunter) and first strike (Jazal Goldmane) decide who wins a fight. It also shows how a quick boost like Moment of Triumph changes a block and how Pacifism takes a threat out of the game without destroying it.",
+    "pairsWith": ["Healing", "Goblins", "Primal"],
+    "standouts": ["Jazal Goldmane", "Felidar Savior", "Pacifism"],
+    "learn": true
+  },
+  "Elves": {
+    "description": "A green pack of elves that work best together. Many of its elves make each other stronger or produce extra mana, which is the energy you spend to cast cards.",
+    "plan": "Play a cheap elf on your first or second turn so you have extra mana sooner, then build a crowd of elves with Elvish Archdruid making them bigger. Once you have a wide board, cast Joraga Invocation to give everyone +3/+3 and attack together.",
+    "pairsWith": ["Primal", "Cats", "Goblins"],
+    "standouts": ["Elvish Archdruid", "Thornweald Archer", "Joraga Invocation"],
+    "learn": false
+  },
+  "Goblins": {
+    "description": "A red pack of fast, scrappy goblins. It plays lots of small creatures and makes them hit harder when they attack together.",
+    "plan": "Attack early and often: get several goblins out, use Goblin Oriflamme and Dropkick Bomber to make them stronger, and use Frenzied Goblin or Goblin Smuggler to keep your opponent's creatures from blocking. Save Incinerating Blast for the one big creature standing in your way.",
+    "pairsWith": ["Cats", "Vampires", "Elves"],
+    "standouts": ["Dropkick Bomber", "Raging Redcap", "Incinerating Blast"],
+    "learn": false
+  },
+  "Healing": {
+    "description": "A white pack of angels and protectors that gain life over and over. Several of its creatures grow stronger every time you gain life.",
+    "plan": "Play creatures like Ajani's Pridemate and Twinblade Paladin first, then add creatures that gain you life when they arrive or attack, so your growing creatures get a +1/+1 counter each time. Fly over blockers with your angels and Ancestor Dragon while your high life total keeps you safe.",
+    "pairsWith": ["Vampires", "Cats"],
+    "standouts": ["Ancestor Dragon", "Ajani's Pridemate", "Prayer of Binding"],
+    "learn": false
+  },
+  "Inferno": {
+    "description": "A red pack of dragons and fire spells. It burns away the opponent's creatures and builds up to huge flying dragons late in the game.",
+    "plan": "Use your burn spells to clear blockers while Dragonlord's Servant and Carnelian Orb of Dragonkind help you cast dragons sooner. Finish with Rapacious Dragon or Terror of Mount Velus, which gives your whole team double strike so every creature deals its damage twice.",
+    "pairsWith": ["Wizards", "Pirates", "Primal"],
+    "standouts": ["Terror of Mount Velus", "Rapacious Dragon", "Fiery Annihilation"],
+    "learn": false
+  },
+  "Pirates": {
+    "description": "A blue pack of sneaky pirates that strike by surprise. It uses flash (casting a card on the opponent's turn), sends creatures back to their owner's hand, and rewards you for attacking.",
+    "plan": "Keep mana open on your opponent's turn so you can cast Spectral Sailor or Brineborn Cutthroat by surprise, or Cancel their spell. Attack first, then play Storm Fleet Spy or Skyship Buccaneer after combat to draw an extra card, and use Corsair Captain to make your other pirates stronger.",
+    "pairsWith": ["Goblins", "Wizards", "Inferno"],
+    "standouts": ["Corsair Captain", "Spectral Sailor", "Bigfin Bouncer"],
+    "learn": false
+  },
+  "Primal": {
+    "description": "A green pack of big beasts that keep growing. It adds +1/+1 counters to its creatures, which make them permanently bigger, and gives them trample so extra damage gets through blockers.",
+    "plan": "Use Druid of the Cowl and New Horizons to get extra mana, then play larger creatures and grow them with counters and Giant Growth. Land Aggressive Mammoth to give your whole team trample, and use Bite Down to have your biggest creature knock out an enemy.",
+    "pairsWith": ["Cats", "Elves", "Inferno"],
+    "standouts": ["Aggressive Mammoth", "Wildwood Scourge", "Bite Down"],
+    "learn": false
+  },
+  "Undead": {
+    "description": "A black pack of zombies and skeletons that refuse to stay dead. Its creatures come back from the graveyard (your discard pile) or leave more zombies behind when they die.",
+    "plan": "Trade creatures freely in combat, because Reassembling Skeleton, Cemetery Recruitment, and Maalfeld Twins bring the army back. Play Death Baron to make your zombies and skeletons bigger and give them deathtouch, so even a small one destroys any creature it damages.",
+    "pairsWith": ["Vampires", "Goblins", "Wizards"],
+    "standouts": ["Death Baron", "Reassembling Skeleton", "Deadly Plot"],
+    "learn": false
+  },
+  "Vampires": {
+    "description": "A black pack of vampires that drain the opponent's life and add it to your own. It also has strong spells that destroy or weaken enemy creatures.",
+    "plan": "This is the other learn-to-play deck, and your first game against Cats teaches the other side of combat: Vampire Interloper shows that flying gets past ground blockers (but it can't block), Vampire Spawn and Vampire Neonate show you can win by draining life without attacking, and Hero's Downfall and Moment of Craving show how removal spells clear the way. Late in the game Crossway Troublemakers gives attacking vampires deathtouch and lifelink, and Untamed Hunger adds menace, so they are very hard to block well.",
+    "pairsWith": ["Healing", "Undead", "Goblins"],
+    "standouts": ["Crossway Troublemakers", "Vampire Spawn", "Hero's Downfall"],
+    "learn": true
+  },
+  "Wizards": {
+    "description": "A blue pack of clever wizards that draw lots of extra cards. Its creatures get stronger or make flying helpers when you draw more than one card in a turn.",
+    "plan": "Draw extra cards with Fleeting Distraction, Quick Study, and Arcane Epiphany to power up Clinquant Skymage and Mischievous Mystic. Slow your opponent down by sending their creatures back to their hand with Exclusion Mage and Into the Roil, or lock one down with Starlight Snare, while your fliers attack.",
+    "pairsWith": ["Inferno", "Pirates", "Undead"],
+    "standouts": ["Mischievous Mystic", "Clinquant Skymage", "Exclusion Mage"],
+    "learn": false
+  }
+}

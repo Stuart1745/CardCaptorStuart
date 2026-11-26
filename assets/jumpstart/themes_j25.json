@@ -1,0 +1,826 @@
+{
+ "Angels": {
+  "description": "A white flying pack built around Angels that grow each other as more of them land on the battlefield.",
+  "plan": "Get Giada or Youthful Valkyrie down early, then follow up with more Angels so each one arrives bigger, and win in the air while Pacifism handles a ground threat.",
+  "pairsWith": [
+   "Soaring",
+   "Healers",
+   "Vampires"
+  ],
+  "standouts": [
+   "Giada, Font of Hope",
+   "Youthful Valkyrie",
+   "Inspiring Overseer"
+  ],
+  "variants": {
+   "1": "Adds Serra Angel, with Destroy Evil and Light of Hope for flexible answers and Celestial Enforcer to tap blockers",
+   "2": "Adds Herald of War and Stalwart Valkyrie, plus Rally of Wings for a big air swing and Angelic Edict as removal"
+  }
+ },
+ "Armed": {
+  "description": "A white equipment pack: small soldiers that pick up weapons and armor to become much bigger threats.",
+  "plan": "Play cheap creatures, suit them up, and attack; Danitha Capashen makes the gear cheaper and Fencing Ace gets double value from every bonus.",
+  "pairsWith": [
+   "Warriors",
+   "Inventive",
+   "Legion"
+  ],
+  "standouts": [
+   "Danitha Capashen, Paragon",
+   "Ancestral Blade",
+   "Fencing Ace"
+  ],
+  "variants": {
+   "1": "Mace of the Valiant and Valkyrie's Sword, with Starnheim Courser to discount artifacts",
+   "2": "Stone Haven Outfitter, Plate Armor and Hexgold Hoverwings, with Militant Inquisitor",
+   "3": "Maul of the Skyclaves and Flutterfox for flying, plus Resistance Reunited and Trusty Retriever",
+   "4": "Godsend and Plate Armor, with Thopter Architect for evasion and Deadly Riposte as removal"
+  }
+ },
+ "Beasts": {
+  "description": "A green pack of big Beasts that get cheaper, bigger and draw you cards as the herd grows.",
+  "plan": "Land Woodland Liege or Advocate of the Beast early, then cast Beasts that draw cards and grow; Slinza makes the rest cheaper and Time to Feed clears the way.",
+  "pairsWith": [
+   "Landfall",
+   "Encounter",
+   "Warriors"
+  ],
+  "standouts": [
+   "Slinza, the Spiked Stampede",
+   "Woodland Liege",
+   "Gnarlid Colony"
+  ],
+  "variants": {
+   "1": "Obstinate Baloth and Spined Tyrranax, with Explore and Gift of the Gargantuan to find lands and creatures",
+   "2": "Garruk, Caller of Beasts and Garruk's Packleader for card draw, plus Baloth Gorger and Bushwhack"
+  }
+ },
+ "Bloody": {
+  "description": "A red Vampire pack that makes Blood tokens and turns discarding into an advantage.",
+  "plan": "Attack early and often, use Blood tokens to swap bad cards for new ones, and finish with haste threats and Soul Sear clearing the biggest blocker.",
+  "pairsWith": [
+   "Vampires",
+   "Nefarious",
+   "Warriors"
+  ],
+  "standouts": [
+   "Ivora, Insatiable Heir",
+   "Voldaren Duelist",
+   "Falkenrath Celebrants"
+  ],
+  "variants": {
+   "1": "Madness focus with Anje's Ravager, Incorrigible Youths and Abandon Reason",
+   "2": "Markov Blademaster and Markov Enforcer, with Blood Hypnotist to stop blockers",
+   "3": "Scion of Opulence and Markov Warlord, with Vampiric Fury and Blood Feud",
+   "4": "Falkenrath Marauders flying in, plus Voldaren Ambusher and Neonate's Rush"
+  }
+ },
+ "Bookworms": {
+  "description": "A blue card-draw pack where creatures get stronger whenever you draw more than one card in a turn.",
+  "plan": "Keep drawing extra cards to grow your creatures and fill your hand, then let Syr Elenora become huge while Starlight Snare locks down a threat.",
+  "pairsWith": [
+   "Wizards",
+   "Copied",
+   "Soaring"
+  ],
+  "standouts": [
+   "Syr Elenora, the Discerning",
+   "Reckless Scholar",
+   "Faerie Vandal"
+  ],
+  "variants": {
+   "1": "Overflowing Insight, Trial of Knowledge with Cartouche of Knowledge, and Shore Keeper",
+   "2": "Teferi's Ageless Insight to double draws, plus Muse Drake, Witching Well and Uncomfortable Chill",
+   "3": "Sphinx of Enlightenment, Thopter Mechanic and Omen of the Sea",
+   "4": "Nadir Kraken and Tolarian Kraken reward every draw, with Opt and Soul Read"
+  }
+ },
+ "Burning": {
+  "description": "A red burn pack full of damage spells and creatures that ping the opponent whenever you cast them.",
+  "plan": "Cast cheap burn to clear blockers and hit the opponent, letting Firebrand Archer and Chandra's Spitfire add extra damage; Rionya copies your best creature on a big spell turn.",
+  "pairsWith": [
+   "Copied",
+   "Wizards",
+   "Surprise!"
+  ],
+  "standouts": [
+   "Firebrand Archer",
+   "Chandra's Spitfire",
+   "Rionya, Fire Dancer"
+  ]
+ },
+ "Chaos": {
+  "description": "A five-color pack of cascade spells and mana fixing, where each big spell casts a free bonus spell.",
+  "plan": "Use Terramorphic Expanse, Ash Barrens, Druid of the Anima and Chromatic Lantern to fix your mana, then cascade into free spells for a big swing in value.",
+  "pairsWith": [
+   "Landfall",
+   "Explorers",
+   "Dragons"
+  ],
+  "standouts": [
+   "Averna, the Chaos Bloom",
+   "Bloodbraid Elf",
+   "Maelstrom Colossus"
+  ]
+ },
+ "Clerics": {
+  "description": "A black Cleric pack that brings creatures back from the graveyard and gains life along the way.",
+  "plan": "Trade creatures freely, then use Bonecaller Cleric and Revoke Demise to bring your best ones back; Dark Bargain keeps the cards flowing.",
+  "pairsWith": [
+   "Healers",
+   "Angels",
+   "Vampires"
+  ],
+  "standouts": [
+   "Bonecaller Cleric",
+   "Revoke Demise",
+   "Archfiend's Vessel"
+  ],
+  "variants": {
+   "1": "Taborax, Nullpriest of Oblivion and Eerie Soultender, with Agonizing Syphon",
+   "2": "Taborax, Entomber Exarch and Elderfang Disciple for discard, plus Severed Strands",
+   "3": "Vito drains on lifegain, and Dark Supplicant can fetch Scion of Darkness",
+   "4": "Vito and Priest of Forgotten Gods, with Extinguish the Light and Stronghold Confessor"
+  }
+ },
+ "Copied": {
+  "description": "A red spells pack where instants and sorceries make tokens, pump creatures and get copied.",
+  "plan": "Fill the board with Young Pyromancer tokens and pump Kiln Fiend by casting cheap spells; target Zada with a pump spell to copy it onto your whole team.",
+  "pairsWith": [
+   "Wizards",
+   "Burning",
+   "Bookworms"
+  ],
+  "standouts": [
+   "Zada, Hedron Grinder",
+   "Young Pyromancer",
+   "Kiln Fiend"
+  ],
+  "variants": {
+   "1": "Cheap card-drawing spells like Crimson Wisps and Renegade Tactics, plus Guttersnipe and Spellgorger Weird",
+   "2": "Two Ancestral Anger, Charmbreaker Devils and Uncaged Fury for double strike"
+  }
+ },
+ "Dinner": {
+  "description": "A green Food pack that makes Food tokens and spends them for life, cards and huge creatures.",
+  "plan": "Build up Food, then sacrifice it for a 7/7 Giant, a +5/+5 pump or extra cards from Trail of Crumbs; Hurska turns the life you gain into extra damage.",
+  "pairsWith": [
+   "Healers",
+   "Giddyap",
+   "Treasures"
+  ],
+  "standouts": [
+   "Hurska Sweet-Tooth",
+   "Giant Opportunity",
+   "Trail of Crumbs"
+  ]
+ },
+ "Dinosaurs": {
+  "description": "A green pack of big Dinosaurs with ramp spells to cast them early.",
+  "plan": "Ramp with Rampant Growth, find Dinosaurs with Commune with Dinosaurs, and stomp in with tramplers; enough power on the board makes Ghalta nearly free.",
+  "pairsWith": [
+   "Zealots",
+   "Warriors",
+   "Ghastly"
+  ],
+  "standouts": [
+   "Ghalta, Primal Hunger",
+   "Thundering Spineback",
+   "Commune with Dinosaurs"
+  ],
+  "variants": {
+   "1": "Drover of the Mighty for mana, Armored Kincaller, Savage Stomp and Giant Growth",
+   "2": "Topiary Stomper and Cherished Hatchling, with Tail Swipe and Predator's Strike"
+  }
+ },
+ "Dragons": {
+  "description": "A red flying pack of Dragons, with cost reducers and spells that get better when a Dragon is around.",
+  "plan": "Curve into Dragons in the air, use Dragonlord's Servant to cast them sooner, and land Lathliss so every new Dragon brings a 5/5 friend.",
+  "pairsWith": [
+   "Soaring",
+   "Treasures",
+   "Burning"
+  ],
+  "standouts": [
+   "Lathliss, Dragon Queen",
+   "Dragonlord's Servant",
+   "Sparktongue Dragon"
+  ],
+  "variants": {
+   "1": "Rapacious Dragon for Treasure, Carnelian Orb of Dragonkind for haste, and Bathe in Dragonfire",
+   "2": "Sarkhan, Fireblood and Hellkite Whelp, with Sarkhan's Rage as a finisher"
+  }
+ },
+ "Drowned": {
+  "description": "A blue graveyard pack that mills cards and gets value from what lands there.",
+  "plan": "Fill your graveyard early with Wall of Lost Thoughts and Screaming Swarm, then cash in with Sudden Insight, flashback and Neerdiv's card draw.",
+  "pairsWith": [
+   "Grave Robbers",
+   "Ghastly",
+   "Clerics"
+  ],
+  "standouts": [
+   "Neerdiv, Devious Diver",
+   "Screaming Swarm",
+   "Sudden Insight"
+  ],
+  "variants": {
+   "1": "Shipwreck Dowser, Stitched Drake and Organ Hoarder, with Silent Departure and Ipnu Rivulet",
+   "2": "Cackling Counterpart, Waker of Waves and Cruel Witness, with Towering-Wave Mystic"
+  }
+ },
+ "Elves": {
+  "description": "A green Elf pack that ramps mana and swarms the board with Elves that pump each other.",
+  "plan": "Use cheap mana Elves to go wide fast, then cast Overcome for a big trampling attack; Dionus grows your Elves each time they tap.",
+  "pairsWith": [
+   "Clerics",
+   "Explorers",
+   "Fun Guys"
+  ],
+  "standouts": [
+   "Dionus, Elvish Archdruid",
+   "Llanowar Elves",
+   "Overcome"
+  ],
+  "variants": {
+   "1": "Leaf-Crowned Visionary as the lord, plus Thornweald Archer and Band Together",
+   "2": "Elvish Archdruid, Dwynen's Elite and Might of the Masses",
+   "3": "Marwyn, the Nurturer and Llanowar Visionary for more mana",
+   "4": "Tyvar Kell and Voice of the Woods, with Paradise Druid"
+  }
+ },
+ "Enchanted": {
+  "description": "A white enchantments pack where Auras and enchantment creatures trigger bonus effects as they enter.",
+  "plan": "Play an enchantment each turn to make Psemilla's Nymph tokens and give Flutterfox flying, with Banishing Light removing the biggest threat.",
+  "pairsWith": [
+   "Healers",
+   "Illusions",
+   "Modified"
+  ],
+  "standouts": [
+   "Psemilla, Meletian Poet",
+   "Flutterfox",
+   "Banishing Light"
+  ],
+  "variants": {
+   "1": "Constellation tricks from Captivating Unicorn and Favored of Iroas, plus Spirited Companion",
+   "2": "Cartouche of Solidarity, Cage of Hands and Nyx-Fleece Ram",
+   "3": "Lifegain build with Nykthos Paragon, Serra's Embrace and Starfield Mystic",
+   "4": "Archon of Sun's Grace makes flying Pegasi, with Angelic Gift and Favored of Iroas"
+  }
+ },
+ "Encounter": {
+  "description": "A green +1/+1 counters pack where creatures keep growing and many cards reward having counters.",
+  "plan": "Spread +1/+1 counters early, then let Mowu and counter-doubling effects turn your team into a trampling force; Jiang Yanggu makes counters into mana.",
+  "pairsWith": [
+   "Stalwart",
+   "Beasts",
+   "Healers"
+  ],
+  "standouts": [
+   "Mowu, Loyal Companion",
+   "Jiang Yanggu, Wildcrafter",
+   "Deepwood Denizen"
+  ],
+  "variants": {
+   "1": "Forgotten Ancient and Servant of the Scale, with Biogenic Upgrade and Duskshell Crawler",
+   "2": "Oran-Rief Ooze and Jungle Delver, with Invigorating Surge and Stony Strength",
+   "3": "Rishkar, Peema Renegade and Biogenic Upgrade, with Reckless Amplimancer",
+   "4": "Primeval Bounty and Quirion Beastcaller, with Armorcraft Judge for cards"
+  }
+ },
+ "Explorers": {
+  "description": "A green Scout pack that searches for lands, explores and turns extra land drops into a bigger army.",
+  "plan": "Hit every land drop with Explore and Go Forth, then attack with Braulios, whose size equals your land count and who draws a card each time he swings.",
+  "pairsWith": [
+   "Landfall",
+   "Ne'er-do-wells",
+   "Chaos"
+  ],
+  "standouts": [
+   "Braulios of Pheres Band",
+   "Explore",
+   "Go Forth"
+  ],
+  "variants": {
+   "1": "Realm Seekers and Tireless Provisioner, with Ainok Guide and Adventurous Impulse",
+   "2": "Clue value from Tireless Tracker and Ulvenwald Mysteries, plus Primeval Herald",
+   "3": "Tokens build with Somberwald Beastmaster, Briarbridge Tracker and Woodland Champion",
+   "4": "Explore creatures: Jadelight Ranger, Merfolk Branchwalker and Ixalli's Diviner"
+  }
+ },
+ "Fun Guys": {
+  "description": "A green Fungus pack that floods the board with 1/1 Saproling tokens and pumps them all at once.",
+  "plan": "Make Saprolings with Saproling Migration and Spore Swarm, grow them with Sporecrown Thallid, and let Shroofus multiply any that connect.",
+  "pairsWith": [
+   "Legion",
+   "Goblins",
+   "Ghastly"
+  ],
+  "standouts": [
+   "Shroofus Sproutsire",
+   "Sporecrown Thallid",
+   "Saproling Migration"
+  ],
+  "variants": {
+   "1": "Overwhelm and Might of the Masses as finishers, plus Tukatongue Thallid and Spore Crawler",
+   "2": "Verdeloth the Ancient and Undercellar Myconid, with Overcome and For the Family"
+  }
+ },
+ "Ghastly": {
+  "description": "A black pack that profits whenever creatures die, with sacrifice outlets and morbid rewards.",
+  "plan": "Trade creatures and sacrifice them on purpose to draw cards with Morbid Opportunist and drain with Falkenrath Noble, using Tragic Slip as cheap removal.",
+  "pairsWith": [
+   "Goblins",
+   "Fun Guys",
+   "Legion"
+  ],
+  "standouts": [
+   "Morbid Opportunist",
+   "Falkenrath Noble",
+   "Tragic Slip"
+  ],
+  "variants": {
+   "1": "Harvester of Souls, Murder and Wakedancer, with Village Rites",
+   "2": "Bloodgift Demon, Gnawing Zombie and Typhoid Rats, with Defenestrate",
+   "3": "Reaper from the Abyss and Morkrut Behemoth, with Deadly Dispute and Murder",
+   "4": "Army of the Damned for a swarm of Zombies, plus Shambling Ghast and Crawl from the Cellar"
+  }
+ },
+ "Giddyap": {
+  "description": "A white pack of Unicorns, Pegasi and Horses with plenty of lifegain.",
+  "plan": "Fly over with Pegasi and gain life to grow Celestial Unicorn; Thurid copies each Unicorn, Pegasus and Horse you cast and pumps the rest.",
+  "pairsWith": [
+   "Dinner",
+   "Vampires",
+   "Healers"
+  ],
+  "standouts": [
+   "Thurid, Mare of Destiny",
+   "Celestial Unicorn",
+   "Sungrace Pegasus"
+  ]
+ },
+ "Goblins": {
+  "description": "A red Goblin pack that makes lots of 1/1 tokens and gets damage from going wide.",
+  "plan": "Flood the board with Goblin tokens from Krenko's Command and Goblin Surprise, attack with General Kreat for more, and finish with Volley Veteran or a team pump.",
+  "pairsWith": [
+   "Ghastly",
+   "Legion",
+   "Fun Guys"
+  ],
+  "standouts": [
+   "General Kreat, the Boltbringer",
+   "Krenko's Command",
+   "Volley Veteran"
+  ],
+  "variants": {
+   "1": "Dropkick Bomber and Battle Cry Goblin, with Goblin Researcher and Brute Strength",
+   "2": "Goblin Goliath and Dropkick Bomber, with Goblin Arsonist and Mogg Flunkies",
+   "3": "Krenko, Tin Street Kingpin and Beetleback Chief, with Scavenged Blade",
+   "4": "Goblin Rabblemaster and Fanatical Firebrand, with Fire Prophecy"
+  }
+ },
+ "Grave Robbers": {
+  "description": "A black graveyard pack that mills its own deck to fuel creature recursion.",
+  "plan": "Mill early with Gorging Vulture, then bring creatures back over and over with Eternal Taskmaster and Revoke Demise until the opponent runs out of answers.",
+  "pairsWith": [
+   "Drowned",
+   "Clerics",
+   "Fun Guys"
+  ],
+  "standouts": [
+   "Gorging Vulture",
+   "Eternal Taskmaster",
+   "Revoke Demise"
+  ],
+  "variants": {
+   "1": "Gorex, the Tombshell and Graveblade Marauder, with Grave Strength and Murder",
+   "2": "Gorex, Doomed Necromancer and Dusk Mangler, with Necrotic Wound",
+   "3": "Isareth the Awakener and Dreadhound, with Persistent Specimen and Memorial to Folly",
+   "4": "Liliana, Death's Majesty and Isareth, with Goremand"
+  }
+ },
+ "Healers": {
+  "description": "A white lifegain pack where gaining life grows your creatures and powers up your Angels.",
+  "plan": "Gain a little life every turn to put counters on Ajani's Pridemate and Qala, then attack with a growing team while Angel of Vitality adds extra life.",
+  "pairsWith": [
+   "Vampires",
+   "Clerics",
+   "Dinner"
+  ],
+  "standouts": [
+   "Ajani's Pridemate",
+   "Qala, Ajani's Pridemate",
+   "Angel of Vitality"
+  ],
+  "variants": {
+   "1": "Speaker of the Heavens, Angel of Mercy and Faith's Fetters",
+   "2": "Valkyrie Harbinger and Speakeasy Server, with Take Up the Shield",
+   "3": "Righteous Valkyrie and Banisher Priest, with Angel of Mercy",
+   "4": "Felidar Sovereign and Rhox Faithmender for a 40-life win, plus Faith's Fetters"
+  }
+ },
+ "Heroes": {
+  "description": "A white pack built around heroic creatures that grow stronger or gain extra effects whenever you target them with your own spells.",
+  "plan": "Play cheap heroic creatures early, then cast pump spells and auras on them so each spell also adds counters or triggers a bonus, building one or two big attackers.",
+  "pairsWith": [
+   "Stoked",
+   "Enchanted",
+   "Armed"
+  ],
+  "standouts": [
+   "Brigone, Soldier of Meletis",
+   "Favored Hoplite",
+   "Wingsteed Rider"
+  ],
+  "variants": {
+   "1": "more combat tricks (Dauntless Onslaught, Moment of Heroism) plus Akroan Skyguard and Tethmos High Priest to bring back small creatures",
+   "2": "more tempo: Ojutai Exemplars, Elite Skirmisher and Repel the Darkness tap down blockers, and Gird for Battle adds counters"
+  }
+ },
+ "Icky": {
+  "description": "A black pack of insects, worms and other creepy-crawlies that are happy to be sacrificed for value.",
+  "plan": "Make extra bodies with Wriggling Grub and Fumulus, then sacrifice them to pump Nantuko Husk or Devouring Swarm and to fuel removal like Eaten Alive.",
+  "pairsWith": [
+   "Treasures",
+   "Fun Guys",
+   "Ghastly"
+  ],
+  "standouts": [
+   "Fumulus, the Infestation",
+   "Nantuko Husk",
+   "Wriggling Grub"
+  ],
+  "variants": {
+   "1": "more aggressive: Fretwork Colony and Swarm of Bloodflies grow, Village Rites turns a sacrifice into cards, Durable Coilbug comes back",
+   "2": "grindier: Endless Cockroaches returns to hand, Virus Beetle forces a discard, plus Torment of Scarabs and Morkrut Necropod"
+  }
+ },
+ "Illusions": {
+  "description": "A blue pack of Illusion creatures that are cheap and evasive but often fragile, backed by a lord that makes them stronger and hard to target.",
+  "plan": "Land Lord of the Unreal to make your Illusions bigger and hexproof, then fly or slip past blockers while instants and sorceries make more Bird Illusions with Murmuring Mystic.",
+  "pairsWith": [
+   "Wizards",
+   "Bookworms",
+   "Burning"
+  ],
+  "standouts": [
+   "Lord of the Unreal",
+   "Murmuring Mystic",
+   "Oneirophage"
+  ]
+ },
+ "Inventive": {
+  "description": "A blue artifact pack full of Thopters, Constructs and gadgets that reward you for keeping lots of artifacts on the battlefield.",
+  "plan": "Fill the board with cheap artifacts and Thopter tokens, pump them with Chief of the Foundry, and use the artifact count to discount or power up your bigger threats.",
+  "pairsWith": [
+   "Armed",
+   "Treasures",
+   "Dragons"
+  ],
+  "standouts": [
+   "Chief of the Foundry",
+   "Experimental Aviator",
+   "Gilded Scuttler"
+  ],
+  "variants": {
+   "1": "Thopter engine: Sai, Master Thopterist and Whirlermaker, plus Filigree Attendant, Gearseeker Serpent and bounce from Blink of an Eye",
+   "2": "Sai and Shimmer Dragon lead, with Fireshrieker, Treasure Keeper, Malfunction and Universal Solvent",
+   "3": "affinity payoffs: Thought Monitor, Thoughtcast and Myr Enforcer get cheap, with Padeem and Patchwork Automaton",
+   "4": "Padeem protects your artifacts, with Treasure Keeper, Guardian Idol, Shardless Outlander and Blink of an Eye"
+  }
+ },
+ "Landfall": {
+  "description": "A green pack whose creatures get bigger or trigger bonuses every time a land enters the battlefield under your control.",
+  "plan": "Make your land drop every turn (Evolving Wilds and Sutina give extra drops) and attack with landfall creatures while they are pumped, using Bite Down to clear blockers.",
+  "pairsWith": [
+   "Dragons",
+   "Stalwart",
+   "Explorers"
+  ],
+  "standouts": [
+   "Sutina, Speaker of the Tajuru",
+   "Canopy Baloth",
+   "Snapping Gnarlid"
+  ],
+  "variants": {
+   "1": "ramp and power: Lotus Cobra, Harrow, Undergrowth Champion, Baloth Woodcrasher and Skyclave Pick-Axe",
+   "2": "value and life gain: Ancient Greenwarden, Retreat to Kazandu, Kazandu Nectarpot, Territorial Scythecat and Krosan Tusker",
+   "3": "+1/+1 counters: Scythecat Cub, Territorial Scythecat, Murasa Ranger and Retreat to Kazandu, plus Cliffhaven Kitesail for flying",
+   "4": "Scythecat Cub and Baloth Woodcrasher, with Sporemound tokens, Groundswell, Grazing Gladehart and Skyclave Pick-Axe"
+  }
+ },
+ "Legion": {
+  "description": "A white go-wide pack that floods the board with small Human and Soldier tokens.",
+  "plan": "Make lots of creatures with Raise the Alarm, Ancestral Blade and Adeline, then pump the whole team with Dauntless Unity or Dawnwing Marshal for a big swing.",
+  "pairsWith": [
+   "Goblins",
+   "Fun Guys",
+   "Too Many"
+  ],
+  "standouts": [
+   "Adeline, Resplendent Cathar",
+   "Raise the Alarm",
+   "Dauntless Unity"
+  ],
+  "variants": {
+   "1": "Make a Stand for a protected alpha strike, plus Argivian Phalanx, Search Party Captain and Pacifism",
+   "2": "convoke: Triplicate Spirits, Venerated Loxodon and Conclave Tribunal, plus Defend the Campus and Memorial to Glory"
+  }
+ },
+ "Modified": {
+  "description": "A green pack about modified creatures: ones carrying +1/+1 counters, Auras or Equipment.",
+  "plan": "Put counters, Auras and Equipment on your creatures to unlock bonuses like trample and extra mana, then push damage through with Kodama of the West Tree ramping you each hit.",
+  "pairsWith": [
+   "Stalwart",
+   "Armed",
+   "Enchanted"
+  ],
+  "standouts": [
+   "Kodama of the West Tree",
+   "Gnarlid Colony",
+   "Warbriar Blessing"
+  ]
+ },
+ "Ne'er-do-wells": {
+  "description": "A black pack of Rogues and thieves that sneak in attacks, draw cards and pocket Treasure.",
+  "plan": "Make an attacker hard to block with Thieves' Tools, give deathtouch with Rev, and turn hits into cards and Treasure while black removal clears the way.",
+  "pairsWith": [
+   "Ninjas",
+   "Drowned",
+   "Treasures"
+  ],
+  "standouts": [
+   "Rev, Tithe Extractor",
+   "Thieves' Tools",
+   "Audacious Thief"
+  ],
+  "variants": {
+   "1": "more removal: Murder and Serpent Assassin, plus Midnight Assassin and Pilfering Imp in the air",
+   "2": "Rogue and mill focus: Thieves' Guild Enforcer, Expedition Skulker and Balustrade Spy, with Grim Bounty and Bloodtithe Collector"
+  }
+ },
+ "Nefarious": {
+  "description": "A black pack that trades your own life total for cards, removal and power.",
+  "plan": "Pay life freely with Dark Confidant, Read the Bones and Infernal Grasp to stay ahead on cards, then cash it in with Vilis drawing cards and Vampire Scrivener growing.",
+  "pairsWith": [
+   "Healers",
+   "Angels",
+   "Bloody"
+  ],
+  "standouts": [
+   "Vilis, Broker of Blood",
+   "Dark Confidant",
+   "Vampire Scrivener"
+  ]
+ },
+ "Ninjas": {
+  "description": "A blue pack of cheap, sneaky attackers and Ninjas that swap in when an attack goes unblocked.",
+  "plan": "Attack with small evasive creatures, then use ninjutsu to trade an unblocked one for a Ninja that draws cards or bounces a blocker, and replay the returned creature.",
+  "pairsWith": [
+   "Ne'er-do-wells",
+   "Goblins",
+   "Giddyap"
+  ],
+  "standouts": [
+   "Ninja of the Deep Hours",
+   "Moon-Circuit Hacker",
+   "Taeko, the Patient Avalanche"
+  ]
+ },
+ "Of the Coast": {
+  "description": "A blue pack of crabs, starfish and turtles: sturdy, high-toughness creatures that hold the shore.",
+  "plan": "Stall the ground with tough blockers and tap down threats, draw a fistful with Plagon, then win by having creatures deal damage equal to their toughness.",
+  "pairsWith": [
+   "Healers",
+   "Stalwart",
+   "Dinosaurs"
+  ],
+  "standouts": [
+   "Plagon, Lord of the Beach",
+   "Sigiled Starfish",
+   "Gilded Scuttler"
+  ],
+  "variants": {
+   "1": "Kapsho Kitefins taps creatures, plus Omen of the Sea, Purple-Crystal Crab and Yarok's Wavecrasher to reuse enter effects",
+   "2": "more flyers and spells: Azure Drake, Glimmerbell, Opt and Shipwreck Dowser"
+  }
+ },
+ "Prideful": {
+  "description": "A white Cat pack of efficient, aggressive creatures and a pair of Cat lords.",
+  "plan": "Curve out with cheap Cats, pump them with King of the Pride and Leonin Scimitar, and keep attacking while Brimaz adds tokens and removal handles blockers.",
+  "pairsWith": [
+   "Healers",
+   "Armed",
+   "Bloody"
+  ],
+  "standouts": [
+   "Brimaz, King of Oreskos",
+   "King of the Pride",
+   "Basri's Acolyte"
+  ]
+ },
+ "Snakes": {
+  "description": "A black pack of Snakes and Gorgons where nearly everything has deathtouch.",
+  "plan": "Make every combat bad for your opponent with deathtouch creatures and tricks, drain with Hooded Blightfang on each attack, and pick off damaged creatures with Vraska's Finisher.",
+  "pairsWith": [
+   "Beasts",
+   "Elves",
+   "Burning"
+  ],
+  "standouts": [
+   "Hooded Blightfang",
+   "Aphelia, Viper Whisperer",
+   "Gorgon Flail"
+  ]
+ },
+ "Soaring": {
+  "description": "A blue flying pack of Drakes, Birds and Faeries that rewards attacking through the air.",
+  "plan": "Get several flyers out, pump them with Cynette, and draw extra cards with Tide Skimmer each time you attack with two or more.",
+  "pairsWith": [
+   "Angels",
+   "Giddyap",
+   "Ghastly"
+  ],
+  "standouts": [
+   "Cynette, Jelly Drover",
+   "Tide Skimmer",
+   "Aerial Guide"
+  ],
+  "variants": {
+   "1": "Windreader Sphinx and Warden of Evos Isle, with Waterkin Shaman, Winged Words, Gust of Wind and Uncomfortable Chill",
+   "2": "Cavalier of Gales, Cartouche of Knowledge with Trial of Knowledge, Owl Familiar and Majestic Metamorphosis",
+   "3": "Mu Yanling planeswalker, Windstorm Drake, Cloudkin Seer, Malcator's Watcher and Thopter Mechanic",
+   "4": "Faeries: Sprite Noble and Stolen by the Fae, plus Air Elemental, Faerie Seer and Nightveil Sprite"
+  }
+ },
+ "Stalwart": {
+  "description": "A white +1/+1 counters pack whose creatures spread counters around and reward the ones that carry them.",
+  "plan": "Put counters on your creatures early, use Urdnan to give countered attackers first strike, and remove blockers with Banishing Light and Swift Response.",
+  "pairsWith": [
+   "Modified",
+   "Landfall",
+   "Warriors"
+  ],
+  "standouts": [
+   "Urdnan, Dromoka Warrior",
+   "Sandsteppe Outcast",
+   "Banishing Light"
+  ],
+  "variants": {
+   "1": "Ajani, Adversary of Tyrants and Generous Pup, with Angelic Cub, Gavony Silversmith, Patron of the Valiant and Squad Captain",
+   "2": "Basri's Lieutenant and Basri's Solidarity, with Star Pupil, Lightwalker, Battlefield Promotion and Cave of Temptation",
+   "3": "support: Relief Captain, Expedition Raptor, Jubilant Mascot and Shoulder to Shoulder, plus Generous Pup",
+   "4": "mentor and team counters: Light of the Legion, Mikaeus, the Lunarch, Parhelion Patrol and Sunhome Stalwart"
+  }
+ },
+ "Stoked": {
+  "description": "A red pack of heroic attackers and cheap spells that target your own creatures.",
+  "plan": "Pump a heroic creature like Cleon or Arena Athlete with Hearts on Fire and friends to stop blockers and add damage, using Roil Eruption to clear the way or finish the game.",
+  "pairsWith": [
+   "Heroes",
+   "Wizards",
+   "Armed"
+  ],
+  "standouts": [
+   "Cleon, Merry Champion",
+   "Arena Athlete",
+   "Hearts on Fire"
+  ],
+  "variants": {
+   "1": "Frontline Heroism copies pump spells, plus Twinferno, Uncaged Fury, Kiln Fiend and Scholar of Combustion",
+   "2": "Dreadhorde Arcanist recasts spells, plus Hero of the Games, Unleash Fury, Coordinated Assault and Kiln Fiend",
+   "3": "Mirrorwing Dragon and Young Pyromancer, with Frontline Heroism, Akroan Crusader and Twinferno",
+   "4": "Goblin Dark-Dwellers and Weaver of Lightning, with Young Pyromancer, Infuriate and Crimson Wisps"
+  }
+ },
+ "Surprise!": {
+  "description": "A blue flash pack that does most of its work at instant speed, during your opponent's turn.",
+  "plan": "Hold mana up, then flash in creatures and Auras as blockers or at end of turn, growing Brineborn Cutthroat and triggering Stinging Lionfish while you play off-turn.",
+  "pairsWith": [
+   "Enchanted",
+   "Burning",
+   "Ne'er-do-wells"
+  ],
+  "standouts": [
+   "Spectral Sailor",
+   "Brineborn Cutthroat",
+   "Stinging Lionfish"
+  ],
+  "variants": {
+   "1": "Thryx, the Sudden Storm, with Chrome Prowler, Capture Sphere, Slimebind, Crystacean and Wind Strider",
+   "2": "Voracious Greatshark counters a creature, plus Thryx, Pestermite, Naiad of Hidden Coves and Starlit Mantle",
+   "3": "Venser, Shaper Savant and Supreme Will, plus Pestermite, Breaching Hippocamp and Naiad of Hidden Coves",
+   "4": "Venser and Wavebreak Hippocamp, with Soul Read, Vexing Gull and Aven Reedstalker"
+  }
+ },
+ "Too Many": {
+  "description": "A red pack about having more than you should: Goblin tokens, paired legends and doubled damage.",
+  "plan": "Flood the board with Goblin tokens and cheap attackers, then turn it into lethal with Goblin Surprise, burn and Fiendish Duo doubling the damage your opponent takes.",
+  "pairsWith": [
+   "Legion",
+   "Goblins",
+   "Fun Guys"
+  ],
+  "standouts": [
+   "Fiendish Duo",
+   "Brothers Yamazaki",
+   "Goblin Surprise"
+  ]
+ },
+ "Treasures": {
+  "description": "A black sacrifice pack where creatures dying turns into Treasure tokens, cards and life drain.",
+  "plan": "Trade off and sacrifice creatures to Pitiless Plunderer, Ruthless Knave and Deadly Dispute, using the Treasure to ramp, draw and recast Reassembling Skeleton.",
+  "pairsWith": [
+   "Icky",
+   "Inventive",
+   "Dragons"
+  ],
+  "standouts": [
+   "Pitiless Plunderer",
+   "Ruthless Knave",
+   "Evereth, Viceroy of Plunder"
+  ],
+  "variants": {
+   "1": "Bastion of Remembrance drains on each death, with Ruthless Technomancer and Grim Bounty",
+   "2": "harder removal: Contract Killing, Powerstone Fracture and Dusk Mangler, plus Vault of Whispers"
+  }
+ },
+ "Vampires": {
+  "description": "A black Vampire pack that drains life, gains it back and makes Blood tokens to filter cards.",
+  "plan": "Gain life a little at a time with lifelink Vampires, use it to fuel Nazar's card draw, and grind out the board with Bleed Dry and Blood Fountain.",
+  "pairsWith": [
+   "Healers",
+   "Bloody",
+   "Angels"
+  ],
+  "standouts": [
+   "Nazar, the Velvet Fang",
+   "Gluttonous Guest",
+   "Scourge of the Undercity"
+  ],
+  "variants": {
+   "1": "Sangromancer and Bloodtithe Collector, with Skymarch Bloodletter, Gift of Fangs, Urge to Feed and Vampire of the Dire Moon",
+   "2": "Crossway Troublemakers and Sanctum Seeker, with Bloodthirsty Aerialist, Creeping Bloodsucker and Urge to Feed",
+   "3": "Necropolis Regent and Thirsting Bloodlord, with Vicious Conquistador, Gift of Fangs and Go for the Throat",
+   "4": "Vampire Nighthawk and Rodolf Duskbringer, with Exsanguinate, Epicure of Blood and Moment of Craving"
+  }
+ },
+ "Warriors": {
+  "description": "A red Warrior pack that turns opposing creatures into Cowards that cannot block.",
+  "plan": "Attack every turn with Warriors while Gornog and Goma Fada Vanguard shut down blockers, and burn the rest away with Soul Sear and Pyrophobia.",
+  "pairsWith": [
+   "Stalwart",
+   "Bloody",
+   "Armed"
+  ],
+  "standouts": [
+   "Gornog, the Red Reaper",
+   "Goma Fada Vanguard",
+   "Relic Axe"
+  ],
+  "variants": {
+   "1": "Expedition Champion, Kruin Striker and Boggart Brute, with Kindled Fury",
+   "2": "Kargan Intimidator and Daybreak Combatants, with Unstoppable Ogre and Infuriate"
+  }
+ },
+ "Wizards": {
+  "description": "A blue Wizard pack of creatures with useful enter-the-battlefield effects, led by Naban, who doubles them.",
+  "plan": "Play Wizards for card draw, bounce and tap effects, doubling them with Naban, and protect your lead with Remand and Starlight Snare.",
+  "pairsWith": [
+   "Burning",
+   "Copied",
+   "Illusions"
+  ],
+  "standouts": [
+   "Naban, Dean of Iteration",
+   "Academy Journeymage",
+   "Augur of Bolas"
+  ],
+  "variants": {
+   "1": "Archaeomancer and Exclusion Mage, with Cloudkin Seer, Concentrate, Choking Tethers and Windcaller Aven",
+   "2": "Aether Channeler and Frost Trickster, with Expedition Diviner, Chilling Trap, Opportunity and Shipwreck Dowser"
+  }
+ },
+ "Zealots": {
+  "description": "A red exert pack of Minotaurs and Jackals that push extra hard on the attack in exchange for skipping their next untap.",
+  "plan": "Exert attackers to make them bigger or stop blockers, refill with Anep and Battlefield Scavenger, and finish with Fling or Trial of Zeal.",
+  "pairsWith": [
+   "Warriors",
+   "Legion",
+   "Armed"
+  ],
+  "standouts": [
+   "Anep, Vizier of Hazoret",
+   "Battlefield Scavenger",
+   "Cartouche of Zeal"
+  ],
+  "variants": {
+   "1": "Zealous Conscripts and Ahn-Crop Crasher, with Emberhorn Minotaur, Nef-Crop Entangler, Brute Strength and Flame-Blessed Bolt",
+   "2": "Sandstorm Crasher and Ahn-Crop Crasher, with Zealot of the God-Pharaoh and Pathmaker Initiate",
+   "3": "Combat Celebrant for extra combats, with Trueheart Twins, Emberhorn Minotaur, Shock and Hearts on Fire",
+   "4": "Sandstorm Crasher and Zealous Conscripts, with Trueheart Twins, Minotaur Sureshot and Kindled Fury"
+  }
+ }
+}

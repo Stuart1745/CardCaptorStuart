@@ -11,6 +11,7 @@ import { ManaIcon } from "@/components/ManaIcon";
 import { Sparkle } from "@/components/Sparkle";
 import { FloatingPreview } from "@/components/FloatingPreview";
 import { isReusableBox } from "@/lib/boxTypes";
+import { JumpstartGuide, jumpstartProduct } from "@/components/JumpstartGuide";
 import { ArrowLeft, Package, Loader2, AlertCircle, BookOpen, Map as MapIcon, Star, Zap, Share2, Check, Settings, X, Image as ImageIcon } from "lucide-react";
 
 const COLOR_NAME_TO_SYMBOL: Record<string, string> = { White: 'W', Blue: 'U', Black: 'B', Red: 'R', Green: 'G' };
@@ -435,6 +436,13 @@ export default function PlayboxDetailsPage() {
         }
       }
       setBoxInfo(foundBox);
+
+      // Jumpstart-style boxes (Jumpstart cube, Beginner Box) aren't drafted: they get the theme-pack
+      // guide, so skip the draft archetypes and the full-set card scan.
+      if (jumpstartProduct((foundBox as { type?: string }).type, foundBox.setCode)) {
+        setLoading(false);
+        return;
+      }
 
       // Auto-fetch archetypes in background — API is cached at edge so this is fast on repeat visits
       const primarySet = foundBox.setCode.split(',')[0].trim().toUpperCase();
@@ -917,6 +925,8 @@ export default function PlayboxDetailsPage() {
     window.location.reload();
   };
 
+  const jsProduct = jumpstartProduct(boxInfo.type, boxInfo.setCode);
+
   return (
     <main className="flex-1 bg-transparent p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -999,6 +1009,10 @@ export default function PlayboxDetailsPage() {
           </div>
         )}
 
+        {jsProduct ? (
+          <JumpstartGuide product={jsProduct} />
+        ) : (
+        <>
         {(() => {
           // Mechanics: guide entries first, then card-scanned ones not already covered. Guide entries
           // borrow the scan's example cards when the names match.
@@ -1211,6 +1225,8 @@ export default function PlayboxDetailsPage() {
             </section>
           );
         })()}
+        </>
+        )}
       </div>
 
       {preview && (
