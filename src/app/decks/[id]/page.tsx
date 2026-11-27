@@ -14,6 +14,7 @@ import { DEFAULT_DECKS, type Deck, type DeckCardEntry, deckSize, groupDeck, link
 import { ManaIcon } from "@/components/ManaIcon";
 import { FloatingPreview } from "@/components/FloatingPreview";
 import { RichText, linkCls } from "@/components/RichText";
+import { deckValues, formatPrice, valueKey, type DeckValue } from "@/lib/cardPrices";
 
 /** Scryfall's bigger scan for the hover preview ("normal" is 488px wide, "large" 672px). */
 const largeImage = (url: string) => url.replace("/normal/", "/large/");
@@ -40,6 +41,8 @@ export default function DeckDetailsPage() {
   const [keyError, setKeyError] = useState<string | null>(null);
   /** List view: by role (like Moxfield/Archidekt categories) or by card type. null = default. */
   const [groupBy, setGroupBy] = useState<"role" | "type" | null>(null);
+  /** Market value of the deck's own printings, for signed-in visitors */
+  const [priced, setValue] = useState<DeckValue | null>(null);
   /** Guide panel tab */
   const [guideTab, setGuideTab] = useState<"guide" | "primer">("guide");
   /** Hover preview of a card (mouse and keyboard focus only; touch taps go straight to Scryfall) */
@@ -81,6 +84,16 @@ export default function DeckDetailsPage() {
       }
     })();
   }, [id]);
+
+  // Prices for signed-in visitors, once the saved deck has loaded
+  useEffect(() => {
+    if (!user || loading || !deck?.cards?.length) return;
+    let cancelled = false;
+    deckValues([deck])
+      .then(v => { if (!cancelled) setValue(v[deck.id] ?? null); })
+      .catch(() => { /* Scryfall unreachable: the deck shows without prices */ });
+    return () => { cancelled = true; };
+  }, [user, loading, deck]);
 
   const handleDelete = async () => {
     if (!db || !deck) return;
@@ -173,6 +186,12 @@ export default function DeckDetailsPage() {
   const tab = hasGuide && hasPrimer ? guideTab : hasPrimer ? "primer" : "guide";
   const primerMinutes = hasPrimer ? Math.max(1, Math.round(deck.primer!.split(" ").length / 220)) : 0;
 
+  const value = user ? priced : null; // signing out hides prices straight away
+  const priceOf = (card: DeckCardEntry) => (value ? value.each.get(valueKey(card)) ?? null : null);
+  // Most valuable cards in the deck (commander and main), for the At a glance panel
+  const topCards = value ? (deck.cards ?? []).filter(c => c.board !== "sideboard" && priceOf(c) != null)
+    .sort((a, b) => priceOf(b)! - priceOf(a)!).slice(0, 5) : [];
+
   const renderCard = (card: DeckCardEntry, where: string) => (
     <div key={`${where}-${card.board}-${card.name}`} className="flex flex-col gap-1.5 min-w-0">
       <a href={card.scryfallUri ?? `https://scryfall.com/search?q=!"${encodeURIComponent(card.name)}"`}
@@ -187,8 +206,16 @@ export default function DeckDetailsPage() {
           {card.key && (
             <span className="sticker absolute bottom-1.5 left-1.5 text-xs font-bold px-1.5 py-0.5 rounded-md bg-butter text-amber-950">Key</span>
           )}
+          {card.foil && (
+            <span className="sticker absolute top-1.5 left-1.5 text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-sakura-200 text-sakura-950">Foil</span>
+          )}
         </div>
-        <p className="text-xs font-medium text-paper-700 dark:text-paper-300 truncate">{card.name}</p>
+        <p className="flex items-baseline justify-between gap-2 text-xs font-medium text-paper-700 dark:text-paper-300 min-w-0">
+          <span className="truncate">{card.name}</span>
+          {priceOf(card) != null && (
+            <span title={card.qty > 1 ? `${formatPrice(priceOf(card)!)} each` : undefined} className="shrink-0 tabular-nums text-paper-500 dark:text-paper-400">{formatPrice(priceOf(card)! * card.qty)}</span>
+          )}
+        </p>
         {(() => {
           // In the category view the section is the primary role, so show only the others
           const extra = (card.tags ?? []).filter((t, i) => !(roleView && i === 0 && where === t));
@@ -338,6 +365,25 @@ export default function DeckDetailsPage() {
             {glance.length > 0 && (
               <aside className="bg-white dark:bg-paper-900 rounded-2xl border border-paper-200 dark:border-paper-800 shadow-sm p-5 lg:sticky lg:top-20">
                 <h2 className="font-brand font-bold text-lg text-paper-900 dark:text-paper-100 mb-3">At a glance</h2>
+                {value && value.total > 0 && (
+                  <div className="mb-4 pb-4 border-b border-paper-100 dark:border-paper-800">
+                    <p className="text-xs font-semibold text-paper-600 dark:text-paper-400">Deck value</p>
+                    <p className="text-2xl font-bold tabular-nums text-paper-900 dark:text-paper-50">{formatPrice(value.total)}</p>
+                    <p className="text-[11px] leading-snug text-paper-500 dark:text-paper-400 mt-0.5">
+                      These exact printings{(deck.cards ?? []).some(c => c.foil) ? " and foils" : ""} at today&apos;s TCGplayer market price{value.unpriced ? `; ${value.unpriced} card${value.unpriced === 1 ? "" : "s"} with no price` : ""}.
+                    </p>
+                    {topCards.length > 0 && (
+                      <ol className="mt-3 space-y-1 text-sm">
+                        {topCards.map(c => (
+                          <li key={valueKey(c)} className="flex items-baseline justify-between gap-3">
+                            <span className="truncate">{cardLink(c.name, c.name.split(" // ")[0], `top-${c.name}`)}{c.foil ? <span className="text-[11px] text-paper-500 dark:text-paper-400"> foil</span> : null}</span>
+                            <span className="shrink-0 tabular-nums text-paper-600 dark:text-paper-300">{formatPrice(priceOf(c)! * c.qty)}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </div>
+                )}
                 <ul className="space-y-0.5 text-sm">
                   {glance.map(g => (
                     <li key={g.label}>

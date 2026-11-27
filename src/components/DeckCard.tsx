@@ -6,9 +6,10 @@ import { QrCode, ExternalLink, X, Users } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { type Deck, linkLabel, deckSize, deckBracket } from "@/lib/decks";
 import { ManaIcon } from "@/components/ManaIcon";
+import { formatPrice } from "@/lib/cardPrices";
 
-/** onPodSelect: tapping a pod tag filters the hub to that pod. */
-export function DeckCard({ deck, onPodSelect }: { deck: Deck; onPodSelect?: (pod: string) => void }) {
+/** onPodSelect: tapping a pod tag filters the hub to that pod. value: market value (signed-in visitors). */
+export function DeckCard({ deck, onPodSelect, value }: { deck: Deck; onPodSelect?: (pod: string) => void; value?: number }) {
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   // QR points at this app's deck page (it has the full list); falls back to the external link.
   const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/decks/${deck.id}` : (deck.link ?? "");
@@ -32,6 +33,11 @@ export function DeckCard({ deck, onPodSelect }: { deck: Deck; onPodSelect?: (pod
                 ? "bg-paper-900/70 text-paper-100 border border-dashed border-paper-300/70"
                 : "bg-butter text-amber-950"}`}>
               {bracket.label}{bracket.estimated ? " (est.)" : ""}
+            </span>
+          )}
+          {value != null && value > 0 && (
+            <span title="Market value of this deck's printings at today's prices" className="sticker absolute top-2 left-2 text-xs font-bold tabular-nums px-2 py-1 rounded-md bg-white text-paper-900">
+              {formatPrice(value)}
             </span>
           )}
           <div className="absolute bottom-3 left-4 right-4 flex justify-between items-end">

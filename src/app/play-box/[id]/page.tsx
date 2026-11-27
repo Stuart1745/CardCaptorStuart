@@ -12,6 +12,7 @@ import { Sparkle } from "@/components/Sparkle";
 import { FloatingPreview } from "@/components/FloatingPreview";
 import { isReusableBox } from "@/lib/boxTypes";
 import { JumpstartGuide, jumpstartProduct } from "@/components/JumpstartGuide";
+import { BoxEvPanel } from "@/components/BoxEvPanel";
 import { ArrowLeft, Package, Loader2, AlertCircle, BookOpen, Map as MapIcon, Star, Zap, Share2, Check, Settings, X, Image as ImageIcon } from "lucide-react";
 
 const COLOR_NAME_TO_SYMBOL: Record<string, string> = { White: 'W', Blue: 'U', Black: 'B', Red: 'R', Green: 'G' };
@@ -1007,6 +1008,14 @@ export default function PlayboxDetailsPage() {
                 className="font-bold underline underline-offset-2 hover:opacity-80">Undo</button>
             )}
           </div>
+        )}
+
+        {user && boxInfo.total > 0 && !isReusableBox(boxInfo.type) && boxInfo.setCode && (
+          // Expected value is for signed-in visitors (total > 0 = the box has loaded); what was
+          // paid stays admin-only
+          <BoxEvPanel setCode={boxInfo.setCode.split(",")[0].trim()} type={boxInfo.type || "Play Booster Box"}
+            packs={boxInfo.total} remaining={boxInfo.remaining}
+            paid={isAdmin && !isSharedMode ? Number(box?.cost) || undefined : undefined} />
         )}
 
         {jsProduct ? (

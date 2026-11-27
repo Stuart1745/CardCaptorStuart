@@ -9,6 +9,7 @@ import { isAdminUser } from "@/lib/admin";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, addDoc, doc, writeBatch } from "firebase/firestore";
 import type { MarketPrice } from "@/app/api/market-price/route";
+import type { BoxEv } from "@/lib/boxEv";
 import { JUMPSTART_PACKS, isReusableBox } from "@/lib/boxTypes";
 
 
@@ -148,6 +149,25 @@ export default function PlayBoxPage() {
     });
     return () => { cancelled = true; };
   }, [playBoxes, livePrices]);
+  // Expected value per pack for signed-in visitors (null = no pack data for that set)
+  const [evs, setEvs] = useState<Record<string, BoxEv | null>>({});
+  useEffect(() => {
+    if (!user) return;
+    const wanted = playBoxes.filter(b => b.setCode && !isReusableBox(b.type) && !(b.id in evs));
+    if (!wanted.length) return;
+    let cancelled = false;
+    Promise.all(wanted.map(async b => {
+      try {
+        const res = await fetch(`/api/box-ev?set=${encodeURIComponent(b.setCode!)}&type=${encodeURIComponent(b.type)}`);
+        return [b.id, res.ok ? ((await res.json()) as BoxEv) : null] as const;
+      } catch {
+        return [b.id, null] as const;
+      }
+    })).then(entries => {
+      if (!cancelled) setEvs(prev => ({ ...prev, ...Object.fromEntries(entries) }));
+    });
+    return () => { cancelled = true; };
+  }, [user, playBoxes, evs]);
   const [newBox, setNewBox] = useState({ name: "", setCode: "", cost: "", marketPrice: "", type: "Play Booster Box", total: 30, imageUrl: "" });
   // Live set list from Scryfall (via /api/sets) — new sets show up here automatically.
   const [knownSets, setKnownSets] = useState<{ code: string; name: string; releasedAt: string; upcoming: boolean }[]>([]);
@@ -426,9 +446,11 @@ export default function PlayBoxPage() {
               const marketPack = perPack(marketText);
               const cols = COST_COLUMNS;
               const reusable = isReusableBox(box.type);
+              const ev = user && !reusable ? evs[box.id] : null;
               const priceRows = reusable ? [] : [
                 paidPack !== null && { key: "paid", label: "Paid", pack: paidPack, box: isAdmin ? money(parseFloat(box.cost!)) : "box price" },
                 marketPack !== null && { key: "market", label: "Market", pack: marketPack, box: money(parseFloat(marketText!)) },
+                ev && { key: "EV", label: "EV", pack: ev.perPack, box: money(ev.perPack * box.total) },
               ].filter(Boolean) as { key: string; label: string; pack: number; box: string }[];
 
               return (
@@ -467,7 +489,7 @@ export default function PlayBoxPage() {
                         </p>
                       </div>
                     </div>
-                    {(isAdmin && box.cost) || marketText ? (
+                    {(isAdmin && box.cost) || marketText || ev ? (
                       // Price stickers: paid (admin only) and current market
                       <div className="shrink-0 flex flex-col items-end gap-1.5">
                         {isAdmin && box.cost && (
@@ -478,6 +500,11 @@ export default function PlayBoxPage() {
                         {marketText && (
                           <span title={live ? `TCGplayer market price today: ${live.productName}` : "Market price entered by hand"} className="sticker text-xs font-bold tabular-nums bg-white dark:bg-paper-100 text-paper-900 px-2 py-0.5 rounded-md">
                             {money(parseFloat(marketText))} market
+                          </span>
+                        )}
+                        {ev && (
+                          <span title="Expected value: what the cards in the box are worth on average at today's prices (cards worth $1 or more)" className="sticker text-xs font-bold tabular-nums bg-mint text-emerald-950 px-2 py-0.5 rounded-md">
+                            {money(ev.perPack * box.total)} EV
                           </span>
                         )}
                       </div>
@@ -527,6 +554,7 @@ export default function PlayBoxPage() {
                         </tbody>
                       </table>
                       {live && <p className="mt-1.5 text-paper-500 dark:text-paper-400">Market is TCGplayer&rsquo;s market price, refreshed daily.</p>}
+                      {ev && <p className="mt-1 text-paper-500 dark:text-paper-400">EV is the average value of the cards you open (cards worth $1+).</p>}
                     </div>
                     <dl className="grid grid-cols-2 divide-x divide-paper-100 dark:divide-paper-800 border-t border-paper-100 dark:border-paper-800 pt-3 text-xs">
                       {cols.map((col, i) => (

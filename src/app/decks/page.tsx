@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { collection, doc, getDocs, writeBatch } from "firebase/firestore";
 import { Layers, Plus, Shield, Users } from "lucide-react";
 import { DeckCard } from "@/components/DeckCard";
+import { deckValues } from "@/lib/cardPrices";
 import { DeckEditor } from "@/components/DeckEditor";
 import { useAuth } from "@/components/AuthProvider";
 import { db } from "@/lib/firebase";
@@ -27,6 +28,16 @@ export default function DecksPage() {
   const isAdmin = isAdminUser(user);
   const router = useRouter();
   const [decks, setDecks] = useState<Deck[]>(DEFAULT_DECKS);
+  // Market value of each deck's printings, for signed-in visitors
+  const [values, setValues] = useState<Record<string, number>>({});
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    deckValues(decks)
+      .then(v => { if (!cancelled) setValues(Object.fromEntries(Object.entries(v).map(([id, d]) => [id, d.total]))); })
+      .catch(() => { /* Scryfall unreachable: no value stickers */ });
+    return () => { cancelled = true; };
+  }, [user, decks]);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
   // A pod tag on a deck page links here as /decks?pod=Name
@@ -125,7 +136,7 @@ export default function DecksPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {shown.map(deck => (
-            <DeckCard key={deck.id} deck={deck} onPodSelect={pickPod} />
+            <DeckCard key={deck.id} deck={deck} onPodSelect={pickPod} value={values[deck.id]} />
           ))}
         </div>
       </div>

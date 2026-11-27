@@ -20,6 +20,10 @@ export interface DeckCardEntry {
   /** What the card does in the deck's strategy (Moxfield tags / Archidekt categories).
    *  The first is its primary role, which the category view groups by. */
   tags?: string[];
+  /** Scryfall ID of the exact printing in the deck, used for its price */
+  printing?: string;
+  /** The deck's copy is foil (or etched) */
+  foil?: boolean;
 }
 
 export interface Deck {
@@ -96,6 +100,8 @@ export interface ParsedLine {
   key?: boolean;
   /** Role tags from the pasted export: Moxfield #tags and Archidekt custom [categories] */
   tags?: string[];
+  /** Marked *F* (foil) or *E* (etched) in the export */
+  foil?: boolean;
 }
 
 /** Archidekt's built-in categories are card types or boards, not roles. */
@@ -171,12 +177,14 @@ export function parseDecklist(text: string): ParsedLine[] {
       number: m[4],
       ...(key && lineBoard !== "sideboard" ? { key: true } : {}),
       ...(roles.length ? { tags: roles } : {}),
+      ...(/\*[FE]\*/.test(markers) ? { foil: true } : {}),
     });
   }
   return out;
 }
 
 interface ScryfallCard {
+  id: string;
   name: string;
   type_line?: string;
   oracle_text?: string;
@@ -273,6 +281,8 @@ export async function resolveDecklist(lines: ParsedLine[], coverName?: string): 
       ...(card.game_changer ? { gameChanger: true } : {}),
       ...(line.key ? { key: true } : {}),
       ...(line.tags?.length ? { tags: line.tags } : {}),
+      printing: card.id,
+      ...(line.foil ? { foil: true } : {}),
     });
   }
   const cards = [...merged.values()];
